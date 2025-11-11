@@ -153,14 +153,14 @@ export class RenderEngine {
         this.ctx.font = '24px -apple-system, BlinkMacSystemFont, sans-serif';
         
         this.ctx.fillText(
-            'Safe Area',
+            '安全區域',
             this.outputWidth / 2,
             this.outputHeight / 2 + 100
         );
         
         this.ctx.font = '16px -apple-system, BlinkMacSystemFont, sans-serif';
         this.ctx.fillText(
-            'Your photo will be positioned here',
+            '您的照片將放置在此處',
             this.outputWidth / 2,
             this.outputHeight / 2 + 130
         );

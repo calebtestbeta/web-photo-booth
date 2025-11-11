@@ -15,7 +15,6 @@ class PhotoFrameApp {
         this.fileInput = document.getElementById('fileInput');
         this.uploadBtn = document.getElementById('uploadBtn');
         this.resetBtn = document.getElementById('resetBtn');
-        this.igFitBtn = document.getElementById('igFitBtn');
         this.downloadBtn = document.getElementById('downloadBtn');
         this.shareBtn = document.getElementById('shareBtn');
         this.copyBtn = document.getElementById('copyBtn');
@@ -93,10 +92,6 @@ class PhotoFrameApp {
         
         this.resetBtn.addEventListener('click', () => {
             this.resetTransform();
-        });
-        
-        this.igFitBtn.addEventListener('click', () => {
-            this.fitForInstagram();
         });
         
         this.downloadBtn.addEventListener('click', () => {
@@ -282,40 +277,6 @@ class PhotoFrameApp {
         this.showStatus('Photo centered.', 'success');
     }
     
-    fitForInstagram() {
-        if (!this.currentImage) return;
-        
-        // Switch to square format if not already
-        if (this.renderEngine.currentFormat !== 'square') {
-            this.changeOutputFormat('square');
-        }
-        
-        // Calculate optimal positioning for Instagram
-        const safeArea = this.renderEngine.getSafeArea();
-        const imageAspect = this.currentImage.width / this.currentImage.height;
-        
-        let scale;
-        if (imageAspect > 1) {
-            // Landscape image - fit width to safe area
-            scale = safeArea.width / this.currentImage.width;
-        } else {
-            // Portrait or square image - fit height to safe area
-            scale = safeArea.height / this.currentImage.height;
-        }
-        
-        // Apply slightly smaller scale for better framing
-        scale *= 0.95;
-        
-        this.transform = {
-            x: 0,
-            y: 0,
-            scale: scale,
-            rotation: 0
-        };
-        
-        this.scheduleRender();
-        this.showStatus('照片已最佳化為 Instagram 格式！', 'success');
-    }
     
     async changeOutputFormat(format) {
         const success = this.renderEngine.setOutputFormat(format);
@@ -414,7 +375,6 @@ class PhotoFrameApp {
         const hasImage = !!this.currentImage;
         
         this.resetBtn.disabled = !hasImage;
-        this.igFitBtn.disabled = !hasImage;
         this.downloadBtn.disabled = !hasImage;
         this.shareBtn.disabled = !hasImage;
         this.copyBtn.disabled = !hasImage;
