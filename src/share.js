@@ -5,63 +5,49 @@ export class ShareHandler {
         this.isIOS = this.checkIfIOS();
         this.isIOSSafari = this.checkIfIOSSafari();
         this.iOSVersion = this.getIOSVersion();
-        this.supportsFileShare = null; // 將在 init() 中初始化
-    }
-    
-    async init() {
-        this.supportsFileShare = await this.checkFileShareSupport();
-        return this;
+        this.supportsFileShare = this.checkFileShareSupport();
+        
+        // 輸出初始化資訊
+        console.log('ShareHandler 初始化完成:', this.getShareCapabilities());
     }
     
     checkShareSupport() {
         return 'share' in navigator;
     }
     
-    async checkFileShareSupport() {
-        if (!this.supportsShare) return false;
+    checkFileShareSupport() {
+        if (!this.supportsShare) {
+            console.log('ShareHandler: 不支援基本分享功能');
+            return false;
+        }
         
         try {
             // 基本檢查
-            if (!navigator.canShare) return false;
+            if (!navigator.canShare) {
+                console.log('ShareHandler: navigator.canShare 不存在');
+                return false;
+            }
             
-            // iOS Safari 特定檢查
+            // iOS Safari 版本檢查
             if (this.isIOSSafari) {
-                // iOS 12.2+ 才支援 Web Share API
                 if (this.iOSVersion && this.iOSVersion.major < 12) {
+                    console.log('ShareHandler: iOS 版本太舊，不支援 Web Share API');
                     return false;
                 }
                 if (this.iOSVersion && this.iOSVersion.major === 12 && this.iOSVersion.minor < 2) {
+                    console.log('ShareHandler: iOS 12.2 以下不支援檔案分享');
                     return false;
                 }
+                console.log('ShareHandler: iOS Safari 版本檢查通過');
             }
             
-            // 使用空檔案陣列測試
+            // 簡單測試檔案分享能力
             const canShareFiles = navigator.canShare({ files: [] });
-            
-            // 為 iOS Safari 做進一步測試
-            if (this.isIOSSafari && canShareFiles) {
-                // 創建一個測試用的小 PNG 檔案
-                const testCanvas = document.createElement('canvas');
-                testCanvas.width = 1;
-                testCanvas.height = 1;
-                
-                try {
-                    const blob = await new Promise((resolve, reject) => {
-                        testCanvas.toBlob((blob) => {
-                            if (blob) resolve(blob);
-                            else reject(new Error('Failed to create test blob'));
-                        }, 'image/png');
-                    });
-                    
-                    const testFile = new File([blob], 'test.png', { type: 'image/png' });
-                    return navigator.canShare({ files: [testFile] });
-                } catch (error) {
-                    return false;
-                }
-            }
+            console.log('ShareHandler: 基本檔案分享檢測結果:', canShareFiles);
             
             return canShareFiles;
         } catch (error) {
+            console.log('ShareHandler: 檔案分享檢測錯誤:', error);
             return false;
         }
     }
@@ -112,12 +98,13 @@ export class ShareHandler {
             isIOSSafari: this.isIOSSafari,
             iOSVersion: this.iOSVersion,
             isHttps: location.protocol === 'https:',
-            userAgent: navigator.userAgent.substring(0, 100) + '...'
+            blobSize: blob.size,
+            filename: filename
         });
         
         // 桌面裝置直接下載
         if (this.isDesktop) {
-            console.log('ShareHandler: 使用下載方式（桌面裝置）');
+            console.log('ShareHandler: 桌面裝置使用下載方式');
             await this.downloadBlob(blob, filename);
             return { 
                 success: true, 
@@ -126,115 +113,127 @@ export class ShareHandler {
             };
         }
         
-        // 不支援檔案分享時直接下載
-        if (!this.supportsFileShare) {
-            console.log('ShareHandler: 使用下載方式（不支援檔案分享）');
-            await this.downloadBlob(blob, filename);
-            return { 
-                success: true, 
-                method: 'download',
-                message: '裝置不支援檔案分享，圖片已下載'
-            };
+        // 嘗試多重分享策略
+        return await this.tryMultipleShareStrategies(blob, filename, text);
+    }
+    
+    async tryMultipleShareStrategies(blob, filename, text = '') {
+        const strategies = [
+            () => this.shareWithFile(blob, filename, text),
+            () => this.shareWithDataUrl(blob, filename, text),
+            () => this.fallbackToDownload(blob, filename)
+        ];
+        
+        for (let i = 0; i < strategies.length; i++) {
+            try {
+                console.log(`ShareHandler: 嘗試策略 ${i + 1}`);
+                const result = await strategies[i]();
+                if (result.success || result.method === 'cancelled') {
+                    return result;
+                }
+            } catch (error) {
+                console.log(`ShareHandler: 策略 ${i + 1} 失敗:`, error.name, error.message);
+                // 繼續下一個策略
+            }
         }
         
-        try {
-            const file = new File([blob], filename, { type: blob.type });
-            
-            // iOS Safari 特殊處理
-            if (this.isIOSSafari) {
-                console.log('ShareHandler: iOS Safari 特殊處理模式');
-                
-                // 驗證 HTTPS 環境
-                if (location.protocol !== 'https:') {
-                    console.log('ShareHandler: iOS Safari 需要 HTTPS 環境，使用下載方式');
-                    await this.downloadBlob(blob, filename);
-                    return { 
-                        success: true, 
-                        method: 'download',
-                        message: '需要 HTTPS 環境才能使用分享功能，圖片已下載'
-                    };
-                }
-                
-                // 檢查檔案大小（iOS 可能有限制）
-                if (blob.size > 10 * 1024 * 1024) { // 10MB 限制
-                    console.log('ShareHandler: 檔案過大，使用下載方式');
-                    await this.downloadBlob(blob, filename);
-                    return { 
-                        success: true, 
-                        method: 'download',
-                        message: '檔案過大，圖片已下載'
-                    };
-                }
-            }
-            
-            // 檢查是否可以分享此檔案
-            const canShare = navigator.canShare({ files: [file] });
-            console.log('ShareHandler: canShare 結果:', canShare);
-            
-            if (!canShare) {
-                console.log('ShareHandler: 無法分享檔案，使用下載方式');
-                await this.downloadBlob(blob, filename);
-                return { 
-                    success: true, 
-                    method: 'download',
-                    message: '裝置不支援檔案分享，圖片已下載'
-                };
-            }
-            
-            console.log('ShareHandler: 使用原生分享 API');
-            
-            // iOS Safari 可能需要特殊的分享參數
-            const shareData = {
-                files: [file],
-                title: '我的相框照片'
-            };
-            
-            // 為 iOS Safari 添加 text 參數
-            if (this.isIOSSafari && text) {
-                shareData.text = text;
-            }
-            
-            console.log('ShareHandler: 分享參數:', shareData);
-            await navigator.share(shareData);
-            
-            return { 
-                success: true, 
-                method: 'share',
-                message: '分享成功'
-            };
-        } catch (error) {
-            console.warn('ShareHandler: 分享失敗，錯誤類型:', error.name, '錯誤訊息:', error.message);
-            
-            // 使用者取消分享不算錯誤
-            if (error.name === 'AbortError') {
-                console.log('ShareHandler: 使用者取消分享');
-                return { 
-                    success: false, 
-                    method: 'cancelled',
-                    message: '使用者取消分享'
-                };
-            }
-            
-            // iOS Safari 特殊錯誤處理
-            if (this.isIOSSafari) {
-                if (error.name === 'NotAllowedError') {
-                    console.log('ShareHandler: iOS Safari 不允許分享，可能是裝置限制');
-                } else if (error.name === 'DataError') {
-                    console.log('ShareHandler: iOS Safari 檔案格式或大小問題');
-                }
-            }
-            
-            // 其他錯誤則回退到下載
-            await this.downloadBlob(blob, filename);
-            return { 
-                success: true, 
-                method: 'download',
-                message: '分享失敗，圖片已下載至您的裝置'
-            };
+        // 所有策略都失敗
+        return {
+            success: false,
+            method: 'failed',
+            message: '所有分享方式都失敗了'
+        };
+    }
+    
+    async shareWithFile(blob, filename, text) {
+        console.log('ShareHandler: 嘗試檔案分享');
+        
+        if (!this.supportsShare) {
+            throw new Error('不支援基本分享功能');
         }
+        
+        const file = new File([blob], filename, { type: blob.type });
+        
+        // 在嘗試分享前即時檢查
+        const canShare = navigator.canShare({ files: [file] });
+        console.log('ShareHandler: 即時 canShare 檢測:', canShare);
+        
+        if (!canShare) {
+            throw new Error('無法分享此檔案');
+        }
+        
+        const shareData = {
+            files: [file],
+            title: '我的相框照片'
+        };
+        
+        if (text) {
+            shareData.text = text;
+        }
+        
+        console.log('ShareHandler: 分享參數:', shareData);
+        await navigator.share(shareData);
+        
+        return {
+            success: true,
+            method: 'share',
+            message: '分享成功'
+        };
+    }
+    
+    async shareWithDataUrl(blob, filename, text) {
+        console.log('ShareHandler: 嘗試 Data URL 分享');
+        
+        if (!this.supportsShare) {
+            throw new Error('不支援基本分享功能');
+        }
+        
+        // 創建 data URL
+        const dataUrl = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.readAsDataURL(blob);
+        });
+        
+        const shareData = {
+            title: '我的相框照片',
+            text: text || '快來看看我的相框照片！',
+            url: dataUrl
+        };
+        
+        const canShare = navigator.canShare(shareData);
+        console.log('ShareHandler: Data URL canShare 檢測:', canShare);
+        
+        if (!canShare) {
+            throw new Error('無法分享 Data URL');
+        }
+        
+        await navigator.share(shareData);
+        
+        return {
+            success: true,
+            method: 'share_dataurl',
+            message: '分享成功（Data URL）'
+        };
+    }
+    
+    async fallbackToDownload(blob, filename) {
+        console.log('ShareHandler: 回退到下載方式');
+        await this.downloadBlob(blob, filename);
+        return {
+            success: true,
+            method: 'download',
+            message: '分享功能不可用，圖片已下載'
+        };
     }
     
     async downloadBlob(blob, filename) {
+        // 為行動裝置提供圖片預覽和操作指引
+        if (!this.isDesktop) {
+            return this.showImagePreviewForMobile(blob, filename);
+        }
+        
+        // 桌面裝置使用傳統下載
         return new Promise((resolve, reject) => {
             try {
                 const url = URL.createObjectURL(blob);
@@ -255,6 +254,143 @@ export class ShareHandler {
             } catch (error) {
                 reject(error);
             }
+        });
+    }
+    
+    async showImagePreviewForMobile(blob, filename) {
+        return new Promise((resolve) => {
+            // 創建彈窗容器
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.9);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+                padding: 20px;
+                box-sizing: border-box;
+            `;
+            
+            // 創庺圖片元素
+            const img = document.createElement('img');
+            const imageUrl = URL.createObjectURL(blob);
+            img.src = imageUrl;
+            img.style.cssText = `
+                max-width: 90%;
+                max-height: 60%;
+                border-radius: 8px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            `;
+            
+            // 創建指引文字
+            const instructions = document.createElement('div');
+            instructions.style.cssText = `
+                color: white;
+                text-align: center;
+                margin-top: 20px;
+                font-size: 16px;
+                line-height: 1.5;
+            `;
+            
+            if (this.isIOS) {
+                instructions.innerHTML = `
+                    <p style="margin: 10px 0; font-weight: bold;">圖片已準備好！</p>
+                    <p style="margin: 10px 0;">請<strong>長按圖片</strong>，然後選擇「儲存至相片」</p>
+                    <p style="margin: 10px 0; font-size: 14px; opacity: 0.8;">或點擊下方的「下載」按鈕</p>
+                `;
+            } else {
+                instructions.innerHTML = `
+                    <p style="margin: 10px 0; font-weight: bold;">圖片已準備好！</p>
+                    <p style="margin: 10px 0;">請<strong>長按圖片</strong>並選擇保存</p>
+                    <p style="margin: 10px 0; font-size: 14px; opacity: 0.8;">或點擊下方的「下載」按鈕</p>
+                `;
+            }
+            
+            // 創建按鈕容器
+            const buttonContainer = document.createElement('div');
+            buttonContainer.style.cssText = `
+                display: flex;
+                gap: 15px;
+                margin-top: 20px;
+            `;
+            
+            // 下載按鈕
+            const downloadBtn = document.createElement('button');
+            downloadBtn.textContent = '下載';
+            downloadBtn.style.cssText = `
+                padding: 12px 24px;
+                background: #3498db;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                font-size: 16px;
+                cursor: pointer;
+                transition: background 0.2s;
+            `;
+            
+            downloadBtn.onclick = () => {
+                // 傳統下載方式
+                const link = document.createElement('a');
+                link.href = imageUrl;
+                link.download = filename;
+                link.click();
+            };
+            
+            // 關閉按鈕
+            const closeBtn = document.createElement('button');
+            closeBtn.textContent = '關閉';
+            closeBtn.style.cssText = `
+                padding: 12px 24px;
+                background: #666;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                font-size: 16px;
+                cursor: pointer;
+                transition: background 0.2s;
+            `;
+            
+            const cleanup = () => {
+                URL.revokeObjectURL(imageUrl);
+                document.body.removeChild(modal);
+                resolve();
+            };
+            
+            closeBtn.onclick = cleanup;
+            modal.onclick = (e) => {
+                if (e.target === modal) cleanup();
+            };
+            
+            // 組裝元素
+            buttonContainer.appendChild(downloadBtn);
+            buttonContainer.appendChild(closeBtn);
+            
+            modal.appendChild(img);
+            modal.appendChild(instructions);
+            modal.appendChild(buttonContainer);
+            
+            document.body.appendChild(modal);
+            
+            // 防止背景滾動
+            document.body.style.overflow = 'hidden';
+            
+            // 清理時恢復滾動
+            const originalCleanup = cleanup;
+            const newCleanup = () => {
+                document.body.style.overflow = '';
+                originalCleanup();
+            };
+            
+            closeBtn.onclick = newCleanup;
+            modal.onclick = (e) => {
+                if (e.target === modal) newCleanup();
+            };
         });
     }
     
@@ -285,15 +421,13 @@ export class ShareHandler {
         if (this.isDesktop) {
             return '電腦裝置將自動下載圖片';
         } else if (this.isIOSSafari) {
-            if (this.supportsFileShare) {
-                return 'iOS Safari 支援原生分享功能';
-            } else {
-                return 'iOS Safari - 將自動下載圖片至裝置';
-            }
+            return 'iOS Safari - 將嘗試多種分享方式，如失敗則提供圖片預覽';
+        } else if (this.isIOS) {
+            return 'iOS 裝置 - 將嘗試原生分享或提供圖片預覽';
         } else if (this.supportsFileShare) {
             return '支援原生分享功能';
         } else {
-            return '將自動下載圖片至裝置';
+            return '將提供圖片預覽和下載選項';
         }
     }
 }

@@ -40,7 +40,7 @@ class PhotoFrameApp {
             this.imageHandler = new ImageHandler();
             this.gestureHandler = new GestureHandler(this.canvas);
             this.renderEngine = new RenderEngine(this.canvas, this.ctx);
-            this.shareHandler = await new ShareHandler().init();
+            this.shareHandler = new ShareHandler();
             
             await this.loadFrame();
             this.setupEventListeners();
