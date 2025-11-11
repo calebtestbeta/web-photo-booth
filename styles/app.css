@@ -161,6 +161,7 @@ body {
     cursor: pointer;
     transition: all 0.2s ease;
     -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation; /* 禁用雙擊縮放，保留單擊和滾動 */
     flex-shrink: 0;
 }
 
@@ -227,6 +228,7 @@ body {
     cursor: pointer;
     transition: all 0.2s ease;
     -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation; /* 禁用雙擊縮放，保留單擊和滾動 */
 }
 
 .toolbar-btn:hover {
@@ -514,6 +516,36 @@ body {
 .toolbar-btn:focus {
     outline: 2px solid #3498db;
     outline-offset: 2px;
+}
+
+/* Image preview modal styles */
+.image-preview-modal {
+    /* 覆蓋全域設定，啟用圖片的長按和選取功能 */
+    -webkit-touch-callout: default !important;
+    -webkit-user-select: auto !important;
+    user-select: auto !important;
+}
+
+.preview-image {
+    /* 確保圖片可以被長按保存 */
+    -webkit-touch-callout: default !important;
+    -webkit-user-select: auto !important;
+    user-select: auto !important;
+    pointer-events: auto !important;
+    
+    /* 提供視覺提示這是可互動的圖片 */
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.preview-image:active {
+    transform: scale(0.98);
+}
+
+/* 按鈕容器不應該干擾圖片的觸摸事件 */
+.preview-buttons {
+    pointer-events: auto;
+    touch-action: manipulation;
 }
 
 /* Print styles */

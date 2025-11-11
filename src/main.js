@@ -32,6 +32,10 @@ class PhotoFrameApp {
         this.isInteracting = false;
         this.renderTimeout = null;
         
+        // 防抖動相關
+        this.lastClickTime = 0;
+        this.clickDebounceDelay = 300; // 300ms 防抖延遲
+        
         this.init();
     }
     
@@ -97,8 +101,8 @@ class PhotoFrameApp {
             this.resetTransform();
         });
         
-        this.rotateBtn.addEventListener('click', () => {
-            this.rotateImage();
+        this.rotateBtn.addEventListener('click', (e) => {
+            this.handleRotateClick(e);
         });
         
         this.downloadBtn.addEventListener('click', () => {
@@ -278,6 +282,21 @@ class PhotoFrameApp {
         
         this.scheduleRender();
         this.showStatus('Photo centered.', 'success');
+    }
+    
+    handleRotateClick(e) {
+        e.preventDefault();
+        
+        const currentTime = Date.now();
+        
+        // 防抖動：如果距離上次點擊時間太短，忽略此次點擊
+        if (currentTime - this.lastClickTime < this.clickDebounceDelay) {
+            console.log('PhotoFrameApp: 忽略快速重複點擊');
+            return;
+        }
+        
+        this.lastClickTime = currentTime;
+        this.rotateImage();
     }
     
     rotateImage() {

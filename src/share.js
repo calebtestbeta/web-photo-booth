@@ -261,6 +261,7 @@ export class ShareHandler {
         return new Promise((resolve) => {
             // 創建彈窗容器
             const modal = document.createElement('div');
+            modal.className = 'image-preview-modal';
             modal.style.cssText = `
                 position: fixed;
                 top: 0;
@@ -281,6 +282,9 @@ export class ShareHandler {
             const img = document.createElement('img');
             const imageUrl = URL.createObjectURL(blob);
             img.src = imageUrl;
+            img.className = 'preview-image';
+            img.alt = '預覽圖片 - 長按可儲存';
+            img.crossOrigin = 'anonymous'; // 支援跨域圖片
             img.style.cssText = `
                 max-width: 90%;
                 max-height: 60%;
@@ -300,20 +304,23 @@ export class ShareHandler {
             
             if (this.isIOS) {
                 instructions.innerHTML = `
-                    <p style="margin: 10px 0; font-weight: bold;">圖片已準備好！</p>
-                    <p style="margin: 10px 0;">請<strong>長按圖片</strong>，然後選擇「儲存至相片」</p>
-                    <p style="margin: 10px 0; font-size: 14px; opacity: 0.8;">或點擊下方的「下載」按鈕</p>
+                    <p style="margin: 10px 0; font-weight: bold; color: #3498db;">圖片已準備好！</p>
+                    <p style="margin: 10px 0; font-size: 18px;">🔄 <strong>長按上方圖片</strong> 🔄</p>
+                    <p style="margin: 10px 0; font-size: 16px;">然後選擇「<strong>儲存影像</strong>」或「<strong>儲存至相片</strong>」</p>
+                    <p style="margin: 15px 0 5px 0; font-size: 14px; opacity: 0.7;">ℹ️ 如果長按沒有反應，請使用下方下載按鈕</p>
                 `;
             } else {
                 instructions.innerHTML = `
-                    <p style="margin: 10px 0; font-weight: bold;">圖片已準備好！</p>
-                    <p style="margin: 10px 0;">請<strong>長按圖片</strong>並選擇保存</p>
-                    <p style="margin: 10px 0; font-size: 14px; opacity: 0.8;">或點擊下方的「下載」按鈕</p>
+                    <p style="margin: 10px 0; font-weight: bold; color: #3498db;">圖片已準備好！</p>
+                    <p style="margin: 10px 0; font-size: 18px;">🔄 <strong>長按上方圖片</strong> 🔄</p>
+                    <p style="margin: 10px 0; font-size: 16px;">並選擇「<strong>保存圖片</strong>」或「<strong>下載</strong>」</p>
+                    <p style="margin: 15px 0 5px 0; font-size: 14px; opacity: 0.7;">ℹ️ 如果長按沒有反應，請使用下方下載按鈕</p>
                 `;
             }
             
             // 創建按鈕容器
             const buttonContainer = document.createElement('div');
+            buttonContainer.className = 'preview-buttons';
             buttonContainer.style.cssText = `
                 display: flex;
                 gap: 15px;
@@ -363,8 +370,24 @@ export class ShareHandler {
             };
             
             closeBtn.onclick = cleanup;
+            
+            // 優化事件處理，避免干擾圖片的長按事件
             modal.onclick = (e) => {
-                if (e.target === modal) cleanup();
+                // 只有點擊 modal 背景時才關閉，不包括圖片區域
+                if (e.target === modal) {
+                    cleanup();
+                }
+            };
+            
+            // 阻止圖片點擊事件冒泡到 modal
+            img.onclick = (e) => {
+                e.stopPropagation();
+            };
+            
+            // 為圖片添加提示事件
+            img.ontouchstart = (e) => {
+                // 不阻止預設事件，讓長按正常運作
+                console.log('長按圖片可儲存至相簿');
             };
             
             // 組裝元素
