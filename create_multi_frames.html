@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Multi-Format Frame Generator</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }
+        .format-selector { margin: 20px 0; }
+        .format-btn { padding: 10px 20px; margin: 5px; border: 2px solid #ddd; background: white; cursor: pointer; border-radius: 5px; }
+        .format-btn.active { border-color: #3498db; background: #f0f8ff; }
+        canvas { border: 2px solid #ddd; display: block; margin: 20px auto; max-width: 400px; height: auto; }
+        button { padding: 12px 24px; font-size: 16px; background: #3498db; color: white; border: none; border-radius: 6px; cursor: pointer; margin: 5px; }
+        button:hover { background: #2980b9; }
+        .info { background: #e8f4fd; padding: 15px; border-radius: 6px; margin: 20px 0; }
+        .canvas-info { text-align: center; margin: 10px 0; font-size: 14px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>多格式相框生成器</h1>
+        
+        <div class="format-selector">
+            <h3>選擇輸出格式：</h3>
+            <button class="format-btn active" data-format="square">正方形 (1080×1080)</button>
+            <button class="format-btn" data-format="portrait">直式 (1080×1350)</button>
+            <button class="format-btn" data-format="story">限時動態 (1080×1920)</button>
+        </div>
+        
+        <canvas id="frameCanvas"></canvas>
+        <div class="canvas-info" id="canvasInfo">1080 × 1080 像素</div>
+        
+        <div style="text-align: center;">
+            <button onclick="downloadFrame()">下載當前相框</button>
+            <button onclick="downloadAllFrames()">下載所有格式</button>
+        </div>
+        
+        <div class="info">
+            <strong>使用說明：</strong><br>
+            • 選擇格式後會自動生成對應尺寸的相框<br>
+            • 每個格式的邊框粗細都已針對該尺寸優化<br>
+            • 下載的檔案命名格式：frame_[format]_[width]x[height].png<br>
+            • 將檔案放入 assets/frames/ 資料夾中
+        </div>
+    </div>
+    
+    <script>
+        const canvas = document.getElementById('frameCanvas');
+        const ctx = canvas.getContext('2d');
+        const canvasInfo = document.getElementById('canvasInfo');
+        
+        const formats = {
+            square: { width: 1080, height: 1080, name: '正方形', borderWidth: 70 },
+            portrait: { width: 1080, height: 1350, name: '直式', borderWidth: 65 },
+            story: { width: 1080, height: 1920, name: '限時動態', borderWidth: 60 }
+        };
+        
+        let currentFormat = 'square';
+        
+        function createFrame(format) {
+            const config = formats[format];
+            
+            // Set canvas size
+            canvas.width = config.width;
+            canvas.height = config.height;
+            canvasInfo.textContent = `${config.width} × ${config.height} 像素`;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, config.width, config.height);
+            
+            // Calculate proportional sizes
+            const borderWidth = config.borderWidth;
+            const innerBorderWidth = Math.max(4, Math.round(borderWidth * 0.08));
+            const cornerRadius = Math.round(borderWidth * 0.5);
+            const decorationRadius = Math.round(borderWidth * 0.25);
+            
+            // Create gradients
+            const outerGradient = ctx.createLinearGradient(0, 0, config.width, config.height);
+            outerGradient.addColorStop(0, '#FFD700');
+            outerGradient.addColorStop(0.25, '#FFA500');
+            outerGradient.addColorStop(0.5, '#FF8C00');
+            outerGradient.addColorStop(0.75, '#DAA520');
+            outerGradient.addColorStop(1, '#B8860B');
+            
+            const innerGradient = ctx.createRadialGradient(
+                config.width/2, config.height/2, 100, 
+                config.width/2, config.height/2, Math.max(config.width, config.height)/2
+            );
+            innerGradient.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
+            innerGradient.addColorStop(1, 'rgba(0, 0, 0, 0.2)');
+            
+            // Draw main border
+            ctx.save();
+            ctx.strokeStyle = outerGradient;
+            ctx.lineWidth = borderWidth;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            
+            const margin = borderWidth / 2;
+            drawRoundedRect(ctx, margin, margin, config.width - borderWidth, config.height - borderWidth, cornerRadius);
+            ctx.stroke();
+            ctx.restore();
+            
+            // Add depth shadow
+            ctx.save();
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.lineWidth = 3;
+            const shadowOffset = 4;
+            drawRoundedRect(ctx, margin + shadowOffset, margin + shadowOffset, 
+                config.width - borderWidth, config.height - borderWidth, cornerRadius);
+            ctx.stroke();
+            ctx.restore();
+            
+            // Inner accent border
+            ctx.save();
+            ctx.strokeStyle = 'rgba(255, 215, 0, 0.6)';
+            ctx.lineWidth = innerBorderWidth;
+            const innerMargin = borderWidth + 15;
+            const innerRadius = cornerRadius - 15;
+            drawRoundedRect(ctx, innerMargin, innerMargin, 
+                config.width - 2 * innerMargin, config.height - 2 * innerMargin, innerRadius);
+            ctx.stroke();
+            ctx.restore();
+            
+            // Corner decorations
+            const cornerOffset = borderWidth + Math.round(borderWidth * 0.8);
+            const cornerPositions = [
+                { x: cornerOffset, y: cornerOffset },
+                { x: config.width - cornerOffset, y: cornerOffset },
+                { x: cornerOffset, y: config.height - cornerOffset },
+                { x: config.width - cornerOffset, y: config.height - cornerOffset }
+            ];
+            
+            cornerPositions.forEach(pos => {
+                // Main decoration
+                ctx.save();
+                ctx.fillStyle = outerGradient;
+                ctx.beginPath();
+                ctx.arc(pos.x, pos.y, decorationRadius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Highlight
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+                ctx.beginPath();
+                ctx.arc(pos.x - 3, pos.y - 3, decorationRadius * 0.4, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Center gem
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.beginPath();
+                ctx.arc(pos.x, pos.y, decorationRadius * 0.2, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            });
+            
+            // Decorative patterns (scaled)
+            ctx.save();
+            ctx.strokeStyle = 'rgba(255, 215, 0, 0.3)';
+            ctx.lineWidth = 2;
+            
+            const patternCount = Math.floor(Math.min(config.width, config.height) / 90);
+            const patternSpacing = (Math.min(config.width, config.height) - 2 * borderWidth - 100) / patternCount;
+            
+            // Top and bottom patterns
+            for (let i = 0; i < patternCount; i++) {
+                const x = borderWidth + 50 + i * patternSpacing;
+                const topY = borderWidth * 0.5;
+                const bottomY = config.height - borderWidth * 0.5;
+                
+                ctx.beginPath();
+                ctx.moveTo(x, topY - 12);
+                ctx.lineTo(x, topY + 12);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(x, bottomY - 12);
+                ctx.lineTo(x, bottomY + 12);
+                ctx.stroke();
+            }
+            
+            // Left and right patterns
+            const vPatternCount = Math.floor(config.height / 90);
+            const vPatternSpacing = (config.height - 2 * borderWidth - 100) / vPatternCount;
+            
+            for (let i = 0; i < vPatternCount; i++) {
+                const y = borderWidth + 50 + i * vPatternSpacing;
+                const leftX = borderWidth * 0.5;
+                const rightX = config.width - borderWidth * 0.5;
+                
+                ctx.beginPath();
+                ctx.moveTo(leftX - 12, y);
+                ctx.lineTo(leftX + 12, y);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(rightX - 12, y);
+                ctx.lineTo(rightX + 12, y);
+                ctx.stroke();
+            }
+            ctx.restore();
+        }
+        
+        function drawRoundedRect(ctx, x, y, width, height, radius) {
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + width - radius, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+            ctx.lineTo(x + width, y + height - radius);
+            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+            ctx.lineTo(x + radius, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+            ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.closePath();
+        }
+        
+        function switchFormat(format) {
+            currentFormat = format;
+            
+            // Update button states
+            document.querySelectorAll('.format-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.format === format);
+            });
+            
+            createFrame(format);
+        }
+        
+        function downloadFrame() {
+            const config = formats[currentFormat];
+            const filename = `frame_${currentFormat}_${config.width}x${config.height}.png`;
+            
+            canvas.toBlob(blob => {
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = filename;
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            }, 'image/png', 1.0);
+        }
+        
+        async function downloadAllFrames() {
+            const originalFormat = currentFormat;
+            
+            for (const [format, config] of Object.entries(formats)) {
+                createFrame(format);
+                
+                // Wait a bit for rendering
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                const filename = `frame_${format}_${config.width}x${config.height}.png`;
+                
+                canvas.toBlob(blob => {
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = filename;
+                    link.style.display = 'none';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                }, 'image/png', 1.0);
+                
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+            
+            // Restore original format
+            switchFormat(originalFormat);
+        }
+        
+        // Setup event listeners
+        document.querySelectorAll('.format-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                switchFormat(e.target.dataset.format);
+            });
+        });
+        
+        // Initialize
+        createFrame(currentFormat);
+    </script>
+</body>
+</html>

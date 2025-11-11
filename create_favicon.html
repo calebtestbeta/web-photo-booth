@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Favicon Generator</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }
+        canvas { border: 1px solid #ddd; margin: 10px; }
+        .size-group { margin: 20px 0; }
+        .canvas-row { display: flex; align-items: center; gap: 20px; margin: 10px 0; }
+        button { padding: 10px 20px; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
+        button:hover { background: #2980b9; }
+        .info { background: #e8f4fd; padding: 15px; border-radius: 6px; margin: 10px 0; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Photo Frame Favicon Generator</h1>
+        
+        <div class="info">
+            <strong>設計說明：</strong>相框工具的圖標，結合相框和照片元素，使用金色系配色
+        </div>
+        
+        <div class="size-group">
+            <h3>Favicon 尺寸預覽：</h3>
+            <div class="canvas-row">
+                <canvas id="favicon16" width="16" height="16"></canvas>
+                <span>16×16 (瀏覽器標籤頁)</span>
+            </div>
+            <div class="canvas-row">
+                <canvas id="favicon32" width="32" height="32"></canvas>
+                <span>32×32 (書籤、桌面)</span>
+            </div>
+            <div class="canvas-row">
+                <canvas id="favicon48" width="48" height="48"></canvas>
+                <span>48×48 (Windows 工作列)</span>
+            </div>
+        </div>
+        
+        <div style="text-align: center;">
+            <button onclick="generateFavicons()">重新生成圖標</button>
+            <button onclick="downloadFavicon(16)">下載 16×16</button>
+            <button onclick="downloadFavicon(32)">下載 32×32</button>
+            <button onclick="downloadFavicon(48)">下載 48×48</button>
+            <button onclick="downloadICO()">下載 .ico 檔案</button>
+        </div>
+        
+        <div class="info">
+            <strong>使用方法：</strong><br>
+            1. 點擊「重新生成圖標」預覽效果<br>
+            2. 下載所需尺寸的 PNG 檔案<br>
+            3. 將 favicon.ico 放在網站根目錄<br>
+            4. 在 HTML 中添加對應的 link 標籤
+        </div>
+    </div>
+    
+    <script>
+        function createFavicon(size) {
+            const canvas = document.getElementById(`favicon${size}`);
+            const ctx = canvas.getContext('2d');
+            
+            // 清除畫布
+            ctx.clearRect(0, 0, size, size);
+            
+            // 縮放因子
+            const scale = size / 32; // 以 32px 為基準設計
+            
+            // 背景 (可選的圓角背景)
+            if (size >= 32) {
+                ctx.fillStyle = '#f8f9fa';
+                const radius = size * 0.1;
+                roundRect(ctx, 0, 0, size, size, radius);
+                ctx.fill();
+            }
+            
+            // 相框 (金色)
+            const frameWidth = Math.max(1, size * 0.125); // 相框寬度
+            const innerSize = size - frameWidth * 2;
+            
+            // 外框漸層
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#FFD700');
+            gradient.addColorStop(0.5, '#FFA500');
+            gradient.addColorStop(1, '#FF8C00');
+            
+            ctx.strokeStyle = gradient;
+            ctx.lineWidth = frameWidth;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            
+            // 繪製相框
+            const margin = frameWidth / 2;
+            const cornerRadius = Math.max(1, size * 0.08);
+            roundRect(ctx, margin, margin, innerSize, innerSize, cornerRadius);
+            ctx.stroke();
+            
+            // 內部照片區域 (淺色)
+            ctx.fillStyle = '#ffffff';
+            const photoMargin = frameWidth + 1;
+            const photoSize = size - photoMargin * 2;
+            const photoRadius = Math.max(1, cornerRadius - 2);
+            
+            if (photoSize > 0) {
+                roundRect(ctx, photoMargin, photoMargin, photoSize, photoSize, photoRadius);
+                ctx.fill();
+            }
+            
+            // 照片圖示 (簡化的相機或照片圖標)
+            if (size >= 16) {
+                ctx.fillStyle = '#3498db';
+                const iconSize = Math.max(2, size * 0.2);
+                const iconX = (size - iconSize) / 2;
+                const iconY = (size - iconSize) / 2;
+                
+                // 簡單的相機圖標
+                if (size >= 24) {
+                    // 相機機身
+                    ctx.fillRect(iconX, iconY + iconSize * 0.3, iconSize, iconSize * 0.6);
+                    // 鏡頭
+                    ctx.beginPath();
+                    ctx.arc(iconX + iconSize/2, iconY + iconSize * 0.6, iconSize * 0.25, 0, Math.PI * 2);
+                    ctx.fill();
+                } else {
+                    // 簡化為圓點
+                    ctx.beginPath();
+                    ctx.arc(size/2, size/2, iconSize/2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            
+            // 裝飾小點 (僅在較大尺寸顯示)
+            if (size >= 32) {
+                ctx.fillStyle = gradient;
+                const dotSize = Math.max(1, size * 0.05);
+                const dotOffset = frameWidth + dotSize;
+                
+                // 四個角落的裝飾點
+                [
+                    [dotOffset, dotOffset],
+                    [size - dotOffset, dotOffset],
+                    [dotOffset, size - dotOffset],
+                    [size - dotOffset, size - dotOffset]
+                ].forEach(([x, y]) => {
+                    ctx.beginPath();
+                    ctx.arc(x, y, dotSize, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+            }
+        }
+        
+        function roundRect(ctx, x, y, width, height, radius) {
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + width - radius, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+            ctx.lineTo(x + width, y + height - radius);
+            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+            ctx.lineTo(x + radius, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+            ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.closePath();
+        }
+        
+        function generateFavicons() {
+            [16, 32, 48].forEach(size => {
+                createFavicon(size);
+            });
+        }
+        
+        function downloadFavicon(size) {
+            const canvas = document.getElementById(`favicon${size}`);
+            canvas.toBlob(blob => {
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `favicon-${size}x${size}.png`;
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            }, 'image/png');
+        }
+        
+        function downloadICO() {
+            // 使用 32x32 作為 ICO 檔案
+            const canvas = document.getElementById('favicon32');
+            canvas.toBlob(blob => {
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'favicon.ico';
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            }, 'image/png');
+        }
+        
+        // 初始生成
+        window.onload = function() {
+            generateFavicons();
+        };
+    </script>
+</body>
+</html>

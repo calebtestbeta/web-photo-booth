@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Frame Tool</title>
+    <link rel="stylesheet" href="styles/app.css">
+    <meta name="description" content="Add beautiful frames to your photos - drag, zoom, rotate and share">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8IS0tIOiDjOaZryAtLT4KICA8cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSIzIiBmaWxsPSIjZjhmOWZhIi8+CiAgCiAgPCEtLSDnm7jmhoYgKOmHkeiJsuaBuOWxpCkgLS0+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImdvbGRHcmFkaWVudCIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNGRkQ3MDAiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSI1MCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNGRkE1MDAiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdHlsZT0ic3RvcC1jb2xvcjojRkY4QzAwIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICAKICA8IS0tIOWkluahhuW7tiAtLT4KICA8cmVjdCB4PSIyIiB5PSIyIiB3aWR0aD0iMjgiIGhlaWdodD0iMjgiIHJ4PSIyIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjZ29sZEdyYWRpZW50KSIgc3Ryb2tlLXdpZHRoPSI0Ii8+CiAgCiAgPCEtLSDlhaXpg6jnhafniYflnY/ln58gLS0+CiAgPHJlY3QgeD0iNiIgeT0iNiIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiByeD0iMSIgZmlsbD0id2hpdGUiLz4KICAKICA8IS0tIOebuOmKn+Wcluaomeq8nCAtLT4KICA8cmVjdCB4PSIxMiIgeT0iMTQiIHdpZHRoPSI4IiBoZWlnaHQ9IjUiIHJ4PSIxIiBmaWxsPSIjMzQ5OGRiIi8+CiAgPGNpcmNsZSBjeD0iMTYiIGN5PSIxNi41IiByPSIyIiBmaWxsPSIjMzQ5OGRiIi8+CiAgCiAgPCEtLSDoo4Xpo77npbkgLS0+CiAgPGNpcmNsZSBjeD0iOCIgY3k9IjgiIHI9IjEuNSIgZmlsbD0idXJsKCNnb2xkR3JhZGllbnQpIi8+CiAgPGNpcmNsZSBjeD0iMjQiIGN5PSI4IiByPSIxLjUiIGZpbGw9InVybCgjZ29sZEdyYWRpZW50KSIvPgogIDxjaXJjbGUgY3g9IjgiIGN5PSIyNCIgcj0iMS41IiBmaWxsPSJ1cmwoI2dvbGRHcmFkaWVudCkiLz4KICA8Y2lyY2xlIGN4PSIyNCIgY3k9IjI0IiByPSIxLjUiIGZpbGw9InVybCgjZ29sZEdyYWRpZW50KSIvPgo8L3N2Zz4K">
+    <link rel="icon" type="image/png" sizes="32x32" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8IS0tIOiDjOaZryAtLT4KICA8cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSIzIiBmaWxsPSIjZjhmOWZhIi8+CiAgCiAgPCEtLSDnm7jmhoYgKOmHkeiJsuaBuOWxpCkgLS0+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImdvbGRHcmFkaWVudCIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNGRkQ3MDAiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSI1MCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNGRkE1MDAiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdHlsZT0ic3RvcC1jb2xvcjojRkY4QzAwIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICAKICA8IS0tIOWkluahhuW9tiAtLT4KICA8cmVjdCB4PSIyIiB5PSIyIiB3aWR0aD0iMjgiIGhlaWdodD0iMjgiIHJ4PSIyIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjZ29sZEdyYWRpZW50KSIgc3Ryb2tlLXdpZHRoPSI0Ii8+CiAgCiAgPCEtLSDlhaXpg6jnhafniYflnY/ln58gLS0+CiAgPHJlY3QgeD0iNiIgeT0iNiIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiByeD0iMSIgZmlsbD0id2hpdGUiLz4KICAKICA8IS0tIOebuOmKn+Wcluaomeq8nCAtLT4KICA8cmVjdCB4PSIxMiIgeT0iMTQiIHdpZHRoPSI4IiBoZWlnaHQ9IjUiIHJ4PSIxIiBmaWxsPSIjMzQ5OGRiIi8+CiAgPGNpcmNsZSBjeD0iMTYiIGN5PSIxNi41IiByPSIyIiBmaWxsPSIjMzQ5OGRiIi8+CiAgCiAgPCEtLSDoo4Xpo77npbkgLS0+CiAgPGNpcmNsZSBjeD0iOCIgY3k9IjgiIHI9IjEuNSIgZmlsbD0idXJsKCNnb2xkR3JhZGllbnQpIi8+CiAgPGNpcmNsZSBjeD0iMjQiIGN5PSI4IiByPSIxLjUiIGZpbGw9InVybCgjZ29sZEdyYWRpZW50KSIvPgogIDxjaXJjbGUgY3g9IjgiIGN5PSIyNCIgcj0iMS41IiBmaWxsPSJ1cmwoI2dvbGRHcmFkaWVudCkiLz4KICA8Y2lyY2xlIGN4PSIyNCIgY3k9IjI0IiByPSIxLjUiIGZpbGw9InVybCgjZ29sZEdyYWRpZW50KSIvPgo8L3N2Zz4K">
+    <link rel="icon" type="image/png" sizes="16x16" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZCIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNGRkQ3MDAiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdHlsZT0ic3RvcC1jb2xvcjojRkY4QzAwIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB4PSIxIiB5PSIxIiB3aWR0aD0iMTQiIGhlaWdodD0iMTQiIHJ4PSIxIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjZ3JhZCkiIHN0cm9rZS13aWR0aD0iMiIvPgogIDxyZWN0IHg9IjMiIHk9IjMiIHdpZHRoPSIxMCIgaGVpZ2h0PSIxMCIgZmlsbD0id2hpdGUiLz4KICA8Y2lyY2xlIGN4PSI4IiBjeT0iOCIgcj0iMiIgZmlsbD0iIzM0OThkYiIvPgo8L3N2Zz4K">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="title">Photo Frame</h1>
+            <div class="status-message" id="statusMessage" aria-live="polite"></div>
+        </header>
+
+        <!-- Main Canvas Area -->
+        <main class="canvas-container">
+            <canvas 
+                id="mainCanvas" 
+                width="1080" 
+                height="1080"
+                aria-label="Photo editing canvas"
+                role="img"
+            ></canvas>
+            <div class="canvas-overlay" id="canvasOverlay">
+                <div class="placeholder-text" id="placeholderText">
+                    <div class="placeholder-icon">📸</div>
+                    <p>Tap "Upload Photo" to get started</p>
+                </div>
+            </div>
+        </main>
+
+        <!-- Format Selector -->
+        <div class="format-selector" id="formatSelector">
+            <label class="format-label">尺寸格式：</label>
+            <div class="format-buttons" role="radiogroup" aria-label="Output format selection">
+                <button 
+                    class="format-btn active" 
+                    data-format="square"
+                    role="radio" 
+                    aria-checked="true"
+                    aria-label="正方形格式，適合 Instagram 貼文"
+                >
+                    <span class="format-icon">⬜</span>
+                    <span class="format-text">正方形</span>
+                    <span class="format-desc">1080×1080</span>
+                </button>
+                <button 
+                    class="format-btn" 
+                    data-format="portrait"
+                    role="radio" 
+                    aria-checked="false"
+                    aria-label="直式格式，適合 Instagram 直式貼文"
+                >
+                    <span class="format-icon">📱</span>
+                    <span class="format-text">直式</span>
+                    <span class="format-desc">1080×1350</span>
+                </button>
+                <button 
+                    class="format-btn" 
+                    data-format="story"
+                    role="radio" 
+                    aria-checked="false"
+                    aria-label="限時動態格式，適合 Instagram 限時動態和 TikTok"
+                >
+                    <span class="format-icon">📲</span>
+                    <span class="format-text">限時動態</span>
+                    <span class="format-desc">1080×1920</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Controls Toolbar -->
+        <nav class="toolbar" role="toolbar" aria-label="Photo editing controls">
+            <input 
+                type="file" 
+                id="fileInput" 
+                accept="image/*" 
+                style="display: none;"
+                aria-label="Select photo file"
+            >
+            
+            <button 
+                class="toolbar-btn primary" 
+                id="uploadBtn"
+                aria-label="Upload photo from device"
+            >
+                <span class="btn-icon">📤</span>
+                <span class="btn-text">Upload</span>
+            </button>
+
+            <button 
+                class="toolbar-btn" 
+                id="resetBtn"
+                aria-label="重置照片位置和縮放，讓照片重新適合相框"
+                disabled
+            >
+                <span class="btn-icon">🔄</span>
+                <span class="btn-text">重置位置</span>
+            </button>
+
+            <button 
+                class="toolbar-btn ig-btn" 
+                id="igFitBtn"
+                aria-label="Quick fit for Instagram posting"
+                disabled
+            >
+                <span class="btn-icon">📷</span>
+                <span class="btn-text">適合IG</span>
+            </button>
+
+            <button 
+                class="toolbar-btn" 
+                id="downloadBtn"
+                aria-label="Download framed photo"
+                disabled
+            >
+                <span class="btn-icon">💾</span>
+                <span class="btn-text">Download</span>
+            </button>
+
+            <button 
+                class="toolbar-btn" 
+                id="shareBtn"
+                aria-label="Share framed photo"
+                disabled
+            >
+                <span class="btn-icon">📱</span>
+                <span class="btn-text">Share</span>
+            </button>
+
+            <button 
+                class="toolbar-btn copy-btn" 
+                id="copyBtn"
+                aria-label="Copy framed photo to clipboard"
+                disabled
+                style="display: none;"
+            >
+                <span class="btn-icon">📋</span>
+                <span class="btn-text">Copy</span>
+            </button>
+        </nav>
+
+        <!-- Loading Indicator -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-spinner"></div>
+            <p>Processing image...</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="src/main.js"></script>
+
+    <!-- 
+    README - Local Development & GitHub Pages Deployment
+    
+    LOCAL DEVELOPMENT:
+    1. Clone this repository
+    2. Serve files with a local HTTP server (required for modules):
+       - Python: python -m http.server 8000
+       - Node.js: npx serve . -p 8000
+       - VS Code: Use Live Server extension
+    3. Open http://localhost:8000
+    
+    GITHUB PAGES DEPLOYMENT:
+    1. Push code to your GitHub repository
+    2. Go to Settings > Pages
+    3. Select "Deploy from a branch"
+    4. Choose "main" branch and "/ (root)" folder
+    5. Save and wait for deployment
+    6. Access via https://yourusername.github.io/your-repo-name
+    
+    FEATURES:
+    - Mobile-first responsive design
+    - Touch gestures: drag, pinch-zoom, rotate
+    - EXIF orientation correction
+    - High-quality 1080x1080 output
+    - Native sharing on supported devices
+    
+    BROWSER COMPATIBILITY:
+    - iOS Safari 15+
+    - Android Chrome 100+
+    - Desktop Chrome/Edge/Safari
+    - Requires HTTPS for sharing features
+    -->
+</body>
+</html>

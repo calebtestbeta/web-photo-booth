@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Create Frame</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }
+        canvas { border: 2px solid #ddd; display: block; margin: 20px auto; max-width: 400px; height: auto; }
+        button { padding: 12px 24px; font-size: 16px; background: #3498db; color: white; border: none; border-radius: 6px; cursor: pointer; }
+        button:hover { background: #2980b9; }
+        .info { background: #e8f4fd; padding: 15px; border-radius: 6px; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Photo Frame Generator</h1>
+        <div class="info">
+            <strong>Instructions:</strong>
+            <ol>
+                <li>The frame will be automatically generated below</li>
+                <li>Click "Download Frame" to save the PNG file</li>
+                <li>Replace the file at <code>assets/frames/frame_1080.png</code> with the downloaded file</li>
+            </ol>
+        </div>
+        
+        <canvas id="frameCanvas" width="1080" height="1080"></canvas>
+        <button onclick="downloadFrame()">Download Frame PNG</button>
+        
+        <div class="info">
+            <strong>Frame Details:</strong><br>
+            • Size: 1080 × 1080 pixels<br>
+            • Format: Transparent PNG<br>
+            • Border: Golden gradient with decorative elements<br>
+            • Safe area: Central 880 × 880 pixels for photos
+        </div>
+    </div>
+    
+    <script>
+        const canvas = document.getElementById('frameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        function createFrame() {
+            // Clear canvas with transparent background
+            ctx.clearRect(0, 0, 1080, 1080);
+            
+            // Frame configuration (optimized for mobile/social sharing)
+            const borderWidth = 70;         // Reduced main border thickness for mobile
+            const innerBorderWidth = 6;     // Thinner inner accent border
+            const cornerRadius = 35;        // Smaller rounded corners
+            const decorationRadius = 18;    // Smaller corner decorations
+            
+            // Create golden gradient
+            const outerGradient = ctx.createLinearGradient(0, 0, 1080, 1080);
+            outerGradient.addColorStop(0, '#FFD700');    // Gold
+            outerGradient.addColorStop(0.25, '#FFA500');  // Orange
+            outerGradient.addColorStop(0.5, '#FF8C00');   // Dark orange
+            outerGradient.addColorStop(0.75, '#DAA520');  // Goldenrod
+            outerGradient.addColorStop(1, '#B8860B');     // Dark goldenrod
+            
+            // Create inner gradient for depth
+            const innerGradient = ctx.createRadialGradient(540, 540, 100, 540, 540, 800);
+            innerGradient.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
+            innerGradient.addColorStop(1, 'rgba(0, 0, 0, 0.2)');
+            
+            // Draw main outer border
+            ctx.save();
+            ctx.strokeStyle = outerGradient;
+            ctx.lineWidth = borderWidth;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            
+            const margin = borderWidth / 2;
+            drawRoundedRect(ctx, margin, margin, 1080 - borderWidth, 1080 - borderWidth, cornerRadius);
+            ctx.stroke();
+            ctx.restore();
+            
+            // Add depth shadow to outer border
+            ctx.save();
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.lineWidth = 4;
+            const shadowOffset = 6;
+            drawRoundedRect(ctx, margin + shadowOffset, margin + shadowOffset, 1080 - borderWidth, 1080 - borderWidth, cornerRadius);
+            ctx.stroke();
+            ctx.restore();
+            
+            // Draw inner accent border
+            ctx.save();
+            ctx.strokeStyle = 'rgba(255, 215, 0, 0.6)';
+            ctx.lineWidth = innerBorderWidth;
+            const innerMargin = borderWidth + 20;
+            const innerRadius = cornerRadius - 20;
+            drawRoundedRect(ctx, innerMargin, innerMargin, 1080 - 2 * innerMargin, 1080 - 2 * innerMargin, innerRadius);
+            ctx.stroke();
+            ctx.restore();
+            
+            // Add inner glow effect
+            ctx.save();
+            ctx.strokeStyle = innerGradient;
+            ctx.lineWidth = 2;
+            drawRoundedRect(ctx, innerMargin + 10, innerMargin + 10, 1080 - 2 * innerMargin - 20, 1080 - 2 * innerMargin - 20, innerRadius - 10);
+            ctx.stroke();
+            ctx.restore();
+            
+            // Draw corner decorations
+            const cornerPositions = [
+                { x: borderWidth + 80, y: borderWidth + 80 },           // Top-left
+                { x: 1080 - borderWidth - 80, y: borderWidth + 80 },    // Top-right
+                { x: borderWidth + 80, y: 1080 - borderWidth - 80 },    // Bottom-left
+                { x: 1080 - borderWidth - 80, y: 1080 - borderWidth - 80 } // Bottom-right
+            ];
+            
+            cornerPositions.forEach((pos, index) => {
+                // Main decoration circle
+                ctx.save();
+                ctx.fillStyle = outerGradient;
+                ctx.beginPath();
+                ctx.arc(pos.x, pos.y, decorationRadius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Inner highlight
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+                ctx.beginPath();
+                ctx.arc(pos.x - 5, pos.y - 5, decorationRadius * 0.4, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Small central gem
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.beginPath();
+                ctx.arc(pos.x, pos.y, decorationRadius * 0.2, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            });
+            
+            // Add decorative border patterns
+            ctx.save();
+            ctx.strokeStyle = 'rgba(255, 215, 0, 0.3)';
+            ctx.lineWidth = 2;
+            
+            // Top and bottom patterns
+            for (let i = 0; i < 12; i++) {
+                const x = 150 + i * 65;
+                const topY = borderWidth * 0.5;
+                const bottomY = 1080 - borderWidth * 0.5;
+                
+                // Top pattern
+                ctx.beginPath();
+                ctx.moveTo(x, topY - 15);
+                ctx.lineTo(x, topY + 15);
+                ctx.stroke();
+                
+                // Bottom pattern  
+                ctx.beginPath();
+                ctx.moveTo(x, bottomY - 15);
+                ctx.lineTo(x, bottomY + 15);
+                ctx.stroke();
+            }
+            
+            // Left and right patterns
+            for (let i = 0; i < 12; i++) {
+                const y = 150 + i * 65;
+                const leftX = borderWidth * 0.5;
+                const rightX = 1080 - borderWidth * 0.5;
+                
+                // Left pattern
+                ctx.beginPath();
+                ctx.moveTo(leftX - 15, y);
+                ctx.lineTo(leftX + 15, y);
+                ctx.stroke();
+                
+                // Right pattern  
+                ctx.beginPath();
+                ctx.moveTo(rightX - 15, y);
+                ctx.lineTo(rightX + 15, y);
+                ctx.stroke();
+            }
+            ctx.restore();
+            
+            // Add subtle texture overlay
+            ctx.save();
+            ctx.globalAlpha = 0.1;
+            ctx.fillStyle = innerGradient;
+            drawRoundedRect(ctx, margin, margin, 1080 - borderWidth, 1080 - borderWidth, cornerRadius);
+            ctx.fill();
+            ctx.restore();
+        }
+        
+        function drawRoundedRect(ctx, x, y, width, height, radius) {
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + width - radius, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+            ctx.lineTo(x + width, y + height - radius);
+            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+            ctx.lineTo(x + radius, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+            ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.closePath();
+        }
+        
+        // Create the frame when page loads
+        createFrame();
+        
+        function downloadFrame() {
+            canvas.toBlob(blob => {
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'frame_1080.png';
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                
+                alert('Frame downloaded! Please replace assets/frames/frame_1080.png with the downloaded file.');
+            }, 'image/png', 1.0);
+        }
+    </script>
+</body>
+</html>
