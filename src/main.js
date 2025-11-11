@@ -142,13 +142,10 @@ class PhotoFrameApp {
     }
     
     async handleImageUpload(file) {
-        if (!file || !file.type.startsWith('image/')) {
-            this.showStatus('Please select a valid image file.', 'error');
-            return;
-        }
-        
-        if (file.size > 50 * 1024 * 1024) {
-            this.showStatus('Image file is too large. Please choose a file under 50MB.', 'error');
+        // 強化檔案驗證
+        const validationResult = this.validateImageFile(file);
+        if (!validationResult.isValid) {
+            this.showStatus(validationResult.message, 'error');
             return;
         }
         
@@ -156,18 +153,85 @@ class PhotoFrameApp {
         this.showStatus('Processing image...');
         
         try {
+            console.log('開始處理圖片：', {
+                name: file.name,
+                type: file.type,
+                size: file.size,
+                lastModified: new Date(file.lastModified)
+            });
+            
             this.currentImage = await this.imageHandler.processImage(file);
             this.resetTransform();
             this.updateUI();
             this.scheduleRender();
             
-            this.showStatus('Image loaded successfully! Use gestures to adjust position.', 'success');
+            console.log('圖片處理成功');
+            this.showStatus('圖片載入成功！使用手勢調整位置。', 'success');
         } catch (error) {
-            console.error('Image upload failed:', error);
-            this.showStatus('Failed to process image. Please try a different file.', 'error');
+            console.error('圖片上傳失敗，詳細錯誤：', error);
+            
+            // 提供更具體的錯誤訊息
+            let errorMessage = '圖片處理失敗。';
+            
+            if (error.message.includes('Failed to load image')) {
+                errorMessage = '無法載入圖片檔案，請確認檔案格式正確。';
+            } else if (error.message.includes('Failed to read file')) {
+                errorMessage = '無法讀取檔案，請重新選擇圖片。';
+            } else if (error.message.includes('EXIF')) {
+                errorMessage = '圖片方向資訊處理失敗，但仍可繼續使用。';
+            } else if (error.message.includes('Canvas')) {
+                errorMessage = '圖片處理失敗，可能檔案過大或格式不支援。';
+            }
+            
+            // 如果是 HEIC 格式問題
+            if (file.name.toLowerCase().includes('.heic') || file.name.toLowerCase().includes('.heif')) {
+                errorMessage = 'HEIC 格式不被支援，請在 iPhone 設定中改為 JPEG 格式拍攝，或使用其他圖片。';
+            }
+            
+            this.showStatus(errorMessage, 'error');
         } finally {
             this.showLoading(false);
         }
+    }
+    
+    validateImageFile(file) {
+        if (!file) {
+            return { isValid: false, message: '請選擇圖片檔案。' };
+        }
+        
+        // 檢查檔案大小
+        if (file.size > 50 * 1024 * 1024) {
+            return { isValid: false, message: '圖片檔案過大，請選擇小於 50MB 的檔案。' };
+        }
+        
+        // 檢查檔案類型
+        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+        const fileExtension = file.name.toLowerCase().split('.').pop();
+        const validExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+        
+        // HEIC/HEIF 格式特殊處理
+        if (fileExtension === 'heic' || fileExtension === 'heif' || file.type === 'image/heic' || file.type === 'image/heif') {
+            return { 
+                isValid: false, 
+                message: 'HEIC 格式不被支援。請在 iPhone 相機設定中選擇「最兼容」格式，或使用其他 JPEG/PNG 圖片。' 
+            };
+        }
+        
+        // 基本類型檢查
+        if (!file.type.startsWith('image/') && !validExtensions.includes(fileExtension)) {
+            return { isValid: false, message: '請選擇有效的圖片檔案（支援 JPEG、PNG、WebP、GIF）。' };
+        }
+        
+        // 進一步驗證 MIME type
+        if (!validTypes.includes(file.type) && file.type !== '') {
+            console.warn('未知的 MIME type：', file.type, '檔案名稱：', file.name);
+            // 如果副檔名正確，仍然允許處理
+            if (!validExtensions.includes(fileExtension)) {
+                return { isValid: false, message: '不支援的圖片格式，請使用 JPEG、PNG、WebP 或 GIF。' };
+            }
+        }
+        
+        return { isValid: true };
     }
     
     updateTransform(deltaTransform) {
