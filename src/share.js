@@ -2,6 +2,7 @@ export class ShareHandler {
     constructor() {
         this.supportsShare = this.checkShareSupport();
         this.supportsFileShare = this.checkFileShareSupport();
+        this.isDesktop = this.checkIfDesktop();
     }
     
     checkShareSupport() {
@@ -18,32 +19,78 @@ export class ShareHandler {
         }
     }
     
+    checkIfDesktop() {
+        // 檢測是否為桌面裝置
+        const userAgent = navigator.userAgent.toLowerCase();
+        const isMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
+        return !isMobile;
+    }
+    
     async shareBlob(blob, filename, text = '') {
-        if (!this.supportsFileShare) {
+        console.log('ShareHandler: 嘗試分享圖片', {
+            supportsShare: this.supportsShare,
+            supportsFileShare: this.supportsFileShare,
+            isDesktop: this.isDesktop,
+            isHttps: location.protocol === 'https:'
+        });
+        
+        // 桌面裝置或不支援檔案分享時，直接下載
+        if (this.isDesktop || !this.supportsFileShare) {
+            console.log('ShareHandler: 使用下載方式（桌面裝置或不支援檔案分享）');
             await this.downloadBlob(blob, filename);
-            return false;
+            return { 
+                success: true, 
+                method: 'download',
+                message: '圖片已下載至您的裝置'
+            };
         }
         
         try {
             const file = new File([blob], filename, { type: blob.type });
             
+            // 檢查是否可以分享此檔案
             const canShare = navigator.canShare({ files: [file] });
             if (!canShare) {
+                console.log('ShareHandler: 無法分享檔案，使用下載方式');
                 await this.downloadBlob(blob, filename);
-                return false;
+                return { 
+                    success: true, 
+                    method: 'download',
+                    message: '裝置不支援檔案分享，圖片已下載'
+                };
             }
             
+            console.log('ShareHandler: 使用原生分享 API');
             await navigator.share({
                 files: [file],
-                title: 'My Framed Photo',
-                text: text || 'Check out my framed photo!'
+                title: '我的相框照片',
+                text: text || '快來看看我的相框照片！'
             });
             
-            return true;
+            return { 
+                success: true, 
+                method: 'share',
+                message: '分享成功'
+            };
         } catch (error) {
-            console.warn('Share failed, falling back to download:', error);
+            console.warn('ShareHandler: 分享失敗，回退至下載方式:', error);
+            
+            // 使用者取消分享不算錯誤
+            if (error.name === 'AbortError') {
+                return { 
+                    success: false, 
+                    method: 'cancelled',
+                    message: '使用者取消分享'
+                };
+            }
+            
+            // 其他錯誤則回退到下載
             await this.downloadBlob(blob, filename);
-            return false;
+            return { 
+                success: true, 
+                method: 'download',
+                message: '分享失敗，圖片已下載至您的裝置'
+            };
         }
     }
     
@@ -75,6 +122,7 @@ export class ShareHandler {
         return {
             supportsShare: this.supportsShare,
             supportsFileShare: this.supportsFileShare,
+            isDesktop: this.isDesktop,
             isHttps: location.protocol === 'https:',
             userAgent: navigator.userAgent
         };
@@ -90,21 +138,13 @@ export class ShareHandler {
         return recommendations[format] || ['社群媒體分享'];
     }
     
-    async copyImageToClipboard(blob) {
-        if (!navigator.clipboard || !navigator.clipboard.write) {
-            return false;
-        }
-        
-        try {
-            const clipboardItem = new ClipboardItem({
-                [blob.type]: blob
-            });
-            
-            await navigator.clipboard.write([clipboardItem]);
-            return true;
-        } catch (error) {
-            console.warn('Failed to copy to clipboard:', error);
-            return false;
+    getShareMethodDescription() {
+        if (this.isDesktop) {
+            return '電腦裝置將自動下載圖片';
+        } else if (this.supportsFileShare) {
+            return '支援原生分享功能';
+        } else {
+            return '將自動下載圖片至裝置';
         }
     }
 }

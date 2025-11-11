@@ -19,7 +19,6 @@ class PhotoFrameApp {
         this.reprocessBtn = document.getElementById('reprocessBtn');
         this.downloadBtn = document.getElementById('downloadBtn');
         this.shareBtn = document.getElementById('shareBtn');
-        this.copyBtn = document.getElementById('copyBtn');
         this.formatButtons = document.querySelectorAll('.format-btn');
         
         this.currentImage = null;
@@ -47,10 +46,13 @@ class PhotoFrameApp {
             
             await this.loadFrame();
             this.setupEventListeners();
-            this.checkClipboardSupport();
             this.updateUI();
             
-            this.showStatus('Ready! Upload a photo to get started.', 'success');
+            // 顯示分享方法說明
+            const shareMethod = this.shareHandler.getShareMethodDescription();
+            console.log('分享功能初始化：', shareMethod);
+            
+            this.showStatus('準備就緒！上傳照片開始使用。', 'success');
         } catch (error) {
             console.error('App initialization failed:', error);
             this.showStatus('Failed to initialize app. Please refresh the page.', 'error');
@@ -111,10 +113,6 @@ class PhotoFrameApp {
         
         this.shareBtn.addEventListener('click', () => {
             this.shareImage();
-        });
-        
-        this.copyBtn.addEventListener('click', () => {
-            this.copyImage();
         });
         
         this.formatButtons.forEach(btn => {
@@ -354,37 +352,6 @@ class PhotoFrameApp {
         this.showStatus(`已切換至${formatInfo.name}`, 'success');
     }
     
-    checkClipboardSupport() {
-        const supportsClipboard = navigator.clipboard && navigator.clipboard.write;
-        if (supportsClipboard) {
-            this.copyBtn.style.display = 'flex';
-        }
-    }
-    
-    async copyImage() {
-        if (!this.currentImage) return;
-        
-        try {
-            this.showStatus('Preparing to copy...');
-            
-            const blob = await this.renderEngine.exportImage(
-                this.currentImage, 
-                this.transform, 
-                this.frameImage
-            );
-            
-            const success = await this.shareHandler.copyImageToClipboard(blob);
-            
-            if (success) {
-                this.showStatus('Image copied to clipboard!', 'success');
-            } else {
-                this.showStatus('Failed to copy. Try download instead.', 'error');
-            }
-        } catch (error) {
-            console.error('Copy failed:', error);
-            this.showStatus('Failed to copy image. Please try downloading instead.', 'error');
-        }
-    }
     
     startContinuousRender() {
         if (this.renderTimeout) {
@@ -433,7 +400,6 @@ class PhotoFrameApp {
         this.reprocessBtn.disabled = !hasFile;
         this.downloadBtn.disabled = !hasImage;
         this.shareBtn.disabled = !hasImage;
-        this.copyBtn.disabled = !hasImage;
         
         // 當有圖片時顯示重新處理按鈕
         if (hasFile) {
@@ -479,7 +445,7 @@ class PhotoFrameApp {
         if (!this.currentImage) return;
         
         try {
-            this.showStatus('Preparing to share...');
+            this.showStatus('準備分享...');
             
             const blob = await this.renderEngine.exportImage(
                 this.currentImage, 
@@ -492,20 +458,35 @@ class PhotoFrameApp {
             const platforms = this.shareHandler.getPlatformRecommendation(formatInfo.key);
             const shareText = `我的${formatInfo.name}相框照片！適合 ${platforms.join('、')} #相框工具`;
             
-            const success = await this.shareHandler.shareBlob(
+            console.log('開始分享圖片：', {
+                filename,
+                platforms,
+                shareCapabilities: this.shareHandler.getShareCapabilities()
+            });
+            
+            const result = await this.shareHandler.shareBlob(
                 blob, 
                 filename,
                 shareText
             );
             
-            if (success) {
-                this.showStatus('Sharing...', 'success');
+            if (result.success) {
+                switch (result.method) {
+                    case 'share':
+                        this.showStatus('分享成功！', 'success');
+                        break;
+                    case 'download':
+                        this.showStatus(`${result.message}。適合分享至：${platforms.join('、')}`, 'success');
+                        break;
+                }
+            } else if (result.method === 'cancelled') {
+                this.showStatus('分享已取消', '');
             } else {
-                this.showStatus(`適合分享至：${platforms.join('、')}。圖片已下載。`, 'success');
+                this.showStatus('分享遇到問題，請重試或使用下載功能', 'error');
             }
         } catch (error) {
-            console.error('Share failed:', error);
-            this.showStatus('Failed to share image. Please try downloading instead.', 'error');
+            console.error('分享失敗:', error);
+            this.showStatus('分享失敗，請重試或使用下載功能', 'error');
         }
     }
     
