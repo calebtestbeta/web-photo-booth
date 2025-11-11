@@ -15,6 +15,8 @@ class PhotoFrameApp {
         this.fileInput = document.getElementById('fileInput');
         this.uploadBtn = document.getElementById('uploadBtn');
         this.resetBtn = document.getElementById('resetBtn');
+        this.rotateBtn = document.getElementById('rotateBtn');
+        this.reprocessBtn = document.getElementById('reprocessBtn');
         this.downloadBtn = document.getElementById('downloadBtn');
         this.shareBtn = document.getElementById('shareBtn');
         this.copyBtn = document.getElementById('copyBtn');
@@ -22,6 +24,7 @@ class PhotoFrameApp {
         
         this.currentImage = null;
         this.frameImage = null;
+        this.currentFile = null; // 保存當前檔案以供重新處理
         this.transform = {
             x: 0,
             y: 0,
@@ -94,6 +97,14 @@ class PhotoFrameApp {
             this.resetTransform();
         });
         
+        this.rotateBtn.addEventListener('click', () => {
+            this.rotateImage();
+        });
+        
+        this.reprocessBtn.addEventListener('click', () => {
+            this.reprocessImage();
+        });
+        
         this.downloadBtn.addEventListener('click', () => {
             this.downloadImage();
         });
@@ -155,13 +166,16 @@ class PhotoFrameApp {
                 lastModified: new Date(file.lastModified)
             });
             
+            // 保存檔案以供重新處理
+            this.currentFile = file;
+            
             this.currentImage = await this.imageHandler.processImage(file);
             this.resetTransform();
             this.updateUI();
             this.scheduleRender();
             
             console.log('圖片處理成功');
-            this.showStatus('圖片載入成功！使用手勢調整位置。', 'success');
+            this.showStatus('圖片載入成功！使用手勢調整位置。如方向錯誤可點擊旋轉按鈕。', 'success');
         } catch (error) {
             console.error('圖片上傳失敗，詳細錯誤：', error);
             
@@ -277,6 +291,45 @@ class PhotoFrameApp {
         this.showStatus('Photo centered.', 'success');
     }
     
+    rotateImage() {
+        if (!this.currentImage) return;
+        
+        // 順時針旋轉 90 度
+        this.transform.rotation += Math.PI / 2;
+        
+        // 保持旋轉值在 0-2π 範圍內
+        if (this.transform.rotation >= Math.PI * 2) {
+            this.transform.rotation -= Math.PI * 2;
+        }
+        
+        this.scheduleRender();
+        this.showStatus('照片已旋轉 90 度', 'success');
+    }
+    
+    async reprocessImage() {
+        if (!this.currentFile) {
+            this.showStatus('無法重新處理：原始檔案不存在', 'error');
+            return;
+        }
+        
+        this.showLoading(true);
+        this.showStatus('重新處理圖片（跳過自動方向校正）...');
+        
+        try {
+            console.log('重新處理圖片，跳過 EXIF 方向校正');
+            this.currentImage = await this.imageHandler.processImage(this.currentFile, { skipOrientation: true });
+            this.resetTransform();
+            this.scheduleRender();
+            
+            this.showStatus('圖片已重新處理，已跳過自動方向校正', 'success');
+        } catch (error) {
+            console.error('重新處理失敗:', error);
+            this.showStatus('重新處理失敗，請重新上傳圖片', 'error');
+        } finally {
+            this.showLoading(false);
+        }
+    }
+    
     
     async changeOutputFormat(format) {
         const success = this.renderEngine.setOutputFormat(format);
@@ -373,11 +426,21 @@ class PhotoFrameApp {
     
     updateUI() {
         const hasImage = !!this.currentImage;
+        const hasFile = !!this.currentFile;
         
         this.resetBtn.disabled = !hasImage;
+        this.rotateBtn.disabled = !hasImage;
+        this.reprocessBtn.disabled = !hasFile;
         this.downloadBtn.disabled = !hasImage;
         this.shareBtn.disabled = !hasImage;
         this.copyBtn.disabled = !hasImage;
+        
+        // 當有圖片時顯示重新處理按鈕
+        if (hasFile) {
+            this.reprocessBtn.style.display = 'flex';
+        } else {
+            this.reprocessBtn.style.display = 'none';
+        }
         
         this.canvas.classList.toggle('has-image', hasImage);
         this.placeholderText.classList.toggle('hidden', hasImage);

@@ -2,10 +2,17 @@ export class ImageHandler {
     constructor() {
         this.maxDimension = 3000;
         this.jpegQuality = 0.92;
+        this.autoCorrectOrientation = true; // 可設定是否自動校正方向
     }
     
-    async processImage(file) {
+    async processImage(file, options = {}) {
         console.log('ImageHandler: 開始處理圖片');
+        console.log('ImageHandler: 檔案資訊:', {
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            lastModified: new Date(file.lastModified).toLocaleString()
+        });
         
         try {
             // 讀取檔案為 ArrayBuffer
@@ -15,27 +22,49 @@ export class ImageHandler {
             // 安全地取得 EXIF 方向資訊
             console.log('ImageHandler: 解析 EXIF 方向資訊');
             const orientation = this.getExifOrientation(imageData);
-            console.log('ImageHandler: EXIF 方向:', orientation);
+            console.log('ImageHandler: EXIF 方向值:', orientation, this.getOrientationDescription(orientation));
             
             // 載入圖片
             console.log('ImageHandler: 載入圖片');
             const img = await this.loadImageFromFile(file);
-            console.log('ImageHandler: 圖片尺寸:', img.width, 'x', img.height);
+            console.log('ImageHandler: 原始圖片尺寸:', img.width, 'x', img.height);
             
-            // 套用方向校正
-            console.log('ImageHandler: 套用方向校正');
-            const correctedImage = await this.applyOrientationCorrection(img, orientation);
+            // 決定是否套用方向校正
+            const shouldCorrect = options.skipOrientation ? false : this.autoCorrectOrientation;
+            let correctedImage = img;
+            
+            if (shouldCorrect && orientation !== 1) {
+                console.log('ImageHandler: 套用 EXIF 方向校正');
+                correctedImage = await this.applyOrientationCorrection(img, orientation);
+                console.log('ImageHandler: 校正後圖片尺寸:', correctedImage.width, 'x', correctedImage.height);
+            } else {
+                console.log('ImageHandler: 跳過方向校正 (EXIF:', orientation, ', shouldCorrect:', shouldCorrect, ')');
+            }
             
             // 調整大小（如果需要）
             console.log('ImageHandler: 檢查是否需要調整大小');
             const resizedImage = await this.resizeIfNeeded(correctedImage);
             
-            console.log('ImageHandler: 圖片處理完成');
+            console.log('ImageHandler: 圖片處理完成，最終尺寸:', resizedImage.width, 'x', resizedImage.height);
             return resizedImage;
         } catch (error) {
             console.error('ImageHandler: 圖片處理失敗:', error);
             throw error;
         }
+    }
+    
+    getOrientationDescription(orientation) {
+        const descriptions = {
+            1: '正常 (0°)',
+            2: '水平翻轉',
+            3: '旋轉 180°',
+            4: '垂直翻轉',
+            5: '順時針 90° + 水平翻轉',
+            6: '順時針 90°',
+            7: '逆時針 90° + 水平翻轉',
+            8: '逆時針 90°'
+        };
+        return descriptions[orientation] || '未知';
     }
     
     async loadImageFromFile(file) {

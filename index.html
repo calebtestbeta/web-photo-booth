@@ -108,6 +108,27 @@
 
             <button 
                 class="toolbar-btn" 
+                id="rotateBtn"
+                aria-label="順時針旋轉照片 90 度"
+                disabled
+            >
+                <span class="btn-icon">↻</span>
+                <span class="btn-text">旋轉</span>
+            </button>
+
+            <button 
+                class="toolbar-btn" 
+                id="reprocessBtn"
+                aria-label="重新處理照片，跳過自動方向校正"
+                style="display: none;"
+                disabled
+            >
+                <span class="btn-icon">⚙️</span>
+                <span class="btn-text">重新處理</span>
+            </button>
+
+            <button 
+                class="toolbar-btn" 
                 id="downloadBtn"
                 aria-label="Download framed photo"
                 disabled
