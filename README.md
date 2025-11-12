@@ -17,6 +17,8 @@ A mobile-first web application for adding decorative frames to photos with touch
 - **Intelligent Canvas Interaction**: Click empty canvas to upload/capture photos
 - **Camera Integration**: Direct camera capture on mobile devices
 - **Multiple Input Methods**: File selection, camera capture, drag & drop
+- **Gesture Hints System**: Sequential visual tutorials for new users
+- **Perfect Placeholder Centering**: Professional empty state with centered prompts
 
 ### 🎛️ **Advanced Photo Adjustment**
 - **Precision Mode**: Double-finger long-press (500ms) for ultra-precise adjustments

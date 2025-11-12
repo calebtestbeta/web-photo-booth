@@ -633,7 +633,7 @@ class PhotoFrameApp {
             const formatInfo = this.renderEngine.getCurrentFormat();
             const filename = `framed-photo-${formatInfo.key}-${this.currentFrameStyle}-${formatInfo.width}x${formatInfo.height}.png`;
             const platforms = this.shareHandler.getPlatformRecommendation(formatInfo.key);
-            const shareText = `我的${formatInfo.name}相框照片！適合 ${platforms.join('、')} #相框工具`;
+            const shareText = "Farewell, Johnny! Go be good! (Like the song! 😉) https://calebtestbeta.github.io/web-photo-booth/johnny-be-good.html";
             
             console.log('開始分享圖片：', {
                 filename,

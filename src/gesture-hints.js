@@ -29,16 +29,10 @@ export class GestureHints {
         this.isShowing = true;
         this.currentHintIndex = 0;
         
-        // 顯示幫助文字
-        if (this.gestureHelp) {
-            this.gestureHelp.style.display = 'block';
-            this.gestureHelp.classList.remove('hidden');
-        }
-        
-        // 開始提示序列
+        // 開始提示序列，不立即顯示底部說明
         setTimeout(() => {
             this.showNextHint();
-        }, 1000);
+        }, 800);
     }
     
     /**
@@ -95,7 +89,7 @@ export class GestureHints {
         console.log('GestureHints: 完成所有手勢提示');
         this.isShowing = false;
         
-        // 隱藏提示元素
+        // 隱藏中央提示元素
         if (this.gestureHint) {
             this.gestureHint.style.display = 'none';
             this.gestureHint.className = 'gesture-hint';
@@ -105,15 +99,22 @@ export class GestureHints {
         localStorage.setItem('gestureHintsShown', 'true');
         this.hasShownOnce = true;
         
-        // 延遲隱藏幫助文字
+        // 顯示底部說明文字（在中央提示完成後）
         setTimeout(() => {
             if (this.gestureHelp) {
-                this.gestureHelp.style.opacity = '0';
+                this.gestureHelp.style.display = 'block';
+                this.gestureHelp.classList.remove('hidden');
+                this.gestureHelp.style.opacity = '1';
+                
+                // 3秒後淡出底部說明
                 setTimeout(() => {
-                    this.gestureHelp.style.display = 'none';
-                }, 300);
+                    this.gestureHelp.style.opacity = '0';
+                    setTimeout(() => {
+                        this.gestureHelp.style.display = 'none';
+                    }, 300);
+                }, 3000);
             }
-        }, 3000);
+        }, 500);
     }
     
     /**

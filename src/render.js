@@ -151,21 +151,6 @@ export class RenderEngine {
             safeArea.height
         );
         
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
-        this.ctx.font = '24px -apple-system, BlinkMacSystemFont, sans-serif';
-        
-        this.ctx.fillText(
-            '安全區域',
-            this.outputWidth / 2,
-            this.outputHeight / 2 + 100
-        );
-        
-        this.ctx.font = '16px -apple-system, BlinkMacSystemFont, sans-serif';
-        this.ctx.fillText(
-            '您的照片將放置在此處',
-            this.outputWidth / 2,
-            this.outputHeight / 2 + 130
-        );
         
         this.ctx.restore();
     }
