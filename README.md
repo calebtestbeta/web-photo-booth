@@ -5,6 +5,7 @@ A mobile-first web application for adding decorative frames to photos with touch
 ## Features
 
 ### 🎨 **Modern UI/UX Design**
+- **Warm Light Theme**: Modern, warm color scheme with orange accent system (#f97316)
 - **Professional Design System**: Comprehensive CSS custom properties and design tokens
 - **SVG Icon Library**: Professional vector icons replacing emoji for better consistency
 - **Card-based Layout**: Modern glassmorphism effects with backdrop blur
@@ -156,6 +157,19 @@ A mobile-first web application for adding decorative frames to photos with touch
 
 ## New Features (Social Media Optimized)
 
+### 🎨 **Modern Warm Light Theme**
+- **Warm Color Palette**: Beautiful warm orange (#f97316) accent system with light backgrounds
+- **Consistent Design**: Unified warm theme across all screen sizes and components
+- **Better Accessibility**: Improved contrast and readability with warm neutral colors
+- **Professional Look**: Clean, modern aesthetic suitable for professional use
+
+### 🖼️ **Multiple Frame Styles**
+- **現代畫廊 (Modern Gallery)**: Clean, professional design with simple borders
+- **漸變光暈 (Gradient Glow)**: Colorful rainbow gradient effects
+- **幾何抽象 (Geometric Art)**: Multi-layered geometric patterns
+- **極簡線條 (Minimal Lines)**: Refined line-based designs
+- **科技現代 (Tech Modern)**: Futuristic design with "Johnny Be Good!" text
+
 ### 📱 Multiple Output Formats
 - **正方形 (Square)**: 1080×1080 - Perfect for Instagram posts, Facebook, Twitter
 - **直式 (Portrait)**: 1080×1350 - Ideal for Instagram portrait posts
@@ -163,12 +177,12 @@ A mobile-first web application for adding decorative frames to photos with touch
 
 ### 🎯 Smart Controls
 - **Format Selector**: Choose your target social media platform
-- **適合IG Button**: One-click optimization for Instagram posting
-- **Copy to Clipboard**: Instantly copy image for easy sharing (supported browsers)
+- **Style Selector**: Preview and switch between different frame styles
+- **Frame Preview**: See frame styles without uploading photos first
 - **Platform Recommendations**: Get suggestions for best sharing platforms
 
 ### 🖼️ Optimized Frames
-- **Reduced Border Width**: 5% safe area (was 8%) for more photo space
+- **Custom Frame Assets**: Multiple artistic styles with consistent "Johnny Be Good!" branding
 - **Adaptive Sizing**: Frame thickness adjusts automatically per format
 - **Mobile-First Design**: Touch-optimized interface for smartphones
 
