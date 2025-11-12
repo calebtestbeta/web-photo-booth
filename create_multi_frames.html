@@ -50,9 +50,9 @@
         const canvasInfo = document.getElementById('canvasInfo');
         
         const formats = {
-            square: { width: 1080, height: 1080, name: '正方形', borderWidth: 70 },
-            portrait: { width: 1080, height: 1350, name: '直式', borderWidth: 65 },
-            story: { width: 1080, height: 1920, name: '限時動態', borderWidth: 60 }
+            square: { width: 1080, height: 1080, name: '正方形', borderWidth: 45 },
+            portrait: { width: 1080, height: 1350, name: '直式', borderWidth: 42 },
+            story: { width: 1080, height: 1920, name: '限時動態', borderWidth: 40 }
         };
         
         let currentFormat = 'square';
@@ -70,24 +70,23 @@
             
             // Calculate proportional sizes
             const borderWidth = config.borderWidth;
-            const innerBorderWidth = Math.max(4, Math.round(borderWidth * 0.08));
-            const cornerRadius = Math.round(borderWidth * 0.5);
+            const innerBorderWidth = Math.max(3, Math.round(borderWidth * 0.1));
+            const cornerRadius = Math.round(borderWidth * 0.8); // 更大的圓角，更現代
             const decorationRadius = Math.round(borderWidth * 0.25);
             
-            // Create gradients
+            // Create modern blue gradients
             const outerGradient = ctx.createLinearGradient(0, 0, config.width, config.height);
-            outerGradient.addColorStop(0, '#FFD700');
-            outerGradient.addColorStop(0.25, '#FFA500');
-            outerGradient.addColorStop(0.5, '#FF8C00');
-            outerGradient.addColorStop(0.75, '#DAA520');
-            outerGradient.addColorStop(1, '#B8860B');
+            outerGradient.addColorStop(0, '#3b82f6');    // Blue-500
+            outerGradient.addColorStop(0.3, '#2563eb');  // Blue-600
+            outerGradient.addColorStop(0.6, '#1d4ed8');  // Blue-700
+            outerGradient.addColorStop(1, '#1e40af');    // Blue-800
             
             const innerGradient = ctx.createRadialGradient(
                 config.width/2, config.height/2, 100, 
                 config.width/2, config.height/2, Math.max(config.width, config.height)/2
             );
-            innerGradient.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
-            innerGradient.addColorStop(1, 'rgba(0, 0, 0, 0.2)');
+            innerGradient.addColorStop(0, 'rgba(255, 255, 255, 0.2)');
+            innerGradient.addColorStop(1, 'rgba(59, 130, 246, 0.1)');
             
             // Draw main border
             ctx.save();
@@ -113,7 +112,7 @@
             
             // Inner accent border
             ctx.save();
-            ctx.strokeStyle = 'rgba(255, 215, 0, 0.6)';
+            ctx.strokeStyle = 'rgba(59, 130, 246, 0.4)';
             ctx.lineWidth = innerBorderWidth;
             const innerMargin = borderWidth + 15;
             const innerRadius = cornerRadius - 15;
@@ -122,82 +121,12 @@
             ctx.stroke();
             ctx.restore();
             
-            // Corner decorations
-            const cornerOffset = borderWidth + Math.round(borderWidth * 0.8);
-            const cornerPositions = [
-                { x: cornerOffset, y: cornerOffset },
-                { x: config.width - cornerOffset, y: cornerOffset },
-                { x: cornerOffset, y: config.height - cornerOffset },
-                { x: config.width - cornerOffset, y: config.height - cornerOffset }
-            ];
+            // 移除角落裝飾，保持簡約設計
             
-            cornerPositions.forEach(pos => {
-                // Main decoration
-                ctx.save();
-                ctx.fillStyle = outerGradient;
-                ctx.beginPath();
-                ctx.arc(pos.x, pos.y, decorationRadius, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // Highlight
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-                ctx.beginPath();
-                ctx.arc(pos.x - 3, pos.y - 3, decorationRadius * 0.4, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // Center gem
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-                ctx.beginPath();
-                ctx.arc(pos.x, pos.y, decorationRadius * 0.2, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.restore();
-            });
+            // 移除邊框圖案，保持極簡風格
             
-            // Decorative patterns (scaled)
-            ctx.save();
-            ctx.strokeStyle = 'rgba(255, 215, 0, 0.3)';
-            ctx.lineWidth = 2;
-            
-            const patternCount = Math.floor(Math.min(config.width, config.height) / 90);
-            const patternSpacing = (Math.min(config.width, config.height) - 2 * borderWidth - 100) / patternCount;
-            
-            // Top and bottom patterns
-            for (let i = 0; i < patternCount; i++) {
-                const x = borderWidth + 50 + i * patternSpacing;
-                const topY = borderWidth * 0.5;
-                const bottomY = config.height - borderWidth * 0.5;
-                
-                ctx.beginPath();
-                ctx.moveTo(x, topY - 12);
-                ctx.lineTo(x, topY + 12);
-                ctx.stroke();
-                
-                ctx.beginPath();
-                ctx.moveTo(x, bottomY - 12);
-                ctx.lineTo(x, bottomY + 12);
-                ctx.stroke();
-            }
-            
-            // Left and right patterns
-            const vPatternCount = Math.floor(config.height / 90);
-            const vPatternSpacing = (config.height - 2 * borderWidth - 100) / vPatternCount;
-            
-            for (let i = 0; i < vPatternCount; i++) {
-                const y = borderWidth + 50 + i * vPatternSpacing;
-                const leftX = borderWidth * 0.5;
-                const rightX = config.width - borderWidth * 0.5;
-                
-                ctx.beginPath();
-                ctx.moveTo(leftX - 12, y);
-                ctx.lineTo(leftX + 12, y);
-                ctx.stroke();
-                
-                ctx.beginPath();
-                ctx.moveTo(rightX - 12, y);
-                ctx.lineTo(rightX + 12, y);
-                ctx.stroke();
-            }
-            ctx.restore();
+            // 加入草寫文字 "Johnny Be Good!"
+            drawCursiveText(ctx, config.width, config.height, borderWidth);
         }
         
         function drawRoundedRect(ctx, x, y, width, height, radius) {
@@ -212,6 +141,38 @@
             ctx.lineTo(x, y + radius);
             ctx.quadraticCurveTo(x, y, x + radius, y);
             ctx.closePath();
+        }
+        
+        function drawCursiveText(ctx, canvasWidth, canvasHeight, borderWidth) {
+            ctx.save();
+            
+            // 計算文字位置 (底部中央)
+            const textY = canvasHeight - borderWidth * 0.3;
+            const textX = canvasWidth / 2;
+            
+            // 設定草寫文字樣式
+            const fontSize = Math.max(24, borderWidth * 0.6);
+            ctx.font = `italic ${fontSize}px "Brush Script MT", "Lucida Handwriting", "Apple Chancery", cursive`;
+            ctx.fillStyle = '#1d4ed8'; // 深藍色
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // 加入文字陰影效果
+            ctx.shadowColor = 'rgba(29, 78, 216, 0.3)';
+            ctx.shadowBlur = 2;
+            ctx.shadowOffsetX = 1;
+            ctx.shadowOffsetY = 1;
+            
+            // 繪製文字
+            ctx.fillText('Johnny Be Good!', textX, textY);
+            
+            // 加入文字外框 (可選)
+            ctx.shadowColor = 'transparent';
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.lineWidth = 1;
+            ctx.strokeText('Johnny Be Good!', textX, textY);
+            
+            ctx.restore();
         }
         
         function switchFormat(format) {
