@@ -772,6 +772,7 @@ body {
         0 0 50px rgba(251, 146, 60, 0.25),
         inset 0 1px 0 rgba(255, 255, 255, 0.9);
     scale: 1.02;
+    z-index: 99999 !important;
 }
 
 /* Original Precision Controls Panel (fallback) */
@@ -892,10 +893,12 @@ body {
     overflow: hidden;
     background: rgba(255, 255, 255, 0.98);
     border-radius: 0 0 var(--rounded-2xl) var(--rounded-2xl);
+    height: 0;
 }
 
 .precision-panel-floating.expanded .precision-controls-floating {
     max-height: 350px;
+    height: auto;
     opacity: 1;
     padding: var(--space-2) var(--space-4) var(--space-4);
     background: rgba(255, 255, 255, 0.98);

@@ -1166,9 +1166,10 @@ class PhotoFrameApp {
         
         this.isDragging = false;
         
-        // 恢復樣式
+        // 恢復樣式，但保持高 z-index
         this.precisionPanelFloating.style.transition = '';
         this.precisionPanelFloating.classList.remove('dragging');
+        this.precisionPanelFloating.style.zIndex = '99999';
         document.body.style.userSelect = '';
         
         // 磁吸效果：如果接近邊緣，自動貼邊
