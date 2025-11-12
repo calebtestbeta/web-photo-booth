@@ -561,7 +561,7 @@ class PhotoFrameApp {
         const christmasStyles = {
             'holly-border': '冬青邊框',
             'snow-frame': '雪花邊框',
-            'gift-wrapper': '禮物包裝',
+            'christmas-ornaments': '聖誕飾品',
             'winter-glow': '冬日光暈',
             'festive-lights': '節慶燈飾'
         };

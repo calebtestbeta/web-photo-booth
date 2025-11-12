@@ -180,7 +180,7 @@ A mobile-first web application for adding decorative frames to photos with touch
 #### Christmas Magic Theme (Red/Green Festive)
 - **🌿 冬青邊框 (Holly Border)**: Classic Christmas with holly leaves, berries, and golden bells
 - **❄️ 雪花邊框 (Snow Frame)**: Winter wonderland with animated snowflakes and falling snow
-- **🎁 禮物包裝 (Gift Wrapper)**: Festive gift box style with luxury ribbons and stockings
+- **🎄 聖誕飾品 (Christmas Ornaments)**: Transparent border with colorful Christmas balls, garlands, and swinging bells
 - **✨ 冬日光暈 (Winter Glow)**: Magical glow effects with colorful light particles
 - **🎄 節慶燈飾 (Festive Lights)**: Twinkling Christmas lights with sparkling stars
 
@@ -220,7 +220,7 @@ A mobile-first web application for adding decorative frames to photos with touch
 ### Christmas Frame Generator (Enhanced)
 1. Open `create_christmas_frames.html` in your browser
 2. Select output format (Square/Portrait/Story)
-3. Choose Christmas style (Holly Border/Snow Frame/Gift Wrapper/Winter Glow/Festive Lights)
+3. Choose Christmas style (Holly Border/Snow Frame/Christmas Ornaments/Winter Glow/Festive Lights)
 4. Enjoy animated effects: twinkling lights, falling snow, glowing particles, musical notes
 5. Download single frame or batch download all format/style combinations
 6. Features dynamic animations, gradient text effects, and festive decorations

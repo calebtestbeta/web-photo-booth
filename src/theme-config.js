@@ -32,7 +32,7 @@ export class ThemeConfig {
                 frameStyles: [
                     'holly-border',
                     'snow-frame',
-                    'gift-wrapper',
+                    'christmas-ornaments',
                     'winter-glow',
                     'festive-lights'
                 ],
