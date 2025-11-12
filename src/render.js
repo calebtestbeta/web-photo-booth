@@ -1,3 +1,5 @@
+import { resourceManager } from './resource-manager.js';
+
 export class RenderEngine {
     constructor(canvas, ctx) {
         this.canvas = canvas;
@@ -169,11 +171,8 @@ export class RenderEngine {
     }
     
     async exportImage(image, transform, frameImage) {
-        const exportCanvas = document.createElement('canvas');
+        const exportCanvas = resourceManager.createCanvas(this.outputWidth, this.outputHeight, 'image-export');
         const exportCtx = exportCanvas.getContext('2d');
-        
-        exportCanvas.width = this.outputWidth;
-        exportCanvas.height = this.outputHeight;
         
         exportCtx.imageSmoothingEnabled = true;
         exportCtx.imageSmoothingQuality = 'high';
@@ -220,7 +219,11 @@ export class RenderEngine {
         }
         
         return new Promise((resolve) => {
-            exportCanvas.toBlob(resolve, 'image/png', 1.0);
+            exportCanvas.toBlob((blob) => {
+                // 清理 export canvas
+                resourceManager.releaseCanvas(exportCanvas);
+                resolve(blob);
+            }, 'image/png', 1.0);
         });
     }
 }

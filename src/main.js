@@ -2,6 +2,8 @@ import { ImageHandler } from './image.js';
 import { GestureHandler } from './gesture.js';
 import { RenderEngine } from './render.js';
 import { ShareHandler } from './share.js';
+import { resourceManager } from './resource-manager.js';
+import { GestureHints } from './gesture-hints.js';
 
 class PhotoFrameApp {
     constructor() {
@@ -45,6 +47,7 @@ class PhotoFrameApp {
             this.gestureHandler = new GestureHandler(this.canvas);
             this.renderEngine = new RenderEngine(this.canvas, this.ctx);
             this.shareHandler = new ShareHandler();
+            this.gestureHints = new GestureHints();
             
             await this.loadFrame();
             this.setupEventListeners();
@@ -123,6 +126,11 @@ class PhotoFrameApp {
         this.gestureHandler.on('transformStart', () => {
             this.isInteracting = true;
             this.startContinuousRender();
+            
+            // 用戶開始交互時隱藏提示
+            if (this.gestureHints && this.gestureHints.isShowing) {
+                this.gestureHints.stopHints();
+            }
         });
         
         this.gestureHandler.on('transformUpdate', (transform) => {
@@ -169,6 +177,13 @@ class PhotoFrameApp {
             
             console.log('圖片處理成功');
             this.showStatus('圖片載入成功！可使用手勢調整位置，或點擊旋轉按鈕調整方向。', 'success');
+            
+            // 顯示手勢提示
+            if (this.gestureHints && this.gestureHints.shouldShowHints()) {
+                setTimeout(() => {
+                    this.gestureHints.showHints();
+                }, 1500);
+            }
         } catch (error) {
             console.error('圖片上傳失敗，詳細錯誤：', error);
             

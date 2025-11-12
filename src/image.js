@@ -1,3 +1,5 @@
+import { resourceManager } from './resource-manager.js';
+
 export class ImageHandler {
     constructor() {
         this.maxDimension = 3000;
@@ -70,15 +72,15 @@ export class ImageHandler {
     async loadImageFromFile(file) {
         return new Promise((resolve, reject) => {
             const img = new Image();
-            const url = URL.createObjectURL(file);
+            const url = resourceManager.createBlobUrl(file, 'image-loading');
             
             img.onload = () => {
-                URL.revokeObjectURL(url);
+                resourceManager.revokeBlobUrl(url);
                 resolve(img);
             };
             
             img.onerror = () => {
-                URL.revokeObjectURL(url);
+                resourceManager.revokeBlobUrl(url);
                 reject(new Error('Failed to load image'));
             };
             
@@ -335,17 +337,17 @@ export class ImageHandler {
             
             // 建立新的 Image 物件
             const correctedImg = new Image();
-            const url = URL.createObjectURL(blob);
+            const url = resourceManager.createBlobUrl(blob, 'orientation-correction');
             
             return new Promise((resolve, reject) => {
                 correctedImg.onload = () => {
-                    URL.revokeObjectURL(url);
+                    resourceManager.revokeBlobUrl(url);
                     console.log('Canvas: 方向校正完成');
                     resolve(correctedImg);
                 };
                 
                 correctedImg.onerror = () => {
-                    URL.revokeObjectURL(url);
+                    resourceManager.revokeBlobUrl(url);
                     reject(new Error('校正後的圖片載入失敗'));
                 };
                 
@@ -412,17 +414,17 @@ export class ImageHandler {
             });
             
             const resizedImg = new Image();
-            const url = URL.createObjectURL(blob);
+            const url = resourceManager.createBlobUrl(blob, 'image-resize');
             
             return new Promise((resolve, reject) => {
                 resizedImg.onload = () => {
-                    URL.revokeObjectURL(url);
+                    resourceManager.revokeBlobUrl(url);
                     console.log('Canvas: 圖片大小調整完成');
                     resolve(resizedImg);
                 };
                 
                 resizedImg.onerror = () => {
-                    URL.revokeObjectURL(url);
+                    resourceManager.revokeBlobUrl(url);
                     reject(new Error('調整後的圖片載入失敗'));
                 };
                 

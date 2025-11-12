@@ -1,3 +1,5 @@
+import { resourceManager } from './resource-manager.js';
+
 export class ShareHandler {
     constructor() {
         this.supportsShare = this.checkShareSupport();
@@ -236,7 +238,7 @@ export class ShareHandler {
         // 桌面裝置使用傳統下載
         return new Promise((resolve, reject) => {
             try {
-                const url = URL.createObjectURL(blob);
+                const url = resourceManager.createBlobUrl(blob, 'download');
                 const link = document.createElement('a');
                 
                 link.href = url;
@@ -248,7 +250,7 @@ export class ShareHandler {
                 document.body.removeChild(link);
                 
                 setTimeout(() => {
-                    URL.revokeObjectURL(url);
+                    resourceManager.revokeBlobUrl(url);
                     resolve();
                 }, 100);
             } catch (error) {
@@ -280,7 +282,7 @@ export class ShareHandler {
             
             // 創庺圖片元素
             const img = document.createElement('img');
-            const imageUrl = URL.createObjectURL(blob);
+            const imageUrl = resourceManager.createBlobUrl(blob, 'mobile-preview');
             img.src = imageUrl;
             img.className = 'preview-image';
             img.alt = '預覽圖片 - 長按可儲存';
@@ -364,7 +366,7 @@ export class ShareHandler {
             `;
             
             const cleanup = () => {
-                URL.revokeObjectURL(imageUrl);
+                resourceManager.revokeBlobUrl(imageUrl);
                 document.body.removeChild(modal);
                 resolve();
             };
