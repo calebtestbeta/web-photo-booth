@@ -63,6 +63,155 @@ npx serve . -p 8000
 
 ## 最新開發進度
 
+### 2024年11月12日 - 雙指精確調整模式與現代化UI設計系統
+
+#### 🎯 核心設計理念重大更新
+**問題**: 原有UI設計過時，缺乏現代感和專業級精確控制
+**解決方案**: 全面實現設計系統和雙指精確調整模式
+
+**設計哲學**:
+- **Mobile-First**: 針對手機使用者最佳化，桌面版為增強體驗
+- **簡約而不簡單**: 介面保持清潔，但在需要時提供專業級控制
+- **漸進式揭露**: 新手友善，專家高效
+
+#### 🎛️ 精確調整模式核心設計
+
+**觸發方式**: 雙指長按 500ms (符合 Instagram/VSCO 慣例)
+```javascript
+// 精確模式靈敏度調整 (gesture.js:295-300)
+if (this.precisionMode) {
+    const scaleChange = scale - 1;
+    scale = 1 + (scaleChange * this.precisionScaleSensitivity); // 30%
+    rotation = rotation * this.precisionRotationSensitivity;   // 20%
+}
+```
+
+**視覺回饋系統**:
+- 金色邊框效果 (`--warning-500`)
+- 觸覺震動回饋 (`navigator.vibrate(50)`)
+- 即時數值顯示 (右側浮動)
+
+**完整控制面板**:
+- 縮放滑桿: 10%-500% (1% 精度)
+- 旋轉滑桿: 0°-360° (1° 精度)
+- 位置微調按鈕 + 居中功能
+
+#### ⌨️ 桌面版專業快捷鍵系統
+```javascript
+// 鍵盤快捷鍵設計邏輯 (main.js:714-792)
+- 方向鍵：1px 移動 (Shift = 10px)
+- +/- 鍵：5% 縮放增量
+- R 鍵：90° 旋轉 (Ctrl+R = 重置)
+- P 鍵：切換精確調整面板
+- Ctrl+滾輪：2% 精確縮放
+```
+
+#### 🎨 設計系統架構完整重構
+
+**CSS 設計代幣系統**:
+```css
+/* 語意化顏色系統 */
+--primary-500: #3b82f6;    /* 主要動作色 */
+--neutral-800: #1e293b;    /* 深色背景 */
+--warning-500: #f59e0b;    /* 精確模式提示色 */
+
+/* 8px 網格系統 */
+--space-4: 1rem;      /* 16px - 基礎間距單位 */
+--space-8: 2rem;      /* 32px - 大型間距 */
+```
+
+**現代化元件系統**:
+- 卡片設計: 使用 `backdrop-filter: blur()` 建立層次感
+- 按鈕規範: 最小觸控目標 44px，桌面版 80x80px
+- 微互動: 所有元素都有 150-300ms 流暢過渡
+
+#### 📱 響應式設計策略
+
+**工具列適應性設計**:
+```css
+/* Mobile: 浮動式工具列 */
+@media (max-width: 767px) {
+    .toolbar { position: fixed; bottom: 1rem; }
+}
+
+/* Desktop: 整合式設計 */
+@media (min-width: 768px) {
+    .toolbar { position: static; }
+    .toolbar-btn { min-width: 80px; min-height: 80px; }
+}
+```
+
+**智能互動設計**:
+- 空白畫布點擊觸發上傳/拍照
+- 相機整合: `capture="environment"` 屬性
+- 格式選擇按鈕: 80x80px (桌面) / 70x70px (行動)
+
+#### ⚡ 效能最佳化系統
+
+**事件驅動渲染**:
+```javascript
+// 智能渲染控制 (main.js:396-410)
+startContinuousRender() {
+    const render = () => {
+        if (!this.isInteracting) return;  // 節能停止
+        this.render();
+        requestAnimationFrame(render);     // 60fps 同步
+    };
+}
+```
+
+**記憶體管理**:
+- 自動 Blob URL 清理
+- Canvas 參考釋放
+- 事件監聽器移除
+- 內嵌 SVG 系統避免網路請求
+
+#### 🔧 技術架構改進
+
+**檔案結構優化**:
+```
+/src/
+├── main.js          # 應用程式協調器 (+精確調整控制)
+├── gesture.js       # 手勢識別 (+精確模式)
+├── render.js        # Canvas 渲染引擎
+├── image.js         # 圖片處理和 EXIF 修正
+├── share.js         # 分享功能跨平台處理
+└── resource-manager.js # 記憶體管理
+```
+
+**狀態管理模式**:
+- 中央狀態: `main.js` 的 `transform` 物件
+- 事件驅動: 各模組透過事件通訊
+- 單向資料流: 狀態變更 → 渲染更新
+
+**跨平台相容性**:
+```javascript
+// Feature Detection 增強
+if (navigator.share) {
+    // 使用原生分享
+} else {
+    // 降級為下載
+}
+
+// CSS 漸進增強
+@supports (backdrop-filter: blur(8px)) {
+    .toolbar { background: rgba(30, 41, 59, 0.8); }
+}
+```
+
+#### 📐 設計系統約定建立
+
+**間距系統**: 基礎單位 16px，比例 0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 2.5, 3, 4  
+**字型系統**: 系統字型優先，等寬字型用於數值顯示  
+**動畫原則**: 回饋性、持續性(150-300ms)、目的性引導注意力
+
+#### 🚀 實作成果統計
+- **檔案變更**: 5個核心檔案大幅更新
+- **新增功能**: 雙指精確模式、完整調整面板、鍵盤快捷鍵
+- **UI/UX改進**: 現代化設計系統、響應式工具列、智能互動
+- **效能優化**: 事件驅動渲染、記憶體管理、內嵌SVG系統
+- **技術債務**: 大幅減少，建立可維護的架構基礎
+
 ### 2024年11月更新 - Web Share API 優化和移動端體驗提升
 
 #### 1. iPhone Safari 分享功能完整修復
@@ -137,8 +286,156 @@ console.log('即時 canShare 檢測:', canShare);
 - [x] ~~移動端圖片保存體驗~~
 - [x] ~~雙擊縮放干擾問題~~
 - [x] ~~長按另存功能缺失~~
+- [x] ~~UI 現代化和設計系統建立~~
+- [x] ~~雙指精確調整模式實現~~
+- [x] ~~桌面版鍵盤快捷鍵系統~~
+- [x] ~~響應式工具列設計~~
 - [ ] 可考慮添加 PWA 功能以提供更原生的體驗
 - [ ] 分享功能可考慮整合更多社交平台
+- [ ] 濾鏡系統實現 (CSS filters 或 WebGL)
+- [ ] 批次處理功能 (多張照片同時處理)
+- [ ] 雲端儲存整合
+
+## 🧠 關鍵設計決策記錄
+
+### 精確調整模式的設計邏輯
+**為什麼選擇雙指長按而非按鈕切換？**
+1. **符合用戶習慣**: Instagram、VSCO 等主流照片應用都使用類似手勢
+2. **情境感知**: 當用戶需要精確調整時，通常已經在使用雙指手勢
+3. **減少介面複雜度**: 避免增加額外的 UI 元素
+4. **自然過渡**: 從一般調整到精確調整的流程更順暢
+
+### 響應式工具列策略
+**為什麼不使用統一的浮動設計？**
+- **Mobile**: 螢幕空間珍貴，浮動設計最大化內容區域
+- **Desktop**: 空間充裕，整合式設計更穩定專業
+- **實用性**: 桌面用戶更需要大尺寸按鈕配合滑鼠操作
+
+### CSS 設計代幣系統建立
+**為什麼採用 8px 網格系統？**
+1. **數學簡潔**: 8 的倍數易於計算和記憶
+2. **裝置適配**: 符合常見螢幕解析度的像素對齊
+3. **設計一致性**: 業界標準，設計師和開發者都熟悉
+4. **可維護性**: 統一的間距規則減少決策疲勞
+
+## 🔮 未來擴展架構準備
+
+### 預留的技術擴展點
+
+#### 1. 濾鏡系統架構
+```javascript
+// 預留濾鏡系統接口
+class FilterEngine {
+    constructor(canvas, ctx) {
+        this.canvas = canvas;
+        this.ctx = ctx;
+        this.filters = new Map(); // 濾鏡註冊系統
+    }
+    
+    // 可擴展的濾鏡應用接口
+    applyFilter(filterName, params) {
+        // CSS filter 或 WebGL 實現
+    }
+}
+```
+
+#### 2. 狀態管理擴展準備
+```javascript
+// 當前狀態結構已支援未來擴展
+const appState = {
+    transform: { x, y, scale, rotation },
+    image: { data, metadata, history },
+    ui: { precisionMode, selectedTool },
+    // 預留: filters, batch, cloud
+};
+```
+
+#### 3. 模組系統擴展
+```
+/src/
+├── core/           # 核心功能 (已實現)
+├── filters/        # 濾鏡系統 (預留)
+├── batch/          # 批次處理 (預留)
+├── cloud/          # 雲端整合 (預留)
+└── plugins/        # 外掛系統 (預留)
+```
+
+### 效能監控點位
+```javascript
+// 預留效能監控接口
+const PerformanceMonitor = {
+    // Canvas 渲染效能
+    trackRenderTime: (duration) => {},
+    
+    // 記憶體使用追蹤
+    trackMemoryUsage: () => {},
+    
+    // 手勢響應延遲
+    trackGestureLatency: (latency) => {},
+    
+    // 使用者行為分析
+    trackUserAction: (action, context) => {}
+};
+```
+
+## 📱 裝置相容性備忘
+
+### iOS Safari 特殊處理要點
+```javascript
+// 必要的 iOS 特殊處理
+const iOSWorkarounds = {
+    // 防止雙擊縮放
+    touchAction: 'manipulation',
+    
+    // 長按另存圖片
+    allowImageSaving: true,
+    
+    // Web Share API 檢測
+    shareCapabilities: 'files' | 'dataUrl' | 'fallback'
+};
+```
+
+### Android Chrome 優化要點
+```javascript
+const androidOptimizations = {
+    // 觸控延遲優化
+    touchDelay: false,
+    
+    // 記憶體管理
+    aggressiveCleanup: true,
+    
+    // 相機整合
+    cameraCapture: 'environment'
+};
+```
+
+## 🛠️ 維護指南
+
+### 程式碼風格約定
+1. **ES6+ 模組**: 使用 import/export，避免全域變數
+2. **事件驅動**: 模組間透過事件通訊，減少直接依賴
+3. **資源管理**: 所有 Blob、Canvas、EventListener 都要有清理機制
+4. **錯誤處理**: 提供有意義的錯誤訊息，優雅降級
+
+### 測試流程
+```bash
+# 基本功能測試
+1. 上傳圖片 (檔案選擇 + 相機拍攝)
+2. 手勢操作 (拖拽、縮放、旋轉)
+3. 精確調整 (雙指長按觸發)
+4. 格式切換 (三種尺寸格式)
+5. 分享功能 (iOS/Android 原生分享)
+
+# 跨瀏覽器測試
+- iOS Safari 15+
+- Android Chrome 100+
+- Desktop Chrome/Edge/Safari
+
+# 效能測試
+- 大尺寸圖片處理 (>5MB)
+- 連續手勢操作流暢度
+- 記憶體洩漏檢測
+```
 
 ## 注意事項
 - 保持代碼簡潔和可維護性
@@ -146,3 +443,5 @@ console.log('即時 canShare 檢測:', canShare);
 - 遵循無障礙設計原則
 - 維護跨瀏覽器相容性
 - **重點關注 iPhone Safari 的特殊需求和限制**
+- **精確調整模式的手勢邏輯是核心功能，修改時要特別謹慎**
+- **設計系統的 CSS 代幣是全局依賴，變更前需評估影響範圍**
