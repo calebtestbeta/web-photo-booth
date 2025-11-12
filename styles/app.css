@@ -775,6 +775,41 @@ body {
     z-index: 99999 !important;
 }
 
+/* Dragged state (after drag, when position is absolute) */
+.precision-panel-floating.dragged {
+    z-index: 99999 !important;
+}
+
+.precision-panel-floating.dragged:not(.expanded) .precision-controls-floating {
+    height: 0 !important;
+    max-height: 0 !important;
+    padding: 0 !important;
+    opacity: 0 !important;
+    overflow: hidden !important;
+    border-radius: 0 !important;
+}
+
+.precision-panel-floating.dragged.expanded .precision-controls-floating {
+    height: auto !important;
+    max-height: 350px !important;
+    opacity: 1 !important;
+    padding: var(--space-2) var(--space-4) var(--space-4) !important;
+    background: rgba(255, 255, 255, 0.98) !important;
+}
+
+/* Additional selector for inline styles detection */
+.precision-panel-floating[style*="left"][style*="top"] {
+    z-index: 99999 !important;
+}
+
+.precision-panel-floating[style*="left"][style*="top"]:not(.expanded) .precision-controls-floating {
+    height: 0 !important;
+    max-height: 0 !important;
+    padding: 0 !important;
+    opacity: 0 !important;
+    overflow: hidden !important;
+}
+
 /* Original Precision Controls Panel (fallback) */
 .precision-panel {
     background: var(--bg-secondary);

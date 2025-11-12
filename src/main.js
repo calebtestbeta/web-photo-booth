@@ -1166,14 +1166,20 @@ class PhotoFrameApp {
         
         this.isDragging = false;
         
-        // 恢復樣式，但保持高 z-index
+        // 恢復樣式，但保持高 z-index 和標記為已拖曳
         this.precisionPanelFloating.style.transition = '';
         this.precisionPanelFloating.classList.remove('dragging');
+        this.precisionPanelFloating.classList.add('dragged');
         this.precisionPanelFloating.style.zIndex = '99999';
         document.body.style.userSelect = '';
         
         // 磁吸效果：如果接近邊緣，自動貼邊
         this.snapToEdge();
+        
+        // 強制重新渲染收折狀態
+        if (!this.precisionPanelFloating.classList.contains('expanded')) {
+            this.precisionPanelFloating.classList.remove('expanded');
+        }
     }
     
     snapToEdge() {
@@ -1193,10 +1199,12 @@ class PhotoFrameApp {
         if (snapX !== null) {
             this.precisionPanelFloating.style.left = `${snapX}px`;
             this.precisionPanelFloating.style.transition = 'left 0.3s ease-out';
+            this.precisionPanelFloating.style.zIndex = '99999';
             
             // 重置過渡效果
             setTimeout(() => {
                 this.precisionPanelFloating.style.transition = '';
+                this.precisionPanelFloating.style.zIndex = '99999';
             }, 300);
         }
     }
