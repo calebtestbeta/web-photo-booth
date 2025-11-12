@@ -684,7 +684,7 @@ class PhotoFrameApp {
             const formatInfo = this.renderEngine.getCurrentFormat();
             const filename = `framed-photo-${formatInfo.key}-${this.currentFrameStyle}-${formatInfo.width}x${formatInfo.height}.png`;
             const platforms = this.shareHandler.getPlatformRecommendation(formatInfo.key);
-            const shareText = themeConfig.getShareMessage(null, 'https://calebtestbeta.github.io/web-photo-booth/johnny-be-good.html');
+            const shareText = themeConfig.getShareMessage();
             
             console.log('開始分享圖片：', {
                 filename,

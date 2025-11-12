@@ -19,6 +19,7 @@ export class ThemeConfig {
                     'tech-modern'
                 ],
                 shareMessage: "Farewell, Johnny! Go be good! (Like the song! 😉)",
+                url: "https://calebtestbeta.github.io/web-photo-booth/johnny-be-good.html",
                 favicon: {
                     svg: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8IS0tIOiDjOaZryAtLT4KICA8cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSIzIiBmaWxsPSIjZjhmOWZhIi8+CiAgCiAgPCEtLSDnm7jmhoYgKOmHkeiJsuaBuOWxpCkgLS0+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImdvbGRHcmFkaWVudCIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNGRkQ3MDAiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSI1MCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNGRkE1MDAiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdHlsZT0ic3RvcC1jb2xvcjojRkY4QzAwIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICAKICA8IS0tIOWkluahhuW9tiAtLT4KICA8cmVjdCB4PSIyIiB5PSIyIiB3aWR0aD0iMjgiIGhlaWdodD0iMjgiIHJ4PSIyIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjZ29sZEdyYWRpZW50KSIgc3Ryb2tlLXdpZHRoPSI0Ii8+CiAgCiAgPCEtLSDlhaXpg6jnhafniYflnY/ln58gLS0+CiAgPHJlY3QgeD0iNiIgeT0iNiIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiByeD0iMSIgZmlsbD0id2hpdGUiLz4KICAKICA8IS0tIOebuOmKn+Wcluaomeq8nCAtLT4KICA8cmVjdCB4PSIxMiIgeT0iMTQiIHdpZHRoPSI4IiBoZWlnaHQ9IjUiIHJ4PSIxIiBmaWxsPSIjMzQ5OGRiIi8+CiAgPGNpcmNsZSBjeD0iMTYiIGN5PSIxNi41IiByPSIyIiBmaWxsPSIjMzQ5OGRiIi8+CiAgCiAgPCEtLSDoo4Xpo77npbkgLS0+CiAgPGNpcmNsZSBjeD0iOCIgY3k9IjgiIHI9IjEuNSIgZmlsbD0idXJsKCNnb2xkR3JhZGllbnQpIi8+CiAgPGNpcmNsZSBjeD0iMjQiIGN5PSI4IiByPSIxLjUiIGZpbGw9InVybCgjZ29sZEdyYWRpZW50KSIvPgogIDxjaXJjbGUgY3g9IjgiIGN5PSIyNCIgcj0iMS41IiBmaWxsPSJ1cmwoI2dvbGRHcmFkaWVudCkiLz4KICA8Y2lyY2xlIGN4PSIyNCIgY3k9IjI0IiByPSIxLjUiIGZpbGw9InVybCgjZ29sZEdyYWRpZW50KSIvPgo8L3N2Zz4K'
                 }
@@ -36,6 +37,7 @@ export class ThemeConfig {
                     'festive-lights'
                 ],
                 shareMessage: "🎄 Merry Christmas! Sharing holiday magic ✨",
+                url: "https://calebtestbeta.github.io/web-photo-booth/christmas.html",
                 favicon: {
                     svg: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSIzIiBmaWxsPSIjZmVmMmYyIi8+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImNocmlzdG1hc0dyYWQiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojZGMyNjI2Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iNTAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMTViOTgxIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3R5bGU9InN0b3AtY29sb3I6I2RjMjYyNiIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3QgeD0iMiIgeT0iMiIgd2lkdGg9IjI4IiBoZWlnaHQ9IjI4IiByeD0iMiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ1cmwoI2NocmlzdG1hc0dyYWQpIiBzdHJva2Utd2lkdGg9IjQiLz4KICA8cmVjdCB4PSI2IiB5PSI2IiB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHJ4PSIxIiBmaWxsPSJ3aGl0ZSIvPgogIDx0ZXh0IHg9IjE2IiB5PSIyMCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSIjZGMyNjI2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7wn44EPC90ZXh0Pgo8L3N2Zz4K'
                 }
@@ -183,13 +185,14 @@ export class ThemeConfig {
     /**
      * Get theme-specific share message
      * @param {string} themeId - Theme identifier (optional, uses current theme if not provided)
-     * @param {string} url - URL to append to share message
+     * @param {string} customUrl - Custom URL to override theme default URL
      * @returns {string} Formatted share message
      */
-    getShareMessage(themeId = null, url = '') {
+    getShareMessage(themeId = null, customUrl = null) {
         const theme = themeId ? this.getTheme(themeId) : this.getCurrentTheme();
         if (!theme) return '';
         
+        const url = customUrl || theme.url || '';
         return `${theme.shareMessage}${url ? ' ' + url : ''}`;
     }
     
