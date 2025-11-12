@@ -381,8 +381,32 @@ body {
     font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
 }
 
-/* 行動版數值顯示位置調整 */
+/* Mobile responsive adjustments for floating precision panel */
 @media (max-width: 767px) {
+    /* 移動版隱藏原始精確調整面板，只顯示浮動版本 */
+    .precision-panel {
+        display: none !important;
+    }
+    
+    .precision-panel-floating {
+        position: fixed;
+        top: auto;
+        bottom: calc(var(--space-16) + var(--space-8));
+        left: var(--space-4);
+        right: var(--space-4);
+        transform: none;
+        max-width: none;
+        animation: slideInUp 0.3s ease-out;
+    }
+    
+    .precision-controls-floating {
+        padding: 0 var(--space-3) var(--space-3);
+    }
+    
+    .precision-panel-floating.expanded .precision-controls-floating {
+        padding: var(--space-2) var(--space-3) var(--space-3);
+    }
+    
     .transform-values {
         top: auto;
         bottom: calc(var(--space-16) + var(--space-4));
@@ -709,7 +733,27 @@ body {
     opacity: 0.9;
 }
 
-/* Precision Controls Panel */
+/* Floating Precision Controls Panel */
+.precision-panel-floating {
+    position: fixed;
+    top: 50%;
+    right: var(--space-4);
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(251, 146, 60, 0.2);
+    border-radius: var(--rounded-2xl);
+    box-shadow: 
+        var(--shadow-xl),
+        0 0 30px rgba(251, 146, 60, 0.1);
+    z-index: var(--z-popover);
+    max-width: 280px;
+    min-width: 240px;
+    transition: all var(--transition-base);
+    animation: slideInRight 0.3s ease-out;
+}
+
+/* Original Precision Controls Panel (fallback) */
 .precision-panel {
     background: var(--bg-secondary);
     border-bottom: 1px solid var(--border-primary);
@@ -718,6 +762,41 @@ body {
     transition: all var(--transition-base);
 }
 
+/* Floating Precision Toggle */
+.precision-toggle-floating {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: var(--space-3);
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    border-bottom: 1px solid rgba(251, 146, 60, 0.1);
+    margin-bottom: var(--space-2);
+}
+
+.precision-toggle-floating:hover {
+    color: var(--primary-500);
+    background: rgba(251, 146, 60, 0.05);
+}
+
+.precision-toggle-floating .icon {
+    width: 1.125rem;
+    height: 1.125rem;
+    transition: transform var(--transition-base);
+}
+
+.precision-panel-floating.expanded .precision-toggle-floating .icon {
+    transform: rotate(180deg);
+}
+
+/* Original Precision Toggle (fallback) */
 .precision-toggle {
     width: 100%;
     display: flex;
@@ -749,6 +828,22 @@ body {
     transform: rotate(180deg);
 }
 
+/* Floating Precision Controls */
+.precision-controls-floating {
+    padding: 0 var(--space-4) var(--space-4);
+    max-height: 0;
+    opacity: 0;
+    transition: all var(--transition-base);
+    overflow: hidden;
+}
+
+.precision-panel-floating.expanded .precision-controls-floating {
+    max-height: 350px;
+    opacity: 1;
+    padding: var(--space-2) var(--space-4) var(--space-4);
+}
+
+/* Original Precision Controls (fallback) */
 .precision-controls {
     padding: 0 var(--space-6) var(--space-6);
     max-height: 0;
@@ -1159,6 +1254,28 @@ body {
     }
 }
 
+@keyframes slideInRight {
+    0% {
+        opacity: 0;
+        transform: translateY(-50%) translateX(100%);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(-50%) translateX(0);
+    }
+}
+
+@keyframes slideInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(100%);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* Mobile optimizations */
 @media (max-width: 767px) {
     .canvas-container {
@@ -1272,6 +1389,11 @@ body {
     
     .format-desc {
         font-size: var(--text-xs);
+    }
+    
+    /* 桌面版隱藏浮動精確調整面板，只顯示原始版本 */
+    .precision-panel-floating {
+        display: none !important;
     }
     
     /* 桌面版工具列 - 嵌入式設計 */

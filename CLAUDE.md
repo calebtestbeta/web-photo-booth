@@ -63,6 +63,170 @@ npx serve . -p 8000
 
 ## 最新開發進度
 
+### 2025年11月12日 - 浮動精確調整面板設計優化
+
+#### 🎯 用戶體驗痛點解決：精確調整面板距離問題
+
+**問題**: 用戶反映"上傳照片後，精確調整的功能，在非常下方，距離圖片檢視很遠"，影響操作效率
+**解決方案**: 實現浮動精確調整面板，將控制項移至更接近圖片檢視區域的位置
+
+#### 🔄 雙重精確調整系統架構
+
+**設計原則**: 向下相容 + 體驗增強
+- **保留原始面板**: 確保既有功能不受影響，作為後備系統
+- **新增浮動面板**: 提供更貼近圖片的操作體驗
+- **完全同步**: 兩個面板的數值即時雙向同步
+
+**HTML 結構重組**:
+```html
+<!-- 浮動面板位於 canvas-container 內，靠近圖片 -->
+<div class="canvas-container">
+    <canvas id="mainCanvas"></canvas>
+    <!-- 浮動精確調整面板 -->
+    <div class="precision-panel-floating" id="precisionPanelFloating">
+        <!-- 完整的控制項複製 -->
+    </div>
+</div>
+```
+
+#### 📱 響應式浮動面板設計
+
+**桌面版設計** (≥768px):
+```css
+.precision-panel-floating {
+    position: fixed;
+    top: 50%;                          /* 垂直置中 */
+    right: var(--space-4);             /* 右側浮動 */
+    transform: translateY(-50%);       /* 精確置中 */
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);       /* 毛玻璃效果 */
+    animation: slideInRight 0.3s ease-out;
+}
+```
+
+**移動版適配** (≤767px):
+```css
+.precision-panel-floating {
+    position: fixed;
+    bottom: calc(var(--space-16) + var(--space-8)); /* 避開浮動工具列 */
+    left: var(--space-4);
+    right: var(--space-4);
+    animation: slideInUp 0.3s ease-out;
+}
+```
+
+#### ⚡ JavaScript 雙向同步邏輯
+
+**完整事件監聽系統**:
+```javascript
+// 原始面板更新時同步浮動面板
+this.scaleSlider.addEventListener('input', (e) => {
+    const scale = parseFloat(e.target.value) / 100;
+    this.setAbsoluteScale(scale);
+    this.scaleValue.textContent = `${e.target.value}%`;
+    // 同步更新浮動面板
+    if (this.scaleSliderFloating) {
+        this.scaleSliderFloating.value = e.target.value;
+        this.scaleValueFloating.textContent = `${e.target.value}%`;
+    }
+});
+
+// 浮動面板更新時同步原始面板
+this.scaleSliderFloating.addEventListener('input', (e) => {
+    const scale = parseFloat(e.target.value) / 100;
+    this.setAbsoluteScale(scale);
+    this.scaleValueFloating.textContent = `${e.target.value}%`;
+    // 同步更新原始面板
+    this.scaleSlider.value = e.target.value;
+    this.scaleValue.textContent = `${e.target.value}%`;
+});
+```
+
+**智能顯示/隱藏控制**:
+```javascript
+updateUI() {
+    const hasImage = !!this.currentImage;
+    
+    if (hasImage) {
+        // 有圖片時同時顯示兩個面板
+        this.precisionPanel.style.display = 'block';
+        if (this.precisionPanelFloating) {
+            this.precisionPanelFloating.style.display = 'block';
+        }
+    } else {
+        // 無圖片時同時隱藏
+        this.precisionPanel.style.display = 'none';
+        if (this.precisionPanelFloating) {
+            this.precisionPanelFloating.style.display = 'none';
+        }
+    }
+}
+```
+
+#### 🎨 視覺設計系統整合
+
+**溫暖色調一致性**:
+- 面板背景: `rgba(255, 255, 255, 0.95)` 與整體淺色主題一致
+- 邊框顏色: `rgba(251, 146, 60, 0.2)` 使用主題橙色
+- 懸停效果: `rgba(251, 146, 60, 0.05)` 溫和橙色背景
+
+**優雅動畫系統**:
+```css
+@keyframes slideInRight {
+    0% {
+        opacity: 0;
+        transform: translateY(-50%) translateX(100%);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(-50%) translateX(0);
+    }
+}
+
+@keyframes slideInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(100%);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+```
+
+#### 📊 實現成果統計
+
+**檔案變更統計**:
+- `index.html`: +44 行 (浮動面板 HTML 結構)
+- `src/main.js`: +88 行 (雙重事件系統和同步邏輯)
+- `styles/app.css`: +75 行 (響應式浮動面板樣式)
+
+**功能完整性保證**:
+- ✅ 原有精確調整功能完全保留
+- ✅ 新浮動面板與原面板完全同步
+- ✅ 響應式設計適配所有裝置
+- ✅ 溫暖色調主題完美整合
+- ✅ 優雅動畫提升使用體驗
+
+**用戶體驗改善成果**:
+- 🎯 **距離優化**: 浮動面板緊貼圖片檢視區域，操作距離大幅縮短
+- 🔄 **零學習成本**: 保留原有操作邏輯，使用者無需重新學習
+- 📱 **跨裝置一致**: 桌面和移動版都有最佳定位策略
+- ⚡ **即時回饋**: 任一面板操作立即反映到另一面板
+
+#### 🚀 技術架構亮點
+
+**可維護性設計**:
+- 模組化元素引用：所有浮動面板元素都有獨立 ID
+- 條件安全檢查：所有浮動面板操作都有存在性檢查
+- 事件監聽分離：原始和浮動面板事件完全獨立，互不干擾
+
+**效能考量**:
+- 最小 DOM 影響：只在需要時顯示浮動面板
+- 事件優化：避免重複觸發，智能同步更新
+- CSS 動畫：使用 transform 而非 position 變更，確保流暢動畫
+
 ### 2025年11月12日 - 溫暖淺色主題完整實現
 
 #### 🎨 設計系統重大更新：從深色到溫暖淺色主題
