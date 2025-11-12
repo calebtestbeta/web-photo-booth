@@ -215,6 +215,7 @@ updateUI() {
 - 📱 **跨裝置一致**: 桌面和移動版都有最佳定位策略
 - ⚡ **即時回饋**: 任一面板操作立即反映到另一面板
 - 🎨 **視覺優化**: 修復控制項區域背景透明問題，確保最佳可讀性
+- 🖱️ **觸控拖曳**: 支援觸控和滑鼠拖曳移動面板，自由定位功能
 
 #### 🚀 技術架構亮點
 
@@ -227,6 +228,86 @@ updateUI() {
 - 最小 DOM 影響：只在需要時顯示浮動面板
 - 事件優化：避免重複觸發，智能同步更新
 - CSS 動畫：使用 transform 而非 position 變更，確保流暢動畫
+
+#### 🖱️ 觸控拖曳功能實現
+
+**設計理念**: 讓用戶能自由移動精確調整面板到最舒適的操作位置
+
+**視覺設計**:
+```html
+<!-- 直觀的拖曳手柄 -->
+<div class="drag-handle" id="dragHandle">
+    <div class="drag-indicator"></div>
+</div>
+```
+
+**拖曳手柄 CSS 設計**:
+```css
+.drag-handle {
+    cursor: grab;  /* 提示可拖曳 */
+    padding: var(--space-2);
+}
+
+.drag-indicator {
+    width: 32px;
+    height: 4px;
+    background: rgba(251, 146, 60, 0.4);
+    border-radius: var(--rounded-full);
+}
+
+/* 懸停和拖曳狀態變化 */
+.drag-handle:hover .drag-indicator {
+    background: rgba(251, 146, 60, 0.6);
+    width: 40px;  /* 視覺回饋 */
+}
+
+.drag-handle:active .drag-indicator {
+    background: var(--primary-500);
+    width: 48px;  /* 主動狀態 */
+}
+```
+
+**拖曳邏輯實現**:
+```javascript
+// 跨平台事件支援
+setupDragEvents() {
+    // 觸控事件 (移動裝置)
+    this.dragHandle.addEventListener('touchstart', (e) => {
+        this.handleDragStart(e.touches[0]);
+    }, { passive: false });
+    
+    // 滑鼠事件 (桌面裝置)
+    this.dragHandle.addEventListener('mousedown', (e) => {
+        this.handleDragStart(e);
+    });
+}
+
+// 邊界限制和磁吸效果
+handleDragMove(event) {
+    // 確保面板不會超出螢幕
+    newX = Math.max(0, Math.min(newX, viewportWidth - panelRect.width));
+    newY = Math.max(0, Math.min(newY, viewportHeight - panelRect.height));
+}
+
+snapToEdge() {
+    // 50px 內自動貼邊
+    if (rect.left < 50) snapX = 16;  // 貼左邊
+    if (viewportWidth - rect.right < 50) snapX = viewportWidth - rect.width - 16;  // 貼右邊
+}
+```
+
+**拖曳體驗優化**:
+- **視覺回饋**: 拖曳時面板放大 1.02 倍，增強陰影效果
+- **邊界限制**: 防止面板移出螢幕可視範圍
+- **磁吸效果**: 接近邊緣時自動貼邊，提供整齊的定位
+- **觸覺回饋**: 拖曳手柄有明確的視覺狀態變化
+- **跨平台**: 同時支援觸控和滑鼠操作
+
+**技術亮點**:
+- 使用 `{ passive: false }` 確保觸控事件可以 preventDefault
+- 智能座標計算避免面板跳躍
+- 優雅的動畫過渡效果
+- 完整的事件清理防止記憶體洩漏
 
 ### 2025年11月12日 - 溫暖淺色主題完整實現
 

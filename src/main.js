@@ -34,6 +34,7 @@ class PhotoFrameApp {
         
         // 浮動精確調整面板元素 (新版本)
         this.precisionPanelFloating = document.getElementById('precisionPanelFloating');
+        this.dragHandle = document.getElementById('dragHandle');
         this.precisionToggleFloating = document.getElementById('precisionToggleFloating');
         this.precisionControlsFloating = document.getElementById('precisionControlsFloating');
         this.scaleSliderFloating = document.getElementById('scaleSliderFloating');
@@ -71,6 +72,13 @@ class PhotoFrameApp {
         // 防抖動相關
         this.lastClickTime = 0;
         this.clickDebounceDelay = 300; // 300ms 防抖延遲
+        
+        // 拖曳相關狀態
+        this.isDragging = false;
+        this.dragStartX = 0;
+        this.dragStartY = 0;
+        this.panelStartX = 0;
+        this.panelStartY = 0;
         
         this.init();
     }
@@ -294,6 +302,9 @@ class PhotoFrameApp {
         
         // 精確調整面板事件
         this.setupPrecisionPanelEvents();
+        
+        // 拖曳功能事件
+        this.setupDragEvents();
         
         // 鍵盤快捷鍵事件
         this.setupKeyboardShortcuts();
@@ -1068,6 +1079,125 @@ class PhotoFrameApp {
         }
         
         this.scheduleRender();
+    }
+    
+    // 拖曳功能相關方法
+    setupDragEvents() {
+        if (!this.dragHandle || !this.precisionPanelFloating) return;
+        
+        // 觸控事件
+        this.dragHandle.addEventListener('touchstart', (e) => {
+            this.handleDragStart(e.touches[0]);
+        }, { passive: false });
+        
+        document.addEventListener('touchmove', (e) => {
+            if (this.isDragging) {
+                e.preventDefault();
+                this.handleDragMove(e.touches[0]);
+            }
+        }, { passive: false });
+        
+        document.addEventListener('touchend', () => {
+            this.handleDragEnd();
+        });
+        
+        // 滑鼠事件
+        this.dragHandle.addEventListener('mousedown', (e) => {
+            this.handleDragStart(e);
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (this.isDragging) {
+                e.preventDefault();
+                this.handleDragMove(e);
+            }
+        });
+        
+        document.addEventListener('mouseup', () => {
+            this.handleDragEnd();
+        });
+    }
+    
+    handleDragStart(event) {
+        this.isDragging = true;
+        this.dragStartX = event.clientX;
+        this.dragStartY = event.clientY;
+        
+        // 獲取面板當前位置
+        const rect = this.precisionPanelFloating.getBoundingClientRect();
+        this.panelStartX = rect.left;
+        this.panelStartY = rect.top;
+        
+        // 添加拖曳中的視覺狀態
+        this.precisionPanelFloating.style.transition = 'none';
+        this.precisionPanelFloating.classList.add('dragging');
+        
+        // 防止選取文字
+        document.body.style.userSelect = 'none';
+    }
+    
+    handleDragMove(event) {
+        if (!this.isDragging) return;
+        
+        const deltaX = event.clientX - this.dragStartX;
+        const deltaY = event.clientY - this.dragStartY;
+        
+        let newX = this.panelStartX + deltaX;
+        let newY = this.panelStartY + deltaY;
+        
+        // 邊界限制
+        const panelRect = this.precisionPanelFloating.getBoundingClientRect();
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        
+        // 確保面板不會超出螢幕
+        newX = Math.max(0, Math.min(newX, viewportWidth - panelRect.width));
+        newY = Math.max(0, Math.min(newY, viewportHeight - panelRect.height));
+        
+        // 應用新位置
+        this.precisionPanelFloating.style.left = `${newX}px`;
+        this.precisionPanelFloating.style.top = `${newY}px`;
+        this.precisionPanelFloating.style.right = 'auto';
+        this.precisionPanelFloating.style.transform = 'none';
+    }
+    
+    handleDragEnd() {
+        if (!this.isDragging) return;
+        
+        this.isDragging = false;
+        
+        // 恢復樣式
+        this.precisionPanelFloating.style.transition = '';
+        this.precisionPanelFloating.classList.remove('dragging');
+        document.body.style.userSelect = '';
+        
+        // 磁吸效果：如果接近邊緣，自動貼邊
+        this.snapToEdge();
+    }
+    
+    snapToEdge() {
+        const rect = this.precisionPanelFloating.getBoundingClientRect();
+        const viewportWidth = window.innerWidth;
+        const snapThreshold = 50; // 50px 內自動貼邊
+        
+        let snapX = null;
+        
+        // 檢查是否接近左邊或右邊
+        if (rect.left < snapThreshold) {
+            snapX = 16; // 貼左邊
+        } else if (viewportWidth - rect.right < snapThreshold) {
+            snapX = viewportWidth - rect.width - 16; // 貼右邊
+        }
+        
+        if (snapX !== null) {
+            this.precisionPanelFloating.style.left = `${snapX}px`;
+            this.precisionPanelFloating.style.transition = 'left 0.3s ease-out';
+            
+            // 重置過渡效果
+            setTimeout(() => {
+                this.precisionPanelFloating.style.transition = '';
+            }, 300);
+        }
     }
 }
 
