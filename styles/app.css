@@ -168,6 +168,37 @@ body {
     .app-container {
         padding-bottom: calc(var(--space-16) + var(--space-8)); /* Space for floating toolbar */
     }
+    
+    /* 行動版 Header 緊湊設計 */
+    .header {
+        padding: var(--space-2) var(--space-4); /* 減少垂直 padding: 16px → 8px */
+        position: sticky; /* 輕量級黏性定位 */
+        top: 0;
+        z-index: var(--z-sticky);
+        
+        /* 視覺層次優化 - 使用半透明背景減少視覺重量 */
+        background: var(--neutral-800); /* 備用實色背景 */
+        background: rgba(30, 41, 59, 0.95); /* 半透明背景 */
+        backdrop-filter: blur(8px); /* 毛玻璃效果 */
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* 更輕的陰影 */
+        border-bottom: 1px solid rgba(71, 85, 105, 0.3); /* 更淡的邊框 */
+        
+        /* 為不支援 backdrop-filter 的瀏覽器提供備用方案 */
+        @supports not (backdrop-filter: blur(8px)) {
+            background: var(--neutral-800); /* 使用實色背景 */
+        }
+    }
+    
+    .title {
+        font-size: var(--text-lg); /* 縮小字型: 24px → 18px */
+        margin-bottom: 0; /* 移除額外間距 */
+    }
+    
+    .status-message {
+        margin-top: var(--space-1); /* 減少間距: 8px → 4px */
+        min-height: 1rem; /* 降低最小高度: 20px → 16px */
+        font-size: var(--text-xs); /* 縮小字型: 14px → 12px */
+    }
 }
 
 /* Header */
