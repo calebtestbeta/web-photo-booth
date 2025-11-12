@@ -1,0 +1,94 @@
+# macOS System Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Windows System Files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux System Files
+*~
+
+# Editor and IDE Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# Claude Code Settings (keep local only)
+.claude/
+.claude/*
+
+# Temporary Files
+*.tmp
+*.temp
+*.log
+*.cache
+
+# Build and Distribution
+dist/
+build/
+out/
+target/
+
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# Environment Files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Runtime Files
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage and Testing
+coverage/
+.nyc_output/
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Backup Files
+*.bak
+*.backup
+*.old
+
+# Archive Files (unless specifically needed)
+*.zip
+*.tar.gz
+*.7z
+*.rar
+
+# Generated Documentation (unless specifically needed)
+docs/_build/
+site/
+
+# Temporary Image Processing Files
+*.processing
+*.temp.png
+*.temp.jpg
+*.temp.gif
+
+# Browser Cache
+.cache/
