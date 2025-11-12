@@ -128,19 +128,14 @@ class PhotoFrameApp {
     
     // iOS Safari 檔案輸入設定
     setupiOSFileInput() {
-        // 移除可能干擾的屬性
+        // 移除可能干擾的屬性，確保用戶可以選擇拍照或上傳
         this.fileInput.removeAttribute('capture');
         
         // 為 iOS Safari 優化 accept 屬性
         this.fileInput.setAttribute('accept', 'image/*');
         
-        // 加入相機選項（如果支援）
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-            // 動態加入 capture 支援
-            this.fileInput.setAttribute('capture', 'environment');
-        }
-        
-        console.log('PhotoFrameApp: iOS Safari 檔案輸入已設定完成');
+        // 不再自動加入 capture 屬性，讓用戶自由選擇拍照或上傳
+        console.log('PhotoFrameApp: iOS Safari 檔案輸入已設定完成 - 支援拍照和上傳');
     }
     
     async loadFrame() {
