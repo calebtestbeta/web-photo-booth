@@ -116,56 +116,52 @@
                     </div>
                 </div>
                 
-                <!-- Floating Precision Controls Panel -->
-                <div class="precision-panel-floating" id="precisionPanelFloating" style="display: none;">
-                    <!-- 拖曳手柄 -->
-                    <div class="drag-handle" id="dragHandle" aria-label="拖曳移動面板">
-                        <div class="drag-indicator"></div>
+            </div>
+        </main>
+
+        <!-- Precision Controls Panel -->
+        <div class="format-selector precision-selector" id="precisionPanel">
+            <button class="format-label precision-toggle" id="precisionToggle" aria-label="展開精確調整控制項">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px; width: 1rem; height: 1rem;">
+                    <path d="M9 12l2 2 4-4"/>
+                    <circle cx="12" cy="12" r="10"/>
+                </svg>
+                <span>精確調整</span>
+            </button>
+            
+            <div class="precision-controls" id="precisionControls">
+                <div class="control-group">
+                    <label class="control-label">縮放</label>
+                    <div class="slider-container">
+                        <input type="range" class="control-slider" id="scaleSlider" 
+                               min="10" max="500" step="1" value="100">
+                        <span class="slider-value" id="scaleValue">100%</span>
                     </div>
-                    
-                    <button class="precision-toggle-floating" id="precisionToggleFloating" aria-label="展開精確調整控制項">
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M9 12l2 2 4-4"/>
-                            <circle cx="12" cy="12" r="10"/>
-                        </svg>
-                        <span>精確調整</span>
-                    </button>
-                    
-                    <div class="precision-controls-floating" id="precisionControlsFloating">
-                        <div class="control-group">
-                            <label class="control-label">縮放</label>
-                            <div class="slider-container">
-                                <input type="range" class="control-slider" id="scaleSliderFloating" 
-                                       min="10" max="500" step="1" value="100">
-                                <span class="slider-value" id="scaleValueFloating">100%</span>
-                            </div>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label">旋轉</label>
+                    <div class="slider-container">
+                        <input type="range" class="control-slider" id="rotationSlider" 
+                               min="0" max="360" step="1" value="0">
+                        <span class="slider-value" id="rotationValue">0°</span>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label">位置微調</label>
+                    <div class="position-controls">
+                        <button class="position-btn" id="moveUp" aria-label="向上微調">↑</button>
+                        <div class="position-row">
+                            <button class="position-btn" id="moveLeft" aria-label="向左微調">←</button>
+                            <button class="position-btn" id="centerPosition" aria-label="居中">⊙</button>
+                            <button class="position-btn" id="moveRight" aria-label="向右微調">→</button>
                         </div>
-                        
-                        <div class="control-group">
-                            <label class="control-label">旋轉</label>
-                            <div class="slider-container">
-                                <input type="range" class="control-slider" id="rotationSliderFloating" 
-                                       min="0" max="360" step="1" value="0">
-                                <span class="slider-value" id="rotationValueFloating">0°</span>
-                            </div>
-                        </div>
-                        
-                        <div class="control-group">
-                            <label class="control-label">位置微調</label>
-                            <div class="position-controls">
-                                <button class="position-btn" id="moveUpFloating" aria-label="向上微調">↑</button>
-                                <div class="position-row">
-                                    <button class="position-btn" id="moveLeftFloating" aria-label="向左微調">←</button>
-                                    <button class="position-btn" id="centerPositionFloating" aria-label="居中">⊙</button>
-                                    <button class="position-btn" id="moveRightFloating" aria-label="向右微調">→</button>
-                                </div>
-                                <button class="position-btn" id="moveDownFloating" aria-label="向下微調">↓</button>
-                            </div>
-                        </div>
+                        <button class="position-btn" id="moveDown" aria-label="向下微調">↓</button>
                     </div>
                 </div>
             </div>
-        </main>
+        </div>
 
         <!-- Format Selector -->
         <div class="format-selector" id="formatSelector">
@@ -327,49 +323,6 @@
             </div>
         </div>
 
-        <!-- Precision Controls Panel -->
-        <div class="precision-panel" id="precisionPanel">
-            <button class="precision-toggle" id="precisionToggle" aria-label="展開精確調整控制項">
-                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M9 12l2 2 4-4"/>
-                    <circle cx="12" cy="12" r="10"/>
-                </svg>
-                <span>精確調整</span>
-            </button>
-            
-            <div class="precision-controls" id="precisionControls">
-                <div class="control-group">
-                    <label class="control-label">縮放</label>
-                    <div class="slider-container">
-                        <input type="range" class="control-slider" id="scaleSlider" 
-                               min="10" max="500" step="1" value="100">
-                        <span class="slider-value" id="scaleValue">100%</span>
-                    </div>
-                </div>
-                
-                <div class="control-group">
-                    <label class="control-label">旋轉</label>
-                    <div class="slider-container">
-                        <input type="range" class="control-slider" id="rotationSlider" 
-                               min="0" max="360" step="1" value="0">
-                        <span class="slider-value" id="rotationValue">0°</span>
-                    </div>
-                </div>
-                
-                <div class="control-group">
-                    <label class="control-label">位置微調</label>
-                    <div class="position-controls">
-                        <button class="position-btn" id="moveUp" aria-label="向上微調">↑</button>
-                        <div class="position-row">
-                            <button class="position-btn" id="moveLeft" aria-label="向左微調">←</button>
-                            <button class="position-btn" id="centerPosition" aria-label="居中">⊙</button>
-                            <button class="position-btn" id="moveRight" aria-label="向右微調">→</button>
-                        </div>
-                        <button class="position-btn" id="moveDown" aria-label="向下微調">↓</button>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <!-- Controls Toolbar -->
         <nav class="toolbar" role="toolbar" aria-label="Photo editing controls">

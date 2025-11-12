@@ -381,49 +381,6 @@ body {
     font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
 }
 
-/* Mobile responsive adjustments for floating precision panel */
-@media (max-width: 767px) {
-    /* 移動版隱藏原始精確調整面板，只顯示浮動版本 */
-    .precision-panel {
-        display: none !important;
-    }
-    
-    .precision-panel-floating {
-        position: fixed;
-        top: auto;
-        bottom: calc(var(--space-16) + var(--space-8));
-        left: var(--space-4);
-        right: var(--space-4);
-        transform: none;
-        max-width: none;
-        animation: slideInUp 0.3s ease-out;
-        background: rgba(255, 255, 255, 0.98);
-        backdrop-filter: blur(16px);
-        border: 1px solid rgba(251, 146, 60, 0.3);
-        box-shadow: 
-            var(--shadow-xl),
-            0 0 30px rgba(251, 146, 60, 0.15),
-            inset 0 1px 0 rgba(255, 255, 255, 0.8);
-    }
-    
-    .precision-controls-floating {
-        padding: 0;
-        background: rgba(255, 255, 255, 0.98);
-        border-radius: 0 0 var(--rounded-2xl) var(--rounded-2xl);
-    }
-    
-    .precision-panel-floating.expanded .precision-controls-floating {
-        padding: var(--space-2) var(--space-3) var(--space-3);
-        background: rgba(255, 255, 255, 0.98);
-    }
-    
-    .transform-values {
-        top: auto;
-        bottom: calc(var(--space-16) + var(--space-4));
-        right: var(--space-4);
-        transform: none;
-    }
-}
 
 #mainCanvas:active {
     cursor: grabbing;
@@ -743,216 +700,53 @@ body {
     opacity: 0.9;
 }
 
-/* Floating Precision Controls Panel */
-.precision-panel-floating {
-    position: fixed;
-    top: 50%;
-    right: var(--space-4);
-    transform: translateY(-50%);
-    background: rgba(255, 255, 255, 0.98);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(251, 146, 60, 0.3);
-    border-radius: var(--rounded-2xl);
-    box-shadow: 
-        var(--shadow-xl),
-        0 0 30px rgba(251, 146, 60, 0.15),
-        inset 0 1px 0 rgba(255, 255, 255, 0.8);
-    z-index: var(--z-toast);
-    max-width: 280px;
-    min-width: 240px;
-    transition: all var(--transition-base);
-    animation: slideInRight 0.3s ease-out;
-}
 
-/* Dragging state */
-.precision-panel-floating.dragging {
-    transform: none;
-    box-shadow: 
-        var(--shadow-2xl),
-        0 0 50px rgba(251, 146, 60, 0.25),
-        inset 0 1px 0 rgba(255, 255, 255, 0.9);
-    scale: 1.02;
-    z-index: 99999 !important;
-}
-
-/* Dragged state (after drag, when position is absolute) */
-.precision-panel-floating.dragged {
-    z-index: 99999 !important;
-}
-
-.precision-panel-floating.dragged:not(.expanded) .precision-controls-floating {
-    height: 0 !important;
-    max-height: 0 !important;
-    padding: 0 !important;
-    opacity: 0 !important;
-    overflow: hidden !important;
-    border-radius: 0 !important;
-}
-
-.precision-panel-floating.dragged.expanded .precision-controls-floating {
-    height: auto !important;
-    max-height: 350px !important;
-    opacity: 1 !important;
-    padding: var(--space-2) var(--space-4) var(--space-4) !important;
-    background: rgba(255, 255, 255, 0.98) !important;
-}
-
-/* Additional selector for inline styles detection */
-.precision-panel-floating[style*="left"][style*="top"] {
-    z-index: 99999 !important;
-}
-
-.precision-panel-floating[style*="left"][style*="top"]:not(.expanded) .precision-controls-floating {
-    height: 0 !important;
-    max-height: 0 !important;
-    padding: 0 !important;
-    opacity: 0 !important;
-    overflow: hidden !important;
-}
-
-/* Original Precision Controls Panel (fallback) */
-.precision-panel {
-    background: var(--bg-secondary);
-    border-bottom: 1px solid var(--border-primary);
-    position: relative;
-    overflow: hidden;
-    transition: all var(--transition-base);
-}
-
-/* Drag Handle */
-.drag-handle {
-    width: 100%;
-    padding: var(--space-2);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: grab;
-    border-radius: var(--rounded-2xl) var(--rounded-2xl) 0 0;
-    transition: all var(--transition-base);
-}
-
-.drag-handle:active {
-    cursor: grabbing;
-}
-
-.drag-indicator {
-    width: 32px;
-    height: 4px;
-    background: rgba(251, 146, 60, 0.4);
-    border-radius: var(--rounded-full);
-    transition: all var(--transition-base);
-}
-
-.drag-handle:hover .drag-indicator {
-    background: rgba(251, 146, 60, 0.6);
-    width: 40px;
-}
-
-.drag-handle:active .drag-indicator {
-    background: var(--primary-500);
-    width: 48px;
-}
-
-/* Floating Precision Toggle */
-.precision-toggle-floating {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-2);
-    padding: var(--space-3);
+/* Precision Selector - using format-selector as base */
+.precision-selector .precision-toggle {
     background: transparent;
     border: none;
-    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0;
+    padding: 0;
     font-size: var(--text-sm);
     font-weight: var(--font-semibold);
-    cursor: pointer;
-    transition: all var(--transition-base);
-    border-bottom: 1px solid rgba(251, 146, 60, 0.1);
-    margin-bottom: var(--space-2);
-}
-
-.precision-toggle-floating:hover {
-    color: var(--primary-500);
-    background: rgba(251, 146, 60, 0.05);
-}
-
-.precision-toggle-floating .icon {
-    width: 1.125rem;
-    height: 1.125rem;
-    transition: transform var(--transition-base);
-}
-
-.precision-panel-floating.expanded .precision-toggle-floating .icon {
-    transform: rotate(180deg);
-}
-
-/* Original Precision Toggle (fallback) */
-.precision-toggle {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-2);
-    padding: var(--space-4);
-    background: transparent;
-    border: none;
     color: var(--text-secondary);
-    font-size: var(--text-sm);
-    font-weight: var(--font-medium);
-    cursor: pointer;
-    transition: all var(--transition-base);
+    letter-spacing: 0.025em;
 }
 
-.precision-toggle:hover {
+.precision-selector .precision-toggle:hover {
     color: var(--primary-500);
-    background: rgba(251, 146, 60, 0.05);
 }
 
-.precision-toggle .icon {
-    width: 1.25rem;
-    height: 1.25rem;
+.precision-selector .precision-toggle .icon {
     transition: transform var(--transition-base);
 }
 
-.precision-panel.expanded .precision-toggle .icon {
+.precision-selector.expanded .precision-toggle .icon {
     transform: rotate(180deg);
 }
 
-/* Floating Precision Controls */
-.precision-controls-floating {
+
+/* Precision Controls */
+.precision-selector .precision-controls {
+    max-height: 0;
+    opacity: 0;
+    transition: all var(--transition-base);
+    overflow: hidden;
     padding: 0;
-    max-height: 0;
-    opacity: 0;
-    transition: all var(--transition-base);
-    overflow: hidden;
-    background: rgba(255, 255, 255, 0.98);
-    border-radius: 0 0 var(--rounded-2xl) var(--rounded-2xl);
-    height: 0;
 }
 
-.precision-panel-floating.expanded .precision-controls-floating {
-    max-height: 350px;
-    height: auto;
+.precision-selector.expanded .precision-controls {
+    max-height: 400px;
     opacity: 1;
-    padding: var(--space-2) var(--space-4) var(--space-4);
-    background: rgba(255, 255, 255, 0.98);
+    padding: var(--space-6) var(--space-6) 0;
 }
 
-/* Original Precision Controls (fallback) */
-.precision-controls {
-    padding: 0 var(--space-6) var(--space-6);
-    max-height: 0;
-    opacity: 0;
-    transition: all var(--transition-base);
-    overflow: hidden;
-}
 
-.precision-panel.expanded .precision-controls {
-    max-height: 300px;
-    opacity: 1;
-    padding: var(--space-4) var(--space-6) var(--space-6);
-}
 
 .control-group {
     margin-bottom: var(--space-6);
@@ -1487,10 +1281,6 @@ body {
         font-size: var(--text-xs);
     }
     
-    /* 桌面版隱藏浮動精確調整面板，只顯示原始版本 */
-    .precision-panel-floating {
-        display: none !important;
-    }
     
     /* 桌面版工具列 - 嵌入式設計 */
     .toolbar {

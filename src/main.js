@@ -32,29 +32,12 @@ class PhotoFrameApp {
         this.scaleValue = document.getElementById('scaleValue');
         this.rotationValue = document.getElementById('rotationValue');
         
-        // 浮動精確調整面板元素 (新版本)
-        this.precisionPanelFloating = document.getElementById('precisionPanelFloating');
-        this.dragHandle = document.getElementById('dragHandle');
-        this.precisionToggleFloating = document.getElementById('precisionToggleFloating');
-        this.precisionControlsFloating = document.getElementById('precisionControlsFloating');
-        this.scaleSliderFloating = document.getElementById('scaleSliderFloating');
-        this.rotationSliderFloating = document.getElementById('rotationSliderFloating');
-        this.scaleValueFloating = document.getElementById('scaleValueFloating');
-        this.rotationValueFloating = document.getElementById('rotationValueFloating');
-        
-        // 位置微調按鈕 (原始版本 - 保留作為後備)
+        // 位置微調按鈕
         this.moveUpBtn = document.getElementById('moveUp');
         this.moveDownBtn = document.getElementById('moveDown');
         this.moveLeftBtn = document.getElementById('moveLeft');
         this.moveRightBtn = document.getElementById('moveRight');
         this.centerPositionBtn = document.getElementById('centerPosition');
-        
-        // 浮動位置微調按鈕 (新版本)
-        this.moveUpBtnFloating = document.getElementById('moveUpFloating');
-        this.moveDownBtnFloating = document.getElementById('moveDownFloating');
-        this.moveLeftBtnFloating = document.getElementById('moveLeftFloating');
-        this.moveRightBtnFloating = document.getElementById('moveRightFloating');
-        this.centerPositionBtnFloating = document.getElementById('centerPositionFloating');
         
         this.currentImage = null;
         this.frameImage = null;
@@ -72,13 +55,6 @@ class PhotoFrameApp {
         // 防抖動相關
         this.lastClickTime = 0;
         this.clickDebounceDelay = 300; // 300ms 防抖延遲
-        
-        // 拖曳相關狀態
-        this.isDragging = false;
-        this.dragStartX = 0;
-        this.dragStartY = 0;
-        this.panelStartX = 0;
-        this.panelStartY = 0;
         
         this.init();
     }
@@ -302,9 +278,6 @@ class PhotoFrameApp {
         
         // 精確調整面板事件
         this.setupPrecisionPanelEvents();
-        
-        // 拖曳功能事件
-        this.setupDragEvents();
         
         // 鍵盤快捷鍵事件
         this.setupKeyboardShortcuts();
@@ -597,7 +570,7 @@ class PhotoFrameApp {
         this.downloadBtn.disabled = !hasImage;
         this.shareBtn.disabled = !hasImage;
         
-        // 原始精確調整面板啟用狀態
+        // 精確調整面板啟用狀態
         this.precisionToggle.disabled = !hasImage;
         this.scaleSlider.disabled = !hasImage;
         this.rotationSlider.disabled = !hasImage;
@@ -607,52 +580,18 @@ class PhotoFrameApp {
         this.moveRightBtn.disabled = !hasImage;
         this.centerPositionBtn.disabled = !hasImage;
         
-        // 浮動精確調整面板啟用狀態
-        if (this.precisionToggleFloating) {
-            this.precisionToggleFloating.disabled = !hasImage;
-        }
-        if (this.scaleSliderFloating) {
-            this.scaleSliderFloating.disabled = !hasImage;
-        }
-        if (this.rotationSliderFloating) {
-            this.rotationSliderFloating.disabled = !hasImage;
-        }
-        if (this.moveUpBtnFloating) {
-            this.moveUpBtnFloating.disabled = !hasImage;
-            this.moveDownBtnFloating.disabled = !hasImage;
-            this.moveLeftBtnFloating.disabled = !hasImage;
-            this.moveRightBtnFloating.disabled = !hasImage;
-            this.centerPositionBtnFloating.disabled = !hasImage;
-        }
-        
         this.canvas.classList.toggle('has-image', hasImage);
         this.placeholderText.classList.toggle('hidden', hasImage);
         
         if (hasImage) {
             this.gestureHandler.enable();
-            // 根據螢幕大小決定顯示哪個面板
-            if (window.innerWidth <= 767) {
-                // 移動版：只顯示浮動面板
-                this.precisionPanel.style.display = 'none';
-                if (this.precisionPanelFloating) {
-                    this.precisionPanelFloating.style.display = 'block';
-                }
-            } else {
-                // 桌面版：只顯示原始面板
-                this.precisionPanel.style.display = 'block';
-                if (this.precisionPanelFloating) {
-                    this.precisionPanelFloating.style.display = 'none';
-                }
-            }
+            // 顯示精確調整面板
+            this.precisionPanel.style.display = 'block';
         } else {
             this.gestureHandler.disable();
-            // 無圖片時隱藏所有精確調整面板
+            // 隱藏精確調整面板
             this.precisionPanel.style.display = 'none';
             this.precisionPanel.classList.remove('expanded');
-            if (this.precisionPanelFloating) {
-                this.precisionPanelFloating.style.display = 'none';
-                this.precisionPanelFloating.classList.remove('expanded');
-            }
         }
     }
     
@@ -826,81 +765,31 @@ class PhotoFrameApp {
     
     // 精確調整面板相關方法
     setupPrecisionPanelEvents() {
-        // 原始面板展開/收合
+        // 面板展開/收合
         this.precisionToggle.addEventListener('click', () => {
             this.togglePrecisionPanel();
         });
         
-        // 浮動面板展開/收合
-        if (this.precisionToggleFloating) {
-            this.precisionToggleFloating.addEventListener('click', () => {
-                this.togglePrecisionPanelFloating();
-            });
-        }
-        
-        // 原始縮放滑桿
+        // 縮放滑桿
         this.scaleSlider.addEventListener('input', (e) => {
             const scale = parseFloat(e.target.value) / 100;
             this.setAbsoluteScale(scale);
             this.scaleValue.textContent = `${e.target.value}%`;
-            // 同步更新浮動面板
-            if (this.scaleSliderFloating) {
-                this.scaleSliderFloating.value = e.target.value;
-                this.scaleValueFloating.textContent = `${e.target.value}%`;
-            }
         });
         
-        // 浮動縮放滑桿
-        if (this.scaleSliderFloating) {
-            this.scaleSliderFloating.addEventListener('input', (e) => {
-                const scale = parseFloat(e.target.value) / 100;
-                this.setAbsoluteScale(scale);
-                this.scaleValueFloating.textContent = `${e.target.value}%`;
-                // 同步更新原始面板
-                this.scaleSlider.value = e.target.value;
-                this.scaleValue.textContent = `${e.target.value}%`;
-            });
-        }
-        
-        // 原始旋轉滑桿
+        // 旋轉滑桿
         this.rotationSlider.addEventListener('input', (e) => {
             const rotation = parseFloat(e.target.value) * Math.PI / 180;
             this.setAbsoluteRotation(rotation);
             this.rotationValue.textContent = `${e.target.value}°`;
-            // 同步更新浮動面板
-            if (this.rotationSliderFloating) {
-                this.rotationSliderFloating.value = e.target.value;
-                this.rotationValueFloating.textContent = `${e.target.value}°`;
-            }
         });
         
-        // 浮動旋轉滑桿
-        if (this.rotationSliderFloating) {
-            this.rotationSliderFloating.addEventListener('input', (e) => {
-                const rotation = parseFloat(e.target.value) * Math.PI / 180;
-                this.setAbsoluteRotation(rotation);
-                this.rotationValueFloating.textContent = `${e.target.value}°`;
-                // 同步更新原始面板
-                this.rotationSlider.value = e.target.value;
-                this.rotationValue.textContent = `${e.target.value}°`;
-            });
-        }
-        
-        // 原始位置微調按鈕
+        // 位置微調按鈕
         this.moveUpBtn.addEventListener('click', () => this.movePosition(0, -5));
         this.moveDownBtn.addEventListener('click', () => this.movePosition(0, 5));
         this.moveLeftBtn.addEventListener('click', () => this.movePosition(-5, 0));
         this.moveRightBtn.addEventListener('click', () => this.movePosition(5, 0));
         this.centerPositionBtn.addEventListener('click', () => this.centerImage());
-        
-        // 浮動位置微調按鈕
-        if (this.moveUpBtnFloating) {
-            this.moveUpBtnFloating.addEventListener('click', () => this.movePosition(0, -5));
-            this.moveDownBtnFloating.addEventListener('click', () => this.movePosition(0, 5));
-            this.moveLeftBtnFloating.addEventListener('click', () => this.movePosition(-5, 0));
-            this.moveRightBtnFloating.addEventListener('click', () => this.movePosition(5, 0));
-            this.centerPositionBtnFloating.addEventListener('click', () => this.centerImage());
-        }
     }
     
     togglePrecisionPanel() {
@@ -916,20 +805,6 @@ class PhotoFrameApp {
         }
     }
     
-    togglePrecisionPanelFloating() {
-        if (!this.precisionPanelFloating) return;
-        
-        const isExpanded = this.precisionPanelFloating.classList.contains('expanded');
-        
-        if (isExpanded) {
-            this.precisionPanelFloating.classList.remove('expanded');
-            this.precisionToggleFloating.setAttribute('aria-label', '展開精確調整控制項');
-        } else {
-            this.precisionPanelFloating.classList.add('expanded');
-            this.precisionToggleFloating.setAttribute('aria-label', '收合精確調整控制項');
-            this.updatePrecisionControls();
-        }
-    }
     
     updatePrecisionControls() {
         if (!this.currentImage) return;
@@ -938,21 +813,11 @@ class PhotoFrameApp {
         const scalePercent = Math.round(this.transform.scale * 100);
         const rotationDegree = Math.round((this.transform.rotation * 180 / Math.PI) % 360);
         
-        // 更新原始面板
+        // 更新面板
         this.scaleSlider.value = scalePercent;
         this.scaleValue.textContent = `${scalePercent}%`;
         this.rotationSlider.value = rotationDegree;
         this.rotationValue.textContent = `${rotationDegree}°`;
-        
-        // 更新浮動面板
-        if (this.scaleSliderFloating && this.scaleValueFloating) {
-            this.scaleSliderFloating.value = scalePercent;
-            this.scaleValueFloating.textContent = `${scalePercent}%`;
-        }
-        if (this.rotationSliderFloating && this.rotationValueFloating) {
-            this.rotationSliderFloating.value = rotationDegree;
-            this.rotationValueFloating.textContent = `${rotationDegree}°`;
-        }
     }
     
     setAbsoluteScale(scale) {
@@ -1081,133 +946,6 @@ class PhotoFrameApp {
         this.scheduleRender();
     }
     
-    // 拖曳功能相關方法
-    setupDragEvents() {
-        if (!this.dragHandle || !this.precisionPanelFloating) return;
-        
-        // 觸控事件
-        this.dragHandle.addEventListener('touchstart', (e) => {
-            this.handleDragStart(e.touches[0]);
-        }, { passive: false });
-        
-        document.addEventListener('touchmove', (e) => {
-            if (this.isDragging) {
-                e.preventDefault();
-                this.handleDragMove(e.touches[0]);
-            }
-        }, { passive: false });
-        
-        document.addEventListener('touchend', () => {
-            this.handleDragEnd();
-        });
-        
-        // 滑鼠事件
-        this.dragHandle.addEventListener('mousedown', (e) => {
-            this.handleDragStart(e);
-        });
-        
-        document.addEventListener('mousemove', (e) => {
-            if (this.isDragging) {
-                e.preventDefault();
-                this.handleDragMove(e);
-            }
-        });
-        
-        document.addEventListener('mouseup', () => {
-            this.handleDragEnd();
-        });
-    }
-    
-    handleDragStart(event) {
-        this.isDragging = true;
-        this.dragStartX = event.clientX;
-        this.dragStartY = event.clientY;
-        
-        // 獲取面板當前位置
-        const rect = this.precisionPanelFloating.getBoundingClientRect();
-        this.panelStartX = rect.left;
-        this.panelStartY = rect.top;
-        
-        // 添加拖曳中的視覺狀態
-        this.precisionPanelFloating.style.transition = 'none';
-        this.precisionPanelFloating.classList.add('dragging');
-        
-        // 防止選取文字
-        document.body.style.userSelect = 'none';
-    }
-    
-    handleDragMove(event) {
-        if (!this.isDragging) return;
-        
-        const deltaX = event.clientX - this.dragStartX;
-        const deltaY = event.clientY - this.dragStartY;
-        
-        let newX = this.panelStartX + deltaX;
-        let newY = this.panelStartY + deltaY;
-        
-        // 邊界限制
-        const panelRect = this.precisionPanelFloating.getBoundingClientRect();
-        const viewportWidth = window.innerWidth;
-        const viewportHeight = window.innerHeight;
-        
-        // 確保面板不會超出螢幕
-        newX = Math.max(0, Math.min(newX, viewportWidth - panelRect.width));
-        newY = Math.max(0, Math.min(newY, viewportHeight - panelRect.height));
-        
-        // 應用新位置
-        this.precisionPanelFloating.style.left = `${newX}px`;
-        this.precisionPanelFloating.style.top = `${newY}px`;
-        this.precisionPanelFloating.style.right = 'auto';
-        this.precisionPanelFloating.style.transform = 'none';
-    }
-    
-    handleDragEnd() {
-        if (!this.isDragging) return;
-        
-        this.isDragging = false;
-        
-        // 恢復樣式，但保持高 z-index 和標記為已拖曳
-        this.precisionPanelFloating.style.transition = '';
-        this.precisionPanelFloating.classList.remove('dragging');
-        this.precisionPanelFloating.classList.add('dragged');
-        this.precisionPanelFloating.style.zIndex = '99999';
-        document.body.style.userSelect = '';
-        
-        // 磁吸效果：如果接近邊緣，自動貼邊
-        this.snapToEdge();
-        
-        // 強制重新渲染收折狀態
-        if (!this.precisionPanelFloating.classList.contains('expanded')) {
-            this.precisionPanelFloating.classList.remove('expanded');
-        }
-    }
-    
-    snapToEdge() {
-        const rect = this.precisionPanelFloating.getBoundingClientRect();
-        const viewportWidth = window.innerWidth;
-        const snapThreshold = 50; // 50px 內自動貼邊
-        
-        let snapX = null;
-        
-        // 檢查是否接近左邊或右邊
-        if (rect.left < snapThreshold) {
-            snapX = 16; // 貼左邊
-        } else if (viewportWidth - rect.right < snapThreshold) {
-            snapX = viewportWidth - rect.width - 16; // 貼右邊
-        }
-        
-        if (snapX !== null) {
-            this.precisionPanelFloating.style.left = `${snapX}px`;
-            this.precisionPanelFloating.style.transition = 'left 0.3s ease-out';
-            this.precisionPanelFloating.style.zIndex = '99999';
-            
-            // 重置過渡效果
-            setTimeout(() => {
-                this.precisionPanelFloating.style.transition = '';
-                this.precisionPanelFloating.style.zIndex = '99999';
-            }, 300);
-        }
-    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
