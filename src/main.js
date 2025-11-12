@@ -73,11 +73,69 @@ class PhotoFrameApp {
             const shareMethod = this.shareHandler.getShareMethodDescription();
             console.log('分享功能初始化：', shareMethod);
             
-            this.showStatus('準備就緒！上傳照片開始使用。', 'success');
+            // 環境檢測資訊
+            console.log('PhotoFrameApp: 環境檢測資訊');
+            console.log('- iOS Safari:', this.isIOSSafari());
+            console.log('- User Agent:', navigator.userAgent);
+            console.log('- 支援相機:', !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia));
+            
+            const statusMessage = this.isIOSSafari() ? 
+                '準備就緒！點擊空白區域或上傳按鈕開始使用。' : 
+                '準備就緒！上傳照片開始使用。';
+            this.showStatus(statusMessage, 'success');
         } catch (error) {
             console.error('App initialization failed:', error);
             this.showStatus('Failed to initialize app. Please refresh the page.', 'error');
         }
+    }
+    
+    // iOS Safari 檢測
+    isIOSSafari() {
+        const userAgent = navigator.userAgent;
+        const isIOS = /iPad|iPhone|iPod/.test(userAgent);
+        const isSafari = /Safari/.test(userAgent) && !/Chrome|CriOS|FxiOS/.test(userAgent);
+        return isIOS && isSafari;
+    }
+    
+    // 觸發檔案輸入的方法，包含 iOS Safari 特殊處理
+    triggerFileInput() {
+        console.log('PhotoFrameApp: triggerFileInput 被呼叫');
+        console.log('PhotoFrameApp: 檢測環境 - iOS Safari:', this.isIOSSafari());
+        
+        if (this.isIOSSafari()) {
+            // iOS Safari 特殊處理
+            console.log('PhotoFrameApp: 使用 iOS Safari 特殊處理邏輯');
+            
+            // 為 iOS Safari 動態設定 capture 屬性
+            this.setupiOSFileInput();
+        }
+        
+        // 確保有使用者互動的情況下觸發
+        try {
+            console.log('PhotoFrameApp: 嘗試觸發 fileInput.click()');
+            this.fileInput.click();
+            console.log('PhotoFrameApp: fileInput.click() 執行完成');
+        } catch (error) {
+            console.error('PhotoFrameApp: 觸發檔案選擇器失敗:', error);
+            this.showStatus('無法開啟檔案選擇器，請點擊上傳按鈕', 'error');
+        }
+    }
+    
+    // iOS Safari 檔案輸入設定
+    setupiOSFileInput() {
+        // 移除可能干擾的屬性
+        this.fileInput.removeAttribute('capture');
+        
+        // 為 iOS Safari 優化 accept 屬性
+        this.fileInput.setAttribute('accept', 'image/*');
+        
+        // 加入相機選項（如果支援）
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            // 動態加入 capture 支援
+            this.fileInput.setAttribute('capture', 'environment');
+        }
+        
+        console.log('PhotoFrameApp: iOS Safari 檔案輸入已設定完成');
     }
     
     async loadFrame() {
@@ -107,7 +165,8 @@ class PhotoFrameApp {
     
     setupEventListeners() {
         this.uploadBtn.addEventListener('click', () => {
-            this.fileInput.click();
+            console.log('PhotoFrameApp: 上傳按鈕被點擊');
+            this.triggerFileInput();
         });
         
         this.fileInput.addEventListener('change', (e) => {
@@ -139,11 +198,39 @@ class PhotoFrameApp {
             });
         });
         
-        // 畫布區域智能點擊事件
+        // 畫布區域智能點擊事件 - 加強 iOS Safari 支援
         this.canvas.addEventListener('click', (e) => {
+            console.log('PhotoFrameApp: 畫布點擊事件觸發');
+            console.log('PhotoFrameApp: currentImage:', !!this.currentImage);
+            console.log('PhotoFrameApp: isInteracting:', this.isInteracting);
+            
             // 只有在沒有圖片且沒有正在進行手勢操作時才觸發上傳
             if (!this.currentImage && !this.isInteracting) {
-                this.fileInput.click();
+                console.log('PhotoFrameApp: 條件符合，準備開啟檔案選擇器');
+                e.preventDefault();
+                e.stopPropagation();
+                this.triggerFileInput();
+            } else {
+                console.log('PhotoFrameApp: 條件不符合，忽略點擊事件');
+            }
+        });
+        
+        // 加入觸控事件支援 (iOS Safari 有時對 touch 事件響應更好)
+        this.canvas.addEventListener('touchend', (e) => {
+            console.log('PhotoFrameApp: 畫布 touchend 事件觸發');
+            
+            // 避免與手勢操作衝突
+            if (!this.currentImage && !this.isInteracting && e.touches.length === 0) {
+                console.log('PhotoFrameApp: touchend 條件符合，準備開啟檔案選擇器');
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // 短暫延遲避免與 click 事件重複
+                setTimeout(() => {
+                    if (!this.currentImage && !this.isInteracting) {
+                        this.triggerFileInput();
+                    }
+                }, 100);
             }
         });
         
