@@ -20,7 +20,8 @@ class PhotoFrameApp {
         this.rotateBtn = document.getElementById('rotateBtn');
         this.downloadBtn = document.getElementById('downloadBtn');
         this.shareBtn = document.getElementById('shareBtn');
-        this.formatButtons = document.querySelectorAll('.format-btn');
+        this.formatButtons = document.querySelectorAll('.format-btn[data-format]');
+        this.styleButtons = document.querySelectorAll('.format-btn[data-style]');
         
         // 精確調整面板元素
         this.precisionPanel = document.getElementById('precisionPanel');
@@ -40,6 +41,7 @@ class PhotoFrameApp {
         
         this.currentImage = null;
         this.frameImage = null;
+        this.currentFrameStyle = 'modern-gallery'; // 預設風格
         this.transform = {
             x: 0,
             y: 0,
@@ -68,6 +70,9 @@ class PhotoFrameApp {
             await this.loadFrame();
             this.setupEventListeners();
             this.updateUI();
+            
+            // 初始渲染邊框以供預覽
+            this.scheduleRender();
             
             // 顯示分享方法說明
             const shareMethod = this.shareHandler.getShareMethodDescription();
@@ -145,16 +150,19 @@ class PhotoFrameApp {
     async loadFrameForCurrentFormat() {
         try {
             const formatInfo = this.renderEngine.getCurrentFormat();
-            const framePath = `assets/frames/frame_${formatInfo.key}_${formatInfo.width}x${formatInfo.height}.png`;
+            const framePath = `assets/frames/frame_${formatInfo.key}_${this.currentFrameStyle}_${formatInfo.width}x${formatInfo.height}.png`;
             
             try {
                 this.frameImage = await this.imageHandler.loadImageFromUrl(framePath);
+                console.log(`載入邊框成功: ${framePath}`);
             } catch {
                 // Fallback to default frame
                 try {
                     this.frameImage = await this.imageHandler.loadImageFromUrl('assets/frames/frame_1080.png');
+                    console.log('使用預設邊框: frame_1080.png');
                 } catch {
                     this.frameImage = await this.imageHandler.loadImageFromUrl('assets/frames/frame_1080.svg');
+                    console.log('使用預設邊框: frame_1080.svg');
                 }
             }
         } catch (error) {
@@ -195,6 +203,13 @@ class PhotoFrameApp {
             btn.addEventListener('click', (e) => {
                 const format = e.currentTarget.dataset.format;
                 this.changeOutputFormat(format);
+            });
+        });
+        
+        this.styleButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const style = e.currentTarget.dataset.style;
+                this.changeFrameStyle(style);
             });
         });
         
@@ -473,10 +488,39 @@ class PhotoFrameApp {
             this.resetTransform();
         }
         
+        // Always render to show frame preview
         this.scheduleRender();
         
         const formatInfo = this.renderEngine.getCurrentFormat();
         this.showStatus(`已切換至${formatInfo.name}`, 'success');
+    }
+    
+    async changeFrameStyle(style) {
+        this.currentFrameStyle = style;
+        
+        // Update button states
+        this.styleButtons.forEach(btn => {
+            const isActive = btn.dataset.style === style;
+            btn.classList.toggle('active', isActive);
+            btn.setAttribute('aria-checked', isActive);
+        });
+        
+        // Load frame for new style
+        await this.loadFrameForCurrentFormat();
+        
+        // Always re-render to show frame preview (with or without image)
+        this.scheduleRender();
+        
+        // Show style change message
+        const styleNames = {
+            'modern-gallery': '現代畫廊',
+            'gradient-glow': '漸變光暈',
+            'geometric-art': '幾何抽象',
+            'minimal-lines': '極簡線條',
+            'tech-modern': '科技現代'
+        };
+        
+        this.showStatus(`已切換至${styleNames[style]}風格`, 'success');
     }
     
     
@@ -515,6 +559,7 @@ class PhotoFrameApp {
     }
     
     render() {
+        // 即使沒有圖片也渲染邊框以供預覽
         this.renderEngine.render(this.currentImage, this.transform, this.frameImage);
     }
     
@@ -564,7 +609,7 @@ class PhotoFrameApp {
             );
             
             const formatInfo = this.renderEngine.getCurrentFormat();
-            const filename = `framed-photo-${formatInfo.key}-${formatInfo.width}x${formatInfo.height}.png`;
+            const filename = `framed-photo-${formatInfo.key}-${this.currentFrameStyle}-${formatInfo.width}x${formatInfo.height}.png`;
             
             await this.shareHandler.downloadBlob(blob, filename);
             this.showStatus('Image downloaded successfully!', 'success');
@@ -587,7 +632,7 @@ class PhotoFrameApp {
             );
             
             const formatInfo = this.renderEngine.getCurrentFormat();
-            const filename = `framed-photo-${formatInfo.key}-${formatInfo.width}x${formatInfo.height}.png`;
+            const filename = `framed-photo-${formatInfo.key}-${this.currentFrameStyle}-${formatInfo.width}x${formatInfo.height}.png`;
             const platforms = this.shareHandler.getPlatformRecommendation(formatInfo.key);
             const shareText = `我的${formatInfo.name}相框照片！適合 ${platforms.join('、')} #相框工具`;
             

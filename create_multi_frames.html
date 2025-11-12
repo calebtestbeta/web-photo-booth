@@ -7,8 +7,35 @@
         body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }
         .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }
         .format-selector { margin: 20px 0; }
-        .format-btn { padding: 10px 20px; margin: 5px; border: 2px solid #ddd; background: white; cursor: pointer; border-radius: 5px; }
-        .format-btn.active { border-color: #3498db; background: #f0f8ff; }
+        .format-selector h3 { 
+            color: #2c3e50; 
+            font-size: 16px; 
+            margin-bottom: 10px; 
+            font-weight: 600;
+        }
+        .format-btn { 
+            padding: 10px 20px; 
+            margin: 5px; 
+            border: 2px solid #ddd; 
+            background: white; 
+            color: #333; 
+            cursor: pointer; 
+            border-radius: 5px; 
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .format-btn.active { 
+            border-color: #3498db; 
+            background: #f0f8ff; 
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        .format-btn:hover {
+            border-color: #3498db;
+            background: #f8f9fa;
+            color: #2c3e50;
+        }
         canvas { border: 2px solid #ddd; display: block; margin: 20px auto; max-width: 400px; height: auto; }
         button { padding: 12px 24px; font-size: 16px; background: #3498db; color: white; border: none; border-radius: 6px; cursor: pointer; margin: 5px; }
         button:hover { background: #2980b9; }
@@ -25,6 +52,15 @@
             <button class="format-btn active" data-format="square">正方形 (1080×1080)</button>
             <button class="format-btn" data-format="portrait">直式 (1080×1350)</button>
             <button class="format-btn" data-format="story">限時動態 (1080×1920)</button>
+        </div>
+        
+        <div class="format-selector">
+            <h3>選擇藝術風格：</h3>
+            <button class="format-btn active" data-style="modern-gallery">現代畫廊</button>
+            <button class="format-btn" data-style="gradient-glow">漸變光暈</button>
+            <button class="format-btn" data-style="geometric-art">幾何抽象</button>
+            <button class="format-btn" data-style="minimal-lines">極簡線條</button>
+            <button class="format-btn" data-style="tech-modern">科技現代</button>
         </div>
         
         <canvas id="frameCanvas"></canvas>
@@ -56,6 +92,7 @@
         };
         
         let currentFormat = 'square';
+        let currentStyle = 'modern-gallery';
         
         function createFrame(format) {
             const config = formats[format];
@@ -68,65 +105,29 @@
             // Clear canvas
             ctx.clearRect(0, 0, config.width, config.height);
             
-            // Calculate proportional sizes
-            const borderWidth = config.borderWidth;
-            const innerBorderWidth = Math.max(3, Math.round(borderWidth * 0.1));
-            const cornerRadius = Math.round(borderWidth * 0.8); // 更大的圓角，更現代
-            const decorationRadius = Math.round(borderWidth * 0.25);
+            // Draw frame based on selected style
+            switch(currentStyle) {
+                case 'modern-gallery':
+                    drawModernGalleryFrame(ctx, config);
+                    break;
+                case 'gradient-glow':
+                    drawGradientGlowFrame(ctx, config);
+                    break;
+                case 'geometric-art':
+                    drawGeometricArtFrame(ctx, config);
+                    break;
+                case 'minimal-lines':
+                    drawMinimalLinesFrame(ctx, config);
+                    break;
+                case 'tech-modern':
+                    drawTechModernFrame(ctx, config);
+                    break;
+                default:
+                    drawModernGalleryFrame(ctx, config);
+            }
             
-            // Create modern blue gradients
-            const outerGradient = ctx.createLinearGradient(0, 0, config.width, config.height);
-            outerGradient.addColorStop(0, '#3b82f6');    // Blue-500
-            outerGradient.addColorStop(0.3, '#2563eb');  // Blue-600
-            outerGradient.addColorStop(0.6, '#1d4ed8');  // Blue-700
-            outerGradient.addColorStop(1, '#1e40af');    // Blue-800
-            
-            const innerGradient = ctx.createRadialGradient(
-                config.width/2, config.height/2, 100, 
-                config.width/2, config.height/2, Math.max(config.width, config.height)/2
-            );
-            innerGradient.addColorStop(0, 'rgba(255, 255, 255, 0.2)');
-            innerGradient.addColorStop(1, 'rgba(59, 130, 246, 0.1)');
-            
-            // Draw main border
-            ctx.save();
-            ctx.strokeStyle = outerGradient;
-            ctx.lineWidth = borderWidth;
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-            
-            const margin = borderWidth / 2;
-            drawRoundedRect(ctx, margin, margin, config.width - borderWidth, config.height - borderWidth, cornerRadius);
-            ctx.stroke();
-            ctx.restore();
-            
-            // Add depth shadow
-            ctx.save();
-            ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
-            ctx.lineWidth = 3;
-            const shadowOffset = 4;
-            drawRoundedRect(ctx, margin + shadowOffset, margin + shadowOffset, 
-                config.width - borderWidth, config.height - borderWidth, cornerRadius);
-            ctx.stroke();
-            ctx.restore();
-            
-            // Inner accent border
-            ctx.save();
-            ctx.strokeStyle = 'rgba(59, 130, 246, 0.4)';
-            ctx.lineWidth = innerBorderWidth;
-            const innerMargin = borderWidth + 15;
-            const innerRadius = cornerRadius - 15;
-            drawRoundedRect(ctx, innerMargin, innerMargin, 
-                config.width - 2 * innerMargin, config.height - 2 * innerMargin, innerRadius);
-            ctx.stroke();
-            ctx.restore();
-            
-            // 移除角落裝飾，保持簡約設計
-            
-            // 移除邊框圖案，保持極簡風格
-            
-            // 加入草寫文字 "Johnny Be Good!"
-            drawCursiveText(ctx, config.width, config.height, borderWidth);
+            // 加入草寫文字 "Johnny Be Good!" - 根據當前風格設定顏色
+            drawCursiveText(ctx, config.width, config.height, config.borderWidth, currentStyle);
         }
         
         function drawRoundedRect(ctx, x, y, width, height, radius) {
@@ -143,34 +144,324 @@
             ctx.closePath();
         }
         
-        function drawCursiveText(ctx, canvasWidth, canvasHeight, borderWidth) {
+        function drawCursiveText(ctx, canvasWidth, canvasHeight, borderWidth, style = 'modern-gallery') {
             ctx.save();
             
-            // 計算文字位置 (底部中央)
-            const textY = canvasHeight - borderWidth * 0.3;
+            // 計算文字位置 (底部中央) - 再向上調整確保文字完全顯示
+            const textY = canvasHeight - borderWidth * 1.5;
             const textX = canvasWidth / 2;
             
-            // 設定草寫文字樣式
-            const fontSize = Math.max(24, borderWidth * 0.6);
+            // 設定草寫文字樣式 - 大幅加大字體
+            const fontSize = Math.max(72, borderWidth * 2.5);
             ctx.font = `italic ${fontSize}px "Brush Script MT", "Lucida Handwriting", "Apple Chancery", cursive`;
-            ctx.fillStyle = '#1d4ed8'; // 深藍色
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             
+            // 根據風格設定文字顏色和效果
+            let textColor, shadowColor, strokeColor, shadowBlur, shadowOffset;
+            
+            switch(style) {
+                case 'modern-gallery':
+                    textColor = '#FFD700'; // 金色
+                    shadowColor = 'rgba(0, 0, 0, 0.5)';
+                    strokeColor = 'rgba(255, 255, 255, 0.3)';
+                    shadowBlur = 3;
+                    shadowOffset = 2;
+                    break;
+                    
+                case 'gradient-glow':
+                    textColor = '#FFFFFF'; // 白色
+                    shadowColor = 'rgba(0, 0, 0, 0.8)';
+                    strokeColor = 'rgba(0, 0, 0, 0.6)';
+                    shadowBlur = 4;
+                    shadowOffset = 2;
+                    break;
+                    
+                case 'geometric-art':
+                    textColor = '#FF6B35'; // 橙色
+                    shadowColor = 'rgba(45, 55, 72, 0.4)';
+                    strokeColor = 'rgba(255, 255, 255, 0.7)';
+                    shadowBlur = 2;
+                    shadowOffset = 1;
+                    break;
+                    
+                case 'minimal-lines':
+                    textColor = '#2D3748'; // 深灰色
+                    shadowColor = 'rgba(148, 163, 184, 0.3)';
+                    strokeColor = 'rgba(255, 255, 255, 0.5)';
+                    shadowBlur = 1;
+                    shadowOffset = 1;
+                    break;
+                    
+                case 'tech-modern':
+                    textColor = '#00D4FF'; // 亮藍色
+                    shadowColor = 'rgba(59, 130, 246, 0.6)';
+                    strokeColor = 'rgba(255, 255, 255, 0.4)';
+                    shadowBlur = 3;
+                    shadowOffset = 1;
+                    break;
+                    
+                default:
+                    textColor = '#1d4ed8';
+                    shadowColor = 'rgba(29, 78, 216, 0.3)';
+                    strokeColor = 'rgba(255, 255, 255, 0.8)';
+                    shadowBlur = 2;
+                    shadowOffset = 1;
+            }
+            
+            // 設定文字樣式
+            ctx.fillStyle = textColor;
+            
             // 加入文字陰影效果
-            ctx.shadowColor = 'rgba(29, 78, 216, 0.3)';
-            ctx.shadowBlur = 2;
-            ctx.shadowOffsetX = 1;
-            ctx.shadowOffsetY = 1;
+            ctx.shadowColor = shadowColor;
+            ctx.shadowBlur = shadowBlur;
+            ctx.shadowOffsetX = shadowOffset;
+            ctx.shadowOffsetY = shadowOffset;
             
             // 繪製文字
             ctx.fillText('Johnny Be Good!', textX, textY);
             
-            // 加入文字外框 (可選)
+            // 加入文字外框
             ctx.shadowColor = 'transparent';
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
-            ctx.lineWidth = 1;
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = 1.5;
             ctx.strokeText('Johnny Be Good!', textX, textY);
+            
+            ctx.restore();
+        }
+        
+        // 現代畫廊風格 - 簡潔專業
+        function drawModernGalleryFrame(ctx, config) {
+            const borderWidth = config.borderWidth;
+            const cornerRadius = 8; // 小圓角，專業感
+            
+            // 外邊框 - 深灰專業色
+            ctx.save();
+            ctx.strokeStyle = '#1f2937'; // Gray-800
+            ctx.lineWidth = borderWidth;
+            ctx.lineCap = 'round';
+            
+            const margin = borderWidth / 2;
+            drawRoundedRect(ctx, margin, margin, config.width - borderWidth, config.height - borderWidth, cornerRadius);
+            ctx.stroke();
+            
+            // 內邊框 - 白色精緻線條
+            ctx.strokeStyle = '#f9fafb'; // Gray-50
+            ctx.lineWidth = 2;
+            const innerMargin = borderWidth - 6;
+            drawRoundedRect(ctx, innerMargin, innerMargin, config.width - 2 * innerMargin, config.height - 2 * innerMargin, cornerRadius - 2);
+            ctx.stroke();
+            ctx.restore();
+        }
+        
+        // 漸變光暈風格 - 夢幻光暈
+        function drawGradientGlowFrame(ctx, config) {
+            const borderWidth = config.borderWidth;
+            const cornerRadius = borderWidth * 0.6;
+            
+            // 創建彩虹漸變
+            const gradient = ctx.createLinearGradient(0, 0, config.width, config.height);
+            gradient.addColorStop(0, '#ff6b6b');    // 紅
+            gradient.addColorStop(0.2, '#4ecdc4');  // 青
+            gradient.addColorStop(0.4, '#45b7d1');  // 藍
+            gradient.addColorStop(0.6, '#96ceb4');  // 綠
+            gradient.addColorStop(0.8, '#feca57');  // 黃
+            gradient.addColorStop(1, '#ff9ff3');    // 粉
+            
+            // 主邊框帶光暈
+            ctx.save();
+            ctx.shadowColor = 'rgba(255, 105, 180, 0.8)';
+            ctx.shadowBlur = 20;
+            ctx.strokeStyle = gradient;
+            ctx.lineWidth = borderWidth;
+            ctx.lineCap = 'round';
+            
+            const margin = borderWidth / 2;
+            drawRoundedRect(ctx, margin, margin, config.width - borderWidth, config.height - borderWidth, cornerRadius);
+            ctx.stroke();
+            
+            // 內光暈
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = 'rgba(255, 255, 255, 0.6)';
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.lineWidth = 3;
+            const innerMargin = borderWidth - 8;
+            drawRoundedRect(ctx, innerMargin, innerMargin, config.width - 2 * innerMargin, config.height - 2 * innerMargin, cornerRadius - 4);
+            ctx.stroke();
+            ctx.restore();
+        }
+        
+        // 幾何抽象風格 - 現代藝術
+        function drawGeometricArtFrame(ctx, config) {
+            const borderWidth = config.borderWidth;
+            
+            // 主邊框
+            ctx.save();
+            ctx.strokeStyle = '#2d3748';
+            ctx.lineWidth = borderWidth / 3;
+            
+            // 繪製多重幾何線條
+            for (let i = 0; i < 3; i++) {
+                const offset = i * (borderWidth / 3);
+                const lineWidth = borderWidth / 3 - 2;
+                
+                ctx.lineWidth = lineWidth;
+                ctx.strokeStyle = `hsla(${200 + i * 30}, 70%, 50%, ${0.8 - i * 0.2})`;
+                
+                drawRoundedRect(ctx, offset, offset, 
+                    config.width - 2 * offset, config.height - 2 * offset, 
+                    Math.max(0, borderWidth / 2 - i * 5));
+                ctx.stroke();
+            }
+            
+            // 加入幾何裝飾
+            const corners = [
+                {x: borderWidth, y: borderWidth},
+                {x: config.width - borderWidth, y: borderWidth},
+                {x: borderWidth, y: config.height - borderWidth},
+                {x: config.width - borderWidth, y: config.height - borderWidth}
+            ];
+            
+            corners.forEach(corner => {
+                ctx.fillStyle = '#4299e1';
+                ctx.fillRect(corner.x - 8, corner.y - 8, 16, 16);
+                
+                ctx.fillStyle = '#ed8936';
+                ctx.beginPath();
+                ctx.arc(corner.x, corner.y, 6, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            
+            ctx.restore();
+        }
+        
+        // 極簡線條風格 - 細緻線條藝術
+        function drawMinimalLinesFrame(ctx, config) {
+            const borderWidth = config.borderWidth;
+            
+            ctx.save();
+            ctx.lineCap = 'round';
+            
+            // 外層細線
+            ctx.strokeStyle = '#374151';
+            ctx.lineWidth = 2;
+            drawRoundedRect(ctx, 2, 2, config.width - 4, config.height - 4, 16);
+            ctx.stroke();
+            
+            // 中層線條
+            ctx.strokeStyle = '#6b7280';
+            ctx.lineWidth = 1;
+            drawRoundedRect(ctx, borderWidth/2, borderWidth/2, 
+                config.width - borderWidth, config.height - borderWidth, 12);
+            ctx.stroke();
+            
+            // 內層精緻線
+            ctx.strokeStyle = '#9ca3af';
+            ctx.lineWidth = 0.5;
+            drawRoundedRect(ctx, borderWidth - 4, borderWidth - 4, 
+                config.width - 2 * (borderWidth - 4), config.height - 2 * (borderWidth - 4), 8);
+            ctx.stroke();
+            
+            // 四個角落的線條裝飾
+            const lineLength = borderWidth / 2;
+            ctx.strokeStyle = '#4f46e5';
+            ctx.lineWidth = 2;
+            
+            // 左上角
+            ctx.beginPath();
+            ctx.moveTo(borderWidth, borderWidth + lineLength);
+            ctx.lineTo(borderWidth, borderWidth);
+            ctx.lineTo(borderWidth + lineLength, borderWidth);
+            ctx.stroke();
+            
+            // 右上角
+            ctx.beginPath();
+            ctx.moveTo(config.width - borderWidth - lineLength, borderWidth);
+            ctx.lineTo(config.width - borderWidth, borderWidth);
+            ctx.lineTo(config.width - borderWidth, borderWidth + lineLength);
+            ctx.stroke();
+            
+            // 左下角
+            ctx.beginPath();
+            ctx.moveTo(borderWidth, config.height - borderWidth - lineLength);
+            ctx.lineTo(borderWidth, config.height - borderWidth);
+            ctx.lineTo(borderWidth + lineLength, config.height - borderWidth);
+            ctx.stroke();
+            
+            // 右下角
+            ctx.beginPath();
+            ctx.moveTo(config.width - borderWidth - lineLength, config.height - borderWidth);
+            ctx.lineTo(config.width - borderWidth, config.height - borderWidth);
+            ctx.lineTo(config.width - borderWidth, config.height - borderWidth - lineLength);
+            ctx.stroke();
+            
+            ctx.restore();
+        }
+        
+        // 科技現代風格 - 未來感設計
+        function drawTechModernFrame(ctx, config) {
+            const borderWidth = config.borderWidth;
+            
+            // 主邊框 - 科技藍
+            ctx.save();
+            const techGradient = ctx.createLinearGradient(0, 0, config.width, config.height);
+            techGradient.addColorStop(0, '#0ea5e9');    // Sky-500
+            techGradient.addColorStop(0.5, '#3b82f6');  // Blue-500  
+            techGradient.addColorStop(1, '#8b5cf6');    // Violet-500
+            
+            ctx.strokeStyle = techGradient;
+            ctx.lineWidth = borderWidth;
+            ctx.lineCap = 'round';
+            
+            const margin = borderWidth / 2;
+            drawRoundedRect(ctx, margin, margin, config.width - borderWidth, config.height - borderWidth, 24);
+            ctx.stroke();
+            
+            // 內發光效果
+            ctx.shadowColor = '#3b82f6';
+            ctx.shadowBlur = 15;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+            ctx.strokeStyle = 'rgba(59, 130, 246, 0.3)';
+            ctx.lineWidth = 4;
+            const innerMargin = borderWidth - 8;
+            drawRoundedRect(ctx, innerMargin, innerMargin, 
+                config.width - 2 * innerMargin, config.height - 2 * innerMargin, 20);
+            ctx.stroke();
+            
+            // 科技裝飾線條
+            ctx.shadowBlur = 0;
+            ctx.strokeStyle = '#06b6d4'; // Cyan-500
+            ctx.lineWidth = 2;
+            
+            // 四個角落的科技裝飾
+            const decorSize = borderWidth / 3;
+            const positions = [
+                {x: borderWidth * 1.5, y: borderWidth * 1.5},
+                {x: config.width - borderWidth * 1.5, y: borderWidth * 1.5},
+                {x: borderWidth * 1.5, y: config.height - borderWidth * 1.5},
+                {x: config.width - borderWidth * 1.5, y: config.height - borderWidth * 1.5}
+            ];
+            
+            positions.forEach((pos, index) => {
+                ctx.save();
+                ctx.translate(pos.x, pos.y);
+                ctx.rotate((index * Math.PI) / 2);
+                
+                // 繪製科技裝飾圖案
+                ctx.beginPath();
+                ctx.moveTo(-decorSize, 0);
+                ctx.lineTo(decorSize, 0);
+                ctx.moveTo(0, -decorSize);
+                ctx.lineTo(0, decorSize);
+                ctx.moveTo(-decorSize/2, -decorSize/2);
+                ctx.lineTo(decorSize/2, decorSize/2);
+                ctx.moveTo(-decorSize/2, decorSize/2);
+                ctx.lineTo(decorSize/2, -decorSize/2);
+                ctx.stroke();
+                
+                ctx.restore();
+            });
             
             ctx.restore();
         }
@@ -179,16 +470,27 @@
             currentFormat = format;
             
             // Update button states
-            document.querySelectorAll('.format-btn').forEach(btn => {
+            document.querySelectorAll('.format-btn[data-format]').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.format === format);
             });
             
             createFrame(format);
         }
         
+        function switchStyle(style) {
+            currentStyle = style;
+            
+            // Update button states
+            document.querySelectorAll('.format-btn[data-style]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.style === style);
+            });
+            
+            createFrame(currentFormat);
+        }
+        
         function downloadFrame() {
             const config = formats[currentFormat];
-            const filename = `frame_${currentFormat}_${config.width}x${config.height}.png`;
+            const filename = `frame_${currentFormat}_${currentStyle}_${config.width}x${config.height}.png`;
             
             canvas.toBlob(blob => {
                 const url = URL.createObjectURL(blob);
@@ -205,38 +507,54 @@
         
         async function downloadAllFrames() {
             const originalFormat = currentFormat;
+            const originalStyle = currentStyle;
+            
+            const styles = ['modern-gallery', 'gradient-glow', 'geometric-art', 'minimal-lines', 'tech-modern'];
             
             for (const [format, config] of Object.entries(formats)) {
-                createFrame(format);
-                
-                // Wait a bit for rendering
-                await new Promise(resolve => setTimeout(resolve, 100));
-                
-                const filename = `frame_${format}_${config.width}x${config.height}.png`;
-                
-                canvas.toBlob(blob => {
-                    const url = URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    link.href = url;
-                    link.download = filename;
-                    link.style.display = 'none';
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(url);
-                }, 'image/png', 1.0);
-                
-                await new Promise(resolve => setTimeout(resolve, 500));
+                for (const style of styles) {
+                    // Switch to specific format and style
+                    currentFormat = format;
+                    currentStyle = style;
+                    createFrame(format);
+                    
+                    // Wait a bit for rendering
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    
+                    const filename = `frame_${format}_${style}_${config.width}x${config.height}.png`;
+                    
+                    canvas.toBlob(blob => {
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = filename;
+                        link.style.display = 'none';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(url);
+                    }, 'image/png', 1.0);
+                    
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                }
             }
             
-            // Restore original format
+            // Restore original format and style
             switchFormat(originalFormat);
+            switchStyle(originalStyle);
         }
         
         // Setup event listeners
-        document.querySelectorAll('.format-btn').forEach(btn => {
+        document.querySelectorAll('.format-btn[data-format]').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 switchFormat(e.target.dataset.format);
+            });
+        });
+        
+        // Style selector event listeners
+        document.querySelectorAll('.format-btn[data-style]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                switchStyle(e.target.dataset.style);
             });
         });
         
