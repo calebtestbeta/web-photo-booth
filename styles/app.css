@@ -1,17 +1,5 @@
-/* Design System - CSS Custom Properties */
+/* Design System - Base CSS Custom Properties */
 :root {
-    /* Primary Colors - 溫暖橙色系統 */
-    --primary-50: #fff7ed;
-    --primary-100: #ffedd5;
-    --primary-200: #fed7aa;
-    --primary-300: #fdba74;
-    --primary-400: #fb923c;
-    --primary-500: #f97316;
-    --primary-600: #ea580c;
-    --primary-700: #c2410c;
-    --primary-800: #9a3412;
-    --primary-900: #7c2d12;
-    
     /* Neutral Colors - 溫暖石色系統 */
     --neutral-0: #ffffff;
     --neutral-50: #fafaf9;
@@ -24,17 +12,6 @@
     --neutral-700: #44403c;
     --neutral-800: #292524;
     --neutral-900: #1c1917;
-    
-    /* Semantic Colors */
-    --success-50: #ecfdf5;
-    --success-500: #10b981;
-    --success-600: #059669;
-    --error-50: #fef2f2;
-    --error-500: #ef4444;
-    --error-600: #dc2626;
-    --warning-50: #fffbeb;
-    --warning-500: #f59e0b;
-    --warning-600: #d97706;
     
     /* Typography Scale */
     --text-xs: 0.75rem;    /* 12px */
@@ -116,17 +93,6 @@
     --border-secondary: var(--neutral-600);
 }
 
-/* Light Warm Theme Variables (default) */
-:root {
-    --bg-primary: #faf8f3;
-    --bg-secondary: #f4f1ea;
-    --bg-tertiary: #ede8e0;
-    --text-primary: var(--neutral-900);
-    --text-secondary: var(--neutral-700);
-    --text-tertiary: var(--neutral-600);
-    --border-primary: #e5ddd2;
-    --border-secondary: #d6cdc0;
-}
 
 /* Reset and base styles */
 * {
@@ -142,8 +108,7 @@ html {
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    background: linear-gradient(135deg, #faf8f3 0%, #f4f1ea 50%, #ede8e0 100%);
-    color: var(--neutral-900);
+    color: var(--text-primary);
     font-size: var(--text-base);
     font-weight: var(--font-normal);
     line-height: var(--leading-normal);
@@ -175,18 +140,8 @@ body {
         position: sticky; /* 輕量級黏性定位 */
         top: 0;
         z-index: var(--z-sticky);
-        
-        /* 視覺層次優化 - 使用半透明背景減少視覺重量 */
-        background: var(--bg-secondary); /* 備用實色背景 */
-        background: rgba(244, 241, 234, 0.95); /* 半透明背景 */
         backdrop-filter: blur(8px); /* 毛玻璃效果 */
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); /* 更輕的陰影 */
-        border-bottom: 1px solid rgba(251, 146, 60, 0.12); /* 更淡的邊框 */
-        
-        /* 為不支援 backdrop-filter 的瀏覽器提供備用方案 */
-        @supports not (backdrop-filter: blur(8px)) {
-            background: var(--bg-secondary); /* 使用實色背景 */
-        }
     }
     
     .title {
@@ -203,12 +158,10 @@ body {
 
 /* Header */
 .header {
-    background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(255, 255, 255, 0.95) 100%);
     padding: var(--space-4);
     box-shadow: var(--shadow-sm);
     position: relative;
     z-index: var(--z-sticky);
-    border-bottom: 1px solid rgba(251, 146, 60, 0.12);
 }
 
 .title {
@@ -276,17 +229,11 @@ body {
     padding: var(--space-6);
     position: relative;
     min-height: 0;
-    background: radial-gradient(ellipse at center, rgba(251, 146, 60, 0.05) 0%, var(--bg-primary) 70%);
 }
 
 .canvas-card {
-    background: rgba(255, 255, 255, 0.9);
     border-radius: var(--rounded-3xl);
     padding: var(--space-6);
-    box-shadow: 
-        var(--shadow-2xl),
-        0 0 40px rgba(251, 146, 60, 0.08);
-    border: 1px solid rgba(251, 146, 60, 0.15);
     position: relative;
     transition: all var(--transition-slow);
     backdrop-filter: blur(8px);
@@ -294,10 +241,6 @@ body {
 }
 
 .canvas-card:hover {
-    box-shadow: 
-        0 32px 64px -12px rgba(0, 0, 0, 0.1),
-        0 25px 50px -12px rgba(251, 146, 60, 0.12);
-    border-color: rgba(251, 146, 60, 0.25);
     transform: translateY(-2px);
     animation: none;
 }
@@ -329,8 +272,8 @@ body {
     border-color: var(--primary-400);
     box-shadow: 
         var(--shadow-lg),
-        0 0 0 1px rgba(59, 130, 246, 0.1),
-        0 0 20px rgba(59, 130, 246, 0.15);
+        0 0 0 1px var(--primary-100),
+        0 0 20px var(--primary-200);
     transform: scale(1.01);
 }
 
@@ -396,16 +339,16 @@ body {
     border-color: var(--primary-400);
     box-shadow: 
         var(--shadow-lg),
-        0 0 0 1px rgba(59, 130, 246, 0.1),
-        0 0 20px rgba(59, 130, 246, 0.15);
+        0 0 0 1px var(--primary-100),
+        0 0 20px var(--primary-200);
 }
 
 #mainCanvas.has-image:hover {
     border-color: var(--primary-500);
     box-shadow: 
         var(--shadow-xl),
-        0 0 0 1px rgba(59, 130, 246, 0.2),
-        0 0 30px rgba(59, 130, 246, 0.2);
+        0 0 0 1px var(--primary-200),
+        0 0 30px var(--primary-300);
 }
 
 .canvas-overlay {
@@ -649,9 +592,6 @@ body {
 }
 
 .format-btn:hover {
-    border-color: var(--primary-400);
-    color: var(--primary-600);
-    background: rgba(251, 146, 60, 0.05);
     transform: translateY(-1px);
     box-shadow: var(--shadow-md);
 }
@@ -867,9 +807,6 @@ body {
 }
 
 .position-btn:hover {
-    border-color: var(--primary-400);
-    color: var(--primary-500);
-    background: rgba(251, 146, 60, 0.05);
     transform: translateY(-1px);
 }
 
@@ -883,14 +820,9 @@ body {
     bottom: var(--space-4);
     left: var(--space-4);
     right: var(--space-4);
-    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(16px);
-    border: 1px solid rgba(251, 146, 60, 0.15);
     border-radius: var(--rounded-2xl);
     padding: var(--space-3);
-    box-shadow: 
-        var(--shadow-2xl),
-        0 0 30px rgba(251, 146, 60, 0.08);
     display: flex;
     gap: var(--space-2);
     justify-content: center;
@@ -908,17 +840,6 @@ body {
     display: none;
 }
 
-.toolbar:hover {
-    box-shadow: 
-        var(--shadow-2xl),
-        0 0 0 1px rgba(251, 146, 60, 0.2);
-}
-
-@supports (-webkit-backdrop-filter: blur(16px)) or (backdrop-filter: blur(16px)) {
-    .toolbar {
-        background: rgba(255, 255, 255, 0.85);
-    }
-}
 
 .toolbar-btn {
     display: flex;
@@ -962,9 +883,6 @@ body {
 }
 
 .toolbar-btn:hover {
-    border-color: var(--primary-400);
-    color: var(--primary-600);
-    background: rgba(251, 146, 60, 0.05);
     transform: translateY(-1px);
     box-shadow: var(--shadow-lg);
 }
@@ -1255,8 +1173,6 @@ body {
         overflow: hidden;
         margin-top: 2rem;
         margin-bottom: 2rem;
-        box-shadow: 0 8px 32px rgba(251, 146, 60, 0.15);
-        background: var(--bg-primary);
         padding-bottom: 0; /* 移除底部內距，因為工具列不再浮動 */
     }
     

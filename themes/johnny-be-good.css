@@ -1,0 +1,116 @@
+/* Johnny Be Good Theme - Orange/Warm Color System */
+
+:root {
+    /* Primary Colors - 溫暖橙色系統 */
+    --primary-50: #fff7ed;
+    --primary-100: #ffedd5;
+    --primary-200: #fed7aa;
+    --primary-300: #fdba74;
+    --primary-400: #fb923c;
+    --primary-500: #f97316;
+    --primary-600: #ea580c;
+    --primary-700: #c2410c;
+    --primary-800: #9a3412;
+    --primary-900: #7c2d12;
+    
+    /* Semantic Colors */
+    --success-50: #ecfdf5;
+    --success-500: #10b981;
+    --success-600: #059669;
+    --error-50: #fef2f2;
+    --error-500: #ef4444;
+    --error-600: #dc2626;
+    --warning-50: #fffbeb;
+    --warning-500: #f59e0b;
+    --warning-600: #d97706;
+    
+    /* Theme-specific Background Colors */
+    --bg-primary: #faf8f3;
+    --bg-secondary: #f4f1ea;
+    --bg-tertiary: #ede8e0;
+    --text-primary: var(--neutral-900);
+    --text-secondary: var(--neutral-700);
+    --text-tertiary: var(--neutral-600);
+    --border-primary: #e5ddd2;
+    --border-secondary: #d6cdc0;
+}
+
+/* Theme-specific Body Background */
+body {
+    background: linear-gradient(135deg, #faf8f3 0%, #f4f1ea 50%, #ede8e0 100%);
+}
+
+/* Theme-specific Header Background */
+.header {
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(255, 255, 255, 0.95) 100%);
+    border-bottom: 1px solid rgba(251, 146, 60, 0.12);
+}
+
+/* Mobile Header with theme-specific backdrop */
+@media (max-width: 767px) {
+    .header {
+        background: var(--bg-secondary);
+        background: rgba(244, 241, 234, 0.95);
+        backdrop-filter: blur(8px);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        border-bottom: 1px solid rgba(251, 146, 60, 0.12);
+    }
+}
+
+/* Theme-specific Canvas Container Background */
+.canvas-container {
+    background: radial-gradient(ellipse at center, rgba(251, 146, 60, 0.05) 0%, var(--bg-primary) 70%);
+}
+
+/* Theme-specific Canvas Card Styling */
+.canvas-card {
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 
+        var(--shadow-2xl),
+        0 0 40px rgba(251, 146, 60, 0.08);
+    border: 1px solid rgba(251, 146, 60, 0.15);
+}
+
+.canvas-card:hover {
+    box-shadow: 
+        0 32px 64px -12px rgba(0, 0, 0, 0.1),
+        0 25px 50px -12px rgba(251, 146, 60, 0.12);
+    border-color: rgba(251, 146, 60, 0.25);
+}
+
+/* Theme-specific Toolbar Styling */
+.toolbar {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(251, 146, 60, 0.15);
+    box-shadow: 
+        var(--shadow-2xl),
+        0 0 30px rgba(251, 146, 60, 0.08);
+}
+
+.toolbar:hover {
+    box-shadow: 
+        var(--shadow-2xl),
+        0 0 0 1px rgba(251, 146, 60, 0.2);
+}
+
+/* Theme-specific Button Hover Effects */
+.format-btn:hover,
+.toolbar-btn:hover {
+    border-color: var(--primary-400);
+    color: var(--primary-600);
+    background: rgba(251, 146, 60, 0.05);
+}
+
+.position-btn:hover {
+    border-color: var(--primary-400);
+    color: var(--primary-500);
+    background: rgba(251, 146, 60, 0.05);
+}
+
+/* Desktop App Container Styling */
+@media (min-width: 768px) {
+    .app-container {
+        box-shadow: 0 8px 32px rgba(251, 146, 60, 0.15);
+        background: var(--bg-primary);
+    }
+}

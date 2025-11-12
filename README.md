@@ -80,8 +80,11 @@ A mobile-first web application for adding decorative frames to photos with touch
 │       ├── frame_story_1080x1920.png    # Story format frame
 │       ├── frame_1080.png               # Fallback frame
 │       └── frame_1080.svg               # Alternative SVG frame
+├── johnny-be-good.html               # Johnny Be Good theme photo tool
+├── christmas.html                    # Christmas Magic theme photo tool  
 ├── create_frame_canvas.html          # Single frame generator
-└── create_multi_frames.html          # Multi-format frame generator
+├── create_multi_frames.html          # Multi-format frame generator
+└── create_christmas_frames.html      # Christmas frame generator
 ```
 
 ## Local Development
@@ -166,11 +169,20 @@ A mobile-first web application for adding decorative frames to photos with touch
 - **Professional Look**: Clean, modern aesthetic suitable for professional use
 
 ### 🖼️ **Multiple Frame Styles**
+
+#### Johnny Be Good Theme (Orange Warm)
 - **現代畫廊 (Modern Gallery)**: Clean, professional design with simple borders
 - **漸變光暈 (Gradient Glow)**: Colorful rainbow gradient effects
 - **幾何抽象 (Geometric Art)**: Multi-layered geometric patterns
 - **極簡線條 (Minimal Lines)**: Refined line-based designs
 - **科技現代 (Tech Modern)**: Futuristic design with "Johnny Be Good!" text
+
+#### Christmas Magic Theme (Red/Green Festive)
+- **🌿 冬青邊框 (Holly Border)**: Classic Christmas with holly leaves, berries, and golden bells
+- **❄️ 雪花邊框 (Snow Frame)**: Winter wonderland with animated snowflakes and falling snow
+- **🎁 禮物包裝 (Gift Wrapper)**: Festive gift box style with luxury ribbons and stockings
+- **✨ 冬日光暈 (Winter Glow)**: Magical glow effects with colorful light particles
+- **🎄 節慶燈飾 (Festive Lights)**: Twinkling Christmas lights with sparkling stars
 
 ### 📱 Multiple Output Formats
 - **正方形 (Square)**: 1080×1080 - Perfect for Instagram posts, Facebook, Twitter
@@ -204,6 +216,14 @@ A mobile-first web application for adding decorative frames to photos with touch
    - `frame_square_1080x1080.png`
    - `frame_portrait_1080x1350.png` 
    - `frame_story_1080x1920.png`
+
+### Christmas Frame Generator (Enhanced)
+1. Open `create_christmas_frames.html` in your browser
+2. Select output format (Square/Portrait/Story)
+3. Choose Christmas style (Holly Border/Snow Frame/Gift Wrapper/Winter Glow/Festive Lights)
+4. Enjoy animated effects: twinkling lights, falling snow, glowing particles, musical notes
+5. Download single frame or batch download all format/style combinations
+6. Features dynamic animations, gradient text effects, and festive decorations
 
 ### Frame Requirements  
 - **Format**: Transparent PNG with optimized border width

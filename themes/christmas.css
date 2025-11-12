@@ -1,0 +1,287 @@
+/* Christmas Magic Theme - Red/Green Color System */
+
+:root {
+    /* Primary Colors - 節慶紅色系統 */
+    --primary-50: #fef2f2;
+    --primary-100: #fee2e2;
+    --primary-200: #fecaca;
+    --primary-300: #fca5a5;
+    --primary-400: #f87171;
+    --primary-500: #dc2626;
+    --primary-600: #b91c1c;
+    --primary-700: #991b1b;
+    --primary-800: #7f1d1d;
+    --primary-900: #450a0a;
+    
+    /* Secondary Colors - 聖誕綠色系統 */
+    --secondary-50: #f0fdf4;
+    --secondary-100: #dcfce7;
+    --secondary-200: #bbf7d0;
+    --secondary-300: #86efac;
+    --secondary-400: #4ade80;
+    --secondary-500: #15b981;
+    --secondary-600: #059669;
+    --secondary-700: #047857;
+    --secondary-800: #065f46;
+    --secondary-900: #064e3b;
+    
+    /* Accent Colors - 金色裝飾 */
+    --accent-50: #fffbeb;
+    --accent-100: #fef3c7;
+    --accent-200: #fde68a;
+    --accent-300: #fcd34d;
+    --accent-400: #fbbf24;
+    --accent-500: #f59e0b;
+    --accent-600: #d97706;
+    --accent-700: #b45309;
+    --accent-800: #92400e;
+    --accent-900: #78350f;
+    
+    /* Semantic Colors */
+    --success-50: #f0fdf4;
+    --success-500: #15b981;
+    --success-600: #059669;
+    --error-50: #fef2f2;
+    --error-500: #dc2626;
+    --error-600: #b91c1c;
+    --warning-50: #fffbeb;
+    --warning-500: #f59e0b;
+    --warning-600: #d97706;
+    
+    /* Theme-specific Background Colors */
+    --bg-primary: #fefefe;
+    --bg-secondary: #fef7f7;
+    --bg-tertiary: #fef2f2;
+    --text-primary: var(--neutral-900);
+    --text-secondary: var(--neutral-700);
+    --text-tertiary: var(--neutral-600);
+    --border-primary: #fecaca;
+    --border-secondary: #fee2e2;
+}
+
+/* Christmas-specific Body Background */
+body {
+    background: linear-gradient(135deg, #fefefe 0%, #fef7f7 50%, #fef2f2 100%);
+    background-image: 
+        radial-gradient(circle at 20% 80%, rgba(220, 38, 38, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(21, 185, 129, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(245, 158, 11, 0.02) 0%, transparent 50%);
+}
+
+/* Christmas-specific Header Background */
+.header {
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(255, 255, 255, 0.95) 100%);
+    border-bottom: 1px solid rgba(220, 38, 38, 0.12);
+    box-shadow: 0 1px 3px rgba(220, 38, 38, 0.05);
+}
+
+/* Mobile Header with Christmas theme backdrop */
+@media (max-width: 767px) {
+    .header {
+        background: var(--bg-secondary);
+        background: rgba(254, 247, 247, 0.95);
+        backdrop-filter: blur(8px);
+        box-shadow: 0 1px 3px rgba(220, 38, 38, 0.05);
+        border-bottom: 1px solid rgba(220, 38, 38, 0.12);
+    }
+}
+
+/* Christmas-specific Canvas Container Background */
+.canvas-container {
+    background: radial-gradient(ellipse at center, rgba(220, 38, 38, 0.03) 0%, var(--bg-primary) 70%);
+}
+
+/* Christmas-specific Canvas Card Styling */
+.canvas-card {
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 
+        var(--shadow-2xl),
+        0 0 40px rgba(220, 38, 38, 0.08),
+        0 0 20px rgba(21, 185, 129, 0.05);
+    border: 1px solid rgba(220, 38, 38, 0.15);
+}
+
+.canvas-card:hover {
+    box-shadow: 
+        0 32px 64px -12px rgba(0, 0, 0, 0.1),
+        0 25px 50px -12px rgba(220, 38, 38, 0.12),
+        0 0 30px rgba(21, 185, 129, 0.08);
+    border-color: rgba(220, 38, 38, 0.25);
+}
+
+/* Christmas-specific Toolbar Styling */
+.toolbar {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(220, 38, 38, 0.15);
+    box-shadow: 
+        var(--shadow-2xl),
+        0 0 30px rgba(220, 38, 38, 0.08),
+        0 0 15px rgba(21, 185, 129, 0.05);
+}
+
+.toolbar:hover {
+    box-shadow: 
+        var(--shadow-2xl),
+        0 0 0 1px rgba(220, 38, 38, 0.2),
+        0 0 20px rgba(21, 185, 129, 0.08);
+}
+
+/* Christmas-specific Button Hover Effects */
+.format-btn:hover,
+.toolbar-btn:hover {
+    border-color: var(--primary-400);
+    color: var(--primary-600);
+    background: linear-gradient(135deg, rgba(220, 38, 38, 0.05) 0%, rgba(21, 185, 129, 0.03) 100%);
+}
+
+.position-btn:hover {
+    border-color: var(--primary-400);
+    color: var(--primary-500);
+    background: rgba(220, 38, 38, 0.05);
+}
+
+/* Christmas-specific Primary Button */
+.toolbar-btn.primary {
+    background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
+    border-color: var(--primary-600);
+}
+
+.toolbar-btn.primary:hover {
+    background: linear-gradient(135deg, var(--primary-400) 0%, var(--primary-500) 100%);
+    border-color: var(--primary-500);
+}
+
+/* Christmas-specific Active States */
+.format-btn.active {
+    background: linear-gradient(135deg, var(--primary-500) 0%, var(--secondary-500) 100%);
+    border-color: var(--primary-600);
+    color: white;
+    box-shadow: 
+        var(--shadow-lg),
+        0 0 20px rgba(220, 38, 38, 0.3),
+        0 0 10px rgba(21, 185, 129, 0.2);
+}
+
+.format-btn.active:hover {
+    background: linear-gradient(135deg, var(--primary-400) 0%, var(--secondary-400) 100%);
+    border-color: var(--primary-500);
+    box-shadow: 
+        var(--shadow-xl),
+        0 0 25px rgba(220, 38, 38, 0.4),
+        0 0 15px rgba(21, 185, 129, 0.3);
+}
+
+/* Christmas-specific Canvas Interactions */
+#mainCanvas:not(.has-image):hover {
+    border-color: var(--primary-400);
+    box-shadow: 
+        var(--shadow-lg),
+        0 0 0 1px var(--primary-100),
+        0 0 20px var(--primary-200),
+        0 0 10px var(--secondary-200);
+}
+
+#mainCanvas.has-image {
+    border-color: var(--primary-400);
+    box-shadow: 
+        var(--shadow-lg),
+        0 0 0 1px var(--primary-100),
+        0 0 20px var(--primary-200),
+        0 0 10px var(--secondary-200);
+}
+
+#mainCanvas.has-image:hover {
+    border-color: var(--primary-500);
+    box-shadow: 
+        var(--shadow-xl),
+        0 0 0 1px var(--primary-200),
+        0 0 30px var(--primary-300),
+        0 0 15px var(--secondary-300);
+}
+
+/* Christmas-specific Precision Mode */
+#mainCanvas.precision-mode {
+    border-color: var(--accent-500);
+    box-shadow: 
+        var(--shadow-xl),
+        0 0 0 2px rgba(245, 158, 11, 0.3),
+        0 0 30px rgba(245, 158, 11, 0.2),
+        0 0 15px rgba(220, 38, 38, 0.1);
+}
+
+/* Christmas-specific Placeholder Text */
+.placeholder-text {
+    background: linear-gradient(135deg, var(--primary-600) 0%, var(--secondary-600) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: christmasGlow 3s ease-in-out infinite;
+}
+
+.placeholder-icon {
+    color: var(--primary-500);
+    filter: drop-shadow(0 0 8px rgba(220, 38, 38, 0.3));
+    animation: christmasGlow 3s ease-in-out infinite;
+}
+
+/* Christmas-specific Gesture Hints */
+.gesture-hint {
+    background: rgba(255, 255, 255, 0.98);
+    border: 2px solid var(--primary-400);
+    color: var(--primary-600);
+    box-shadow: 
+        var(--shadow-lg),
+        0 0 20px rgba(220, 38, 38, 0.2),
+        0 0 10px rgba(21, 185, 129, 0.1);
+}
+
+/* Desktop App Container Styling */
+@media (min-width: 768px) {
+    .app-container {
+        box-shadow: 
+            0 8px 32px rgba(220, 38, 38, 0.15),
+            0 4px 16px rgba(21, 185, 129, 0.08);
+        background: var(--bg-primary);
+    }
+    
+    /* Christmas-specific Desktop Toolbar */
+    .toolbar {
+        background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(255, 255, 255, 0.98) 100%);
+        border-top: 1px solid rgba(220, 38, 38, 0.12);
+        box-shadow: 
+            0 -1px 3px rgba(220, 38, 38, 0.05),
+            0 0 15px rgba(21, 185, 129, 0.03);
+    }
+}
+
+/* Christmas Animation Keyframes */
+@keyframes christmasGlow {
+    0%, 100% {
+        filter: drop-shadow(0 0 8px rgba(220, 38, 38, 0.3));
+    }
+    33% {
+        filter: drop-shadow(0 0 12px rgba(21, 185, 129, 0.4));
+    }
+    66% {
+        filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.3));
+    }
+}
+
+/* Christmas Loading Animation */
+.loading-spinner .icon {
+    color: var(--primary-500);
+    filter: drop-shadow(0 0 8px rgba(220, 38, 38, 0.3));
+}
+
+/* Christmas Status Messages */
+.status-message.success {
+    background: linear-gradient(135deg, var(--success-50) 0%, var(--secondary-50) 100%);
+    color: var(--success-600);
+    border: 1px solid var(--success-300);
+}
+
+.status-message.error {
+    background: linear-gradient(135deg, var(--error-50) 0%, var(--primary-50) 100%);
+    color: var(--error-600);
+    border: 1px solid var(--error-300);
+}

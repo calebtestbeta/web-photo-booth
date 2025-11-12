@@ -4,6 +4,7 @@ import { RenderEngine } from './render.js';
 import { ShareHandler } from './share.js';
 import { resourceManager } from './resource-manager.js';
 import { GestureHints } from './gesture-hints.js';
+import { themeConfig } from './theme-config.js';
 
 class PhotoFrameApp {
     constructor() {
@@ -61,11 +62,17 @@ class PhotoFrameApp {
     
     async init() {
         try {
+            // Initialize theme system first
+            await themeConfig.initialize();
+            
             this.imageHandler = new ImageHandler();
             this.gestureHandler = new GestureHandler(this.canvas);
             this.renderEngine = new RenderEngine(this.canvas, this.ctx);
             this.shareHandler = new ShareHandler();
             this.gestureHints = new GestureHints();
+            
+            // Update frame styles based on current theme
+            this.updateFrameStylesForTheme();
             
             await this.loadFrame();
             this.setupEventListeners();
@@ -83,6 +90,7 @@ class PhotoFrameApp {
             console.log('- iOS Safari:', this.isIOSSafari());
             console.log('- User Agent:', navigator.userAgent);
             console.log('- 支援相機:', !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia));
+            console.log('- 當前主題:', themeConfig.getCurrentTheme().name);
             
             const statusMessage = this.isIOSSafari() ? 
                 '準備就緒！點擊空白區域或上傳按鈕開始使用。' : 
@@ -94,6 +102,18 @@ class PhotoFrameApp {
         }
     }
     
+    // Update frame styles based on current theme
+    updateFrameStylesForTheme() {
+        const currentTheme = themeConfig.getCurrentTheme();
+        const availableStyles = currentTheme.frameStyles;
+        
+        // If current frame style is not available in theme, use first available
+        if (!availableStyles.includes(this.currentFrameStyle)) {
+            this.currentFrameStyle = availableStyles[0] || 'modern-gallery';
+            console.log(`Updated frame style to ${this.currentFrameStyle} for theme ${currentTheme.name}`);
+        }
+    }
+
     // iOS Safari 檢測
     isIOSSafari() {
         const userAgent = navigator.userAgent;
@@ -495,6 +515,13 @@ class PhotoFrameApp {
     }
     
     async changeFrameStyle(style) {
+        // Validate style is available in current theme
+        const currentTheme = themeConfig.getCurrentTheme();
+        if (!currentTheme.frameStyles.includes(style)) {
+            console.warn(`Frame style '${style}' not available in theme '${currentTheme.name}'`);
+            return;
+        }
+        
         this.currentFrameStyle = style;
         
         // Update button states
@@ -510,8 +537,19 @@ class PhotoFrameApp {
         // Always re-render to show frame preview (with or without image)
         this.scheduleRender();
         
-        // Show style change message
-        const styleNames = {
+        // Show style change message with theme-aware style names
+        const styleNames = this.getStyleDisplayNames();
+        const displayName = styleNames[style] || style;
+        
+        this.showStatus(`已切換至${displayName}風格`, 'success');
+    }
+    
+    // Get style display names based on current theme
+    getStyleDisplayNames() {
+        const currentTheme = themeConfig.getCurrentTheme();
+        
+        // Johnny Be Good theme style names
+        const johnnyStyles = {
             'modern-gallery': '現代畫廊',
             'gradient-glow': '漸變光暈',
             'geometric-art': '幾何抽象',
@@ -519,7 +557,20 @@ class PhotoFrameApp {
             'tech-modern': '科技現代'
         };
         
-        this.showStatus(`已切換至${styleNames[style]}風格`, 'success');
+        // Christmas theme style names
+        const christmasStyles = {
+            'holly-border': '冬青邊框',
+            'snow-frame': '雪花邊框',
+            'gift-wrapper': '禮物包裝',
+            'winter-glow': '冬日光暈',
+            'festive-lights': '節慶燈飾'
+        };
+        
+        if (currentTheme.name === 'Christmas Magic') {
+            return christmasStyles;
+        }
+        
+        return johnnyStyles;
     }
     
     
@@ -633,7 +684,7 @@ class PhotoFrameApp {
             const formatInfo = this.renderEngine.getCurrentFormat();
             const filename = `framed-photo-${formatInfo.key}-${this.currentFrameStyle}-${formatInfo.width}x${formatInfo.height}.png`;
             const platforms = this.shareHandler.getPlatformRecommendation(formatInfo.key);
-            const shareText = "Farewell, Johnny! Go be good! (Like the song! 😉) https://calebtestbeta.github.io/web-photo-booth/johnny-be-good.html";
+            const shareText = themeConfig.getShareMessage(null, 'https://calebtestbeta.github.io/web-photo-booth/johnny-be-good.html');
             
             console.log('開始分享圖片：', {
                 filename,

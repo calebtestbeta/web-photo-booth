@@ -3,105 +3,288 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Johnny Be Good! - Photo Frame Tool</title>
-    
-    <!-- 自動重定向到當前版本 -->
-    <meta http-equiv="refresh" content="0; url=johnny-be-good.html">
+    <title>Photo Frame Tool - Choose Your Theme</title>
     
     <!-- SEO 和社交媒體優化 -->
-    <meta name="description" content="Johnny Be Good! Photo Frame Tool - Add beautiful frames to your photos with drag, zoom, rotate and share features">
-    <link rel="canonical" href="johnny-be-good.html">
+    <meta name="description" content="Photo Frame Tool - Choose from multiple themes including Johnny Be Good! and Christmas Magic. Add beautiful frames to your photos with drag, zoom, rotate and share features">
     
-    <!-- 與主應用相同的 favicon -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8IS0tIOiDjOaZryAtLT4KICA8cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSIzIiBmaWxsPSIjZjhmOWZhIi8+CiAgCiAgPCEtLSDnm7jmhoYgKOmHkeiJsuaBuOWxpCkgLS0+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImdvbGRHcmFkaWVudCIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNGRkQ3MDAiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSI1MCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNGRkE1MDAiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdHlsZT0ic3RvcC1jb2xvcjojRkY4QzAwIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICAKICA8IS0tIOWkluahhuW7tiAtLT4KICA8cmVjdCB4PSIyIiB5PSIyIiB3aWR0aD0iMjgiIGhlaWdodD0iMjgiIHJ4PSIyIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjZ29sZEdyYWRpZW50KSIgc3Ryb2tlLXdpZHRoPSI0Ii8+CiAgCiAgPCEtLSDlhaXpg6jnhafniYflnY/ln58gLS0+CiAgPHJlY3QgeD0iNiIgeT0iNiIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiByeD0iMSIgZmlsbD0id2hpdGUiLz4KICAKICA8IS0tIOebuOmKn+Wcluaomeq8nCAtLT4KICA8cmVjdCB4PSIxMiIgeT0iMTQiIHdpZHRoPSI4IiBoZWlnaHQ9IjUiIHJ4PSIxIiBmaWxsPSIjMzQ5OGRiIi8+CiAgPGNpcmNsZSBjeD0iMTYiIGN5PSIxNi41IiByPSIyIiBmaWxsPSIjMzQ5OGRiIi8+CiAgCiAgPCEtLSDoo4Xpo77npbkgLS0+CiAgPGNpcmNsZSBjeD0iOCIgY3k9IjgiIHI9IjEuNSIgZmlsbD0idXJsKCNnb2xkR3JhZGllbnQpIi8+CiAgPGNpcmNsZSBjeD0iMjQiIGN5PSI4IiByPSIxLjUiIGZpbGw9InVybCgjZ29sZEdyYWRpZW50KSIvPgogIDxjaXJjbGUgY3g9IjgiIGN5PSIyNCIgcj0iMS41IiBmaWxsPSJ1cmwoI2dvbGRHcmFkaWVudCkiLz4KICA8Y2lyY2xlIGN4PSIyNCIgY3k9IjI0IiByPSIxLjUiIGZpbGw9InVybCgjZ29sZEdyYWRpZW50KSIvPgo8L3N2Zz4K">
-    <link rel="icon" type="image/png" sizes="32x32" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8IS0tIOiDjOaZryAtLT4KICA8cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSIzIiBmaWxsPSIjZjhmOWZhIi8+CiAgCiAgPCEtLSDnm7jmhoYgKOmHkeiJsuaBuOWxpCkgLS0+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImdvbGRHcmFkaWVudCIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNGRkQ3MDAiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSI1MCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNGRkE1MDAiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdHlsZT0ic3RvcC1jb2xvcjojRkY4QzAwIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICAKICA8IS0tIOWkluahhuW9tiAtLT4KICA8cmVjdCB4PSIyIiB5PSIyIiB3aWR0aD0iMjgiIGhlaWdodD0iMjgiIHJ4PSIyIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjZ29sZEdyYWRpZW50KSIgc3Ryb2tlLXdpZHRoPSI0Ii8+CiAgCiAgPCEtLSDlhaXpg6jnhafniYflnY/ln58gLS0+CiAgPHJlY3QgeD0iNiIgeT0iNiIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiByeD0iMSIgZmlsbD0id2hpdGUiLz4KICAKICA8IS0tIOebuOmKn+Gcluaomeq8nCAtLT4KICA8cmVjdCB4PSIxMiIgeT0iMTQiIHdpZHRoPSI4IiBoZWlnaHQ9IjUiIHJ4PSIxIiBmaWxsPSIjMzQ5OGRiIi8+CiAgPGNpcmNsZSBjeD0iMTYiIGN5PSIxNi41IiByPSIyIiBmaWxsPSIjMzQ5OGRiIi8+CiAgCiAgPCEtLSDoo4Xpo77npbkgLS0+CiAgPGNpcmNsZSBjeD0iOCIgY3k9IjgiIHI9IjEuNSIgZmlsbD0idXJsKCNnb2xkR3JhZGllbnQpIi8+CiAgPGNpcmNsZSBjeD0iMjQiIGN5PSI4IiByPSIxLjUiIGZpbGw9InVybCgjZ29sZEdyYWRpZW50KSIvPgogIDxjaXJjbGUgY3g9IjgiIGN5PSIyNCIgcj0iMS41IiBmaWxsPSJ1cmwoI2dvbGRHcmFkaWVudCkiLz4KICA8Y2lyY2xlIGN4PSIyNCIgY3k9IjI0IiByPSIxLjUiIGZpbGw9InVybCgjZ29sZEdyYWRpZW50KSIvPgo8L3N2Zz4K">
-    <link rel="icon" type="image/png" sizes="16x16" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZCIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNGRkQ3MDAiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdHlsZT0ic3RvcC1jb2xvcjojRkY4QzAwIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB4PSIxIiB5PSIxIiB3aWR0aD0iMTQiIGhlaWdodD0iMTQiIHJ4PSIxIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjZ3JhZCkiIHN0cm9rZS13aWR0aD0iMiIvPgogIDxyZWN0IHg9IjMiIHk9IjMiIHdpZHRoPSIxMCIgaGVpZ2h0PSIxMCIgZmlsbD0id2hpdGUiLz4KICA8Y2lyY2xlIGN4PSI4IiBjeT0iOCIgcj0iMiIgZmlsbD0iIzM0OThkYiIvPgo8L3N2Zz4K">
+    <!-- 通用 favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSIzIiBmaWxsPSIjZjhmOWZhIi8+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImNvbWJvR3JhZCIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNmOTczMTYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSI1MCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNkYzI2MjYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMTViOTgxIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB4PSIyIiB5PSIyIiB3aWR0aD0iMjgiIGhlaWdodD0iMjgiIHJ4PSIyIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjY29tYm9HcmFkKSIgc3Ryb2tlLXdpZHRoPSI0Ii8+CiAgPHJlY3QgeD0iNiIgeT0iNiIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiByeD0iMSIgZmlsbD0id2hpdGUiLz4KICA8Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIzIiBmaWxsPSIjZjk3MzE2Ii8+CiAgPGNpcmNsZSBjeD0iMjAiIGN5PSIxMiIgcj0iMiIgZmlsbD0iI2RjMjYyNiIvPgogIDxjaXJjbGUgY3g9IjE2IiBjeT0iMjAiIHI9IjIiIGZpbGw9IiMxNWI5ODEiLz4KPC9zdmc+Cg==">
+    <link rel="icon" type="image/png" sizes="32x32" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSIzIiBmaWxsPSIjZjhmOWZhIi8+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImNvbWJvR3JhZCIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNmOTczMTYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSI1MCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNkYzI2MjYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMTViOTgxIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB4PSIyIiB5PSIyIiB3aWR0aD0iMjgiIGhlaWdodD0iMjgiIHJ4PSIyIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjY29tYm9HcmFkKSIgc3Ryb2tlLXdpZHRoPSI0Ii8+CiAgPHJlY3QgeD0iNiIgeT0iNiIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiByeD0iMSIgZmlsbD0id2hpdGUiLz4KICA8Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIzIiBmaWxsPSIjZjk3MzE2Ii8+CiAgPGNpcmNsZSBjeD0iMjAiIGN5PSIxMiIgcj0iMiIgZmlsbD0iI2RjMjYyNiIvPgogIDxjaXJjbGUgY3g9IjE2IiBjeT0iMjAiIHI9IjIiIGZpbGw9IiMxNWI5ODEiLz4KPC9zdmc+Cg==">
+    <link rel="icon" type="image/png" sizes="16x16" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iY29tYm9TbWFsbCIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNmOTczMTYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdHlsZT0ic3RvcC1jb2xvcjojZGMyNjI2Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB4PSIxIiB5PSIxIiB3aWR0aD0iMTQiIGhlaWdodD0iMTQiIHJ4PSIxIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjY29tYm9TbWFsbCkiIHN0cm9rZS13aWR0aD0iMiIvPgogIDxyZWN0IHg9IjMiIHk9IjMiIHdpZHRoPSIxMCIgaGVpZ2h0PSIxMCIgZmlsbD0id2hpdGUiLz4KICA8Y2lyY2xlIGN4PSI4IiBjeT0iOCIgcj0iMiIgZmlsbD0iI2Y5NzMxNiIvPgo8L3N2Zz4K">
     
-    <!-- JavaScript 備用重定向 -->
-    <script>
-        // 立即重定向，不等待頁面完全載入
-        window.location.href = 'johnny-be-good.html';
-    </script>
-    
-    <!-- 基礎樣式 -->
+    <!-- 主題選擇樣式 -->
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #faf8f3 0%, #f4f1ea 50%, #ede8e0 100%);
+        * {
             margin: 0;
-            padding: 50px 20px;
-            color: #1c1917;
-            text-align: center;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #faf8f3 0%, #f4f1ea 50%, #ede8e0 100%);
+            background-attachment: fixed;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 20px;
+            color: #1c1917;
         }
-        .redirect-container {
-            max-width: 500px;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 40px;
-            border-radius: 24px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(251, 146, 60, 0.15);
+        
+        .theme-selector {
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
         }
-        h1 {
-            color: #f97316;
-            font-size: 2rem;
-            font-weight: 600;
+        
+        .main-title {
+            font-size: 2.5rem;
+            font-weight: 700;
             margin-bottom: 1rem;
+            background: linear-gradient(135deg, #f97316 0%, #dc2626 50%, #15b981 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
         }
-        p {
-            font-size: 1rem;
+        
+        .subtitle {
+            font-size: 1.125rem;
+            color: #57534e;
+            margin-bottom: 3rem;
+            font-weight: 500;
             line-height: 1.6;
-            margin: 1rem 0;
         }
-        a {
+        
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .theme-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .theme-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .theme-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 32px 64px -12px rgba(0, 0, 0, 0.15), 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .theme-card:hover::before {
+            left: 100%;
+        }
+        
+        .theme-card.johnny {
+            border-color: rgba(251, 146, 60, 0.2);
+        }
+        
+        .theme-card.johnny:hover {
+            border-color: rgba(251, 146, 60, 0.4);
+            box-shadow: 0 32px 64px -12px rgba(251, 146, 60, 0.15), 0 25px 50px -12px rgba(251, 146, 60, 0.1);
+        }
+        
+        .theme-card.christmas {
+            border-color: rgba(220, 38, 38, 0.2);
+        }
+        
+        .theme-card.christmas:hover {
+            border-color: rgba(220, 38, 38, 0.4);
+            box-shadow: 0 32px 64px -12px rgba(220, 38, 38, 0.15), 0 25px 50px -12px rgba(21, 185, 129, 0.1);
+        }
+        
+        .theme-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+        }
+        
+        .theme-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #1c1917;
+        }
+        
+        .theme-card.johnny .theme-title {
+            color: #f97316;
+        }
+        
+        .theme-card.christmas .theme-title {
+            background: linear-gradient(135deg, #dc2626 0%, #15b981 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .theme-description {
+            font-size: 0.875rem;
+            color: #78716c;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+        
+        .theme-features {
+            list-style: none;
+            text-align: left;
+            font-size: 0.8125rem;
+            color: #57534e;
+        }
+        
+        .theme-features li {
+            margin-bottom: 0.25rem;
+            position: relative;
+            padding-left: 1rem;
+        }
+        
+        .theme-features li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+        
+        .theme-card.johnny .theme-features li::before {
+            color: #f97316;
+        }
+        
+        .theme-card.christmas .theme-features li::before {
+            color: #dc2626;
+        }
+        
+        .footer {
+            margin-top: 2rem;
+            font-size: 0.875rem;
+            color: #a8a29e;
+        }
+        
+        .footer a {
             color: #f97316;
             text-decoration: none;
             font-weight: 500;
         }
-        a:hover {
+        
+        .footer a:hover {
             text-decoration: underline;
         }
-        .spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid #f97316;
-            border-radius: 50%;
-            border-top-color: transparent;
-            animation: spin 1s ease-in-out infinite;
-            margin-right: 8px;
+        
+        /* Mobile optimizations */
+        @media (max-width: 640px) {
+            .main-title {
+                font-size: 2rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+                margin-bottom: 2rem;
+            }
+            
+            .theme-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .theme-card {
+                padding: 1.5rem;
+            }
+            
+            .theme-icon {
+                font-size: 2.5rem;
+            }
+            
+            .theme-title {
+                font-size: 1.25rem;
+            }
         }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .theme-selector {
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        .theme-card {
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        .theme-card:nth-child(2) {
+            animation-delay: 0.1s;
         }
     </style>
 </head>
 <body>
-    <!-- 純文本備用（如果 JavaScript 和 meta refresh 都失效） -->
-    <div class="redirect-container">
-        <h1>Johnny Be Good!</h1>
-        <p><span class="spinner"></span>Redirecting to <a href="johnny-be-good.html">Photo Frame Tool</a>...</p>
-        <p><em>If you are not redirected automatically, please click the link above.</em></p>
-    </div>
-    
-    <!-- 額外的 JavaScript 確保重定向 -->
-    <script>
-        // 多重備用重定向機制
-        setTimeout(function() {
-            if (window.location.href.indexOf('johnny-be-good.html') === -1) {
-                window.location.replace('johnny-be-good.html');
-            }
-        }, 100);
+    <div class="theme-selector">
+        <h1 class="main-title">📸 Photo Frame Tool</h1>
+        <p class="subtitle">Choose your favorite theme and start adding beautiful frames to your photos</p>
         
-        // 如果用戶點擊了返回按鈕，重新重定向
-        window.addEventListener('pageshow', function(event) {
-            if (event.persisted) {
-                window.location.replace('johnny-be-good.html');
-            }
-        });
-    </script>
+        <div class="theme-grid">
+            <!-- Johnny Be Good Theme -->
+            <a href="johnny-be-good.html" class="theme-card johnny">
+                <div class="theme-icon">🎸</div>
+                <h2 class="theme-title">Johnny Be Good!</h2>
+                <p class="theme-description">Classic warm orange theme with professional styling and rock'n'roll vibes</p>
+                <ul class="theme-features">
+                    <li>Modern gallery frames</li>
+                    <li>Gradient glow effects</li>
+                    <li>Geometric art designs</li>
+                    <li>Minimal line styles</li>
+                    <li>Tech modern aesthetics</li>
+                </ul>
+            </a>
+            
+            <!-- Christmas Magic Theme -->
+            <a href="christmas.html" class="theme-card christmas">
+                <div class="theme-icon">🎄</div>
+                <h2 class="theme-title">Christmas Magic!</h2>
+                <p class="theme-description">Festive red and green theme perfect for your holiday photos and memories</p>
+                <ul class="theme-features">
+                    <li>Holly border frames</li>
+                    <li>Snow frame designs</li>
+                    <li>Gift wrapper styles</li>
+                    <li>Winter glow effects</li>
+                    <li>Festive light decorations</li>
+                </ul>
+            </a>
+        </div>
+        
+        <div class="footer">
+            <p>Both themes feature drag, zoom, rotate and share capabilities with mobile-optimized touch gestures.<br>
+            <a href="https://github.com/anthropics/claude-code" target="_blank" rel="noopener">Built with Claude Code</a></p>
+        </div>
+    </div>
 </body>
 </html>

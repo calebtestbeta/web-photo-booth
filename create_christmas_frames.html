@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>🎄 Christmas Frame Generator ✨</title>
+    <style>
+        body { 
+            font-family: 'Georgia', 'Times New Roman', serif; 
+            padding: 20px; 
+            background: linear-gradient(135deg, #fefefe 0%, #fef7f7 50%, #fef2f2 100%);
+            background-attachment: fixed;
+            color: #1c1917;
+            min-height: 100vh;
+        }
+        .container { 
+            max-width: 900px; 
+            margin: 0 auto; 
+            background: rgba(255, 255, 255, 0.95); 
+            padding: 30px; 
+            border-radius: 20px; 
+            box-shadow: 0 20px 25px -5px rgba(220, 38, 38, 0.1), 0 10px 10px -5px rgba(21, 185, 129, 0.05);
+            border: 2px solid rgba(220, 38, 38, 0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .main-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #dc2626 0%, #15b981 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .subtitle {
+            font-size: 1.125rem;
+            color: #57534e;
+            margin-bottom: 20px;
+        }
+        .format-selector { 
+            margin: 25px 0; 
+            background: rgba(254, 247, 247, 0.8);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(220, 38, 38, 0.1);
+        }
+        .format-selector h3 { 
+            color: #dc2626; 
+            font-size: 18px; 
+            margin-bottom: 15px; 
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .format-btn { 
+            padding: 12px 20px; 
+            margin: 8px; 
+            border: 2px solid rgba(220, 38, 38, 0.2); 
+            background: white; 
+            color: #374151; 
+            cursor: pointer; 
+            border-radius: 12px; 
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .format-btn.active { 
+            border-color: #dc2626; 
+            background: linear-gradient(135deg, #dc2626 0%, #15b981 100%);
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        }
+        .format-btn:hover {
+            border-color: #dc2626;
+            background: rgba(220, 38, 38, 0.05);
+            color: #dc2626;
+            transform: translateY(-1px);
+        }
+        .format-btn.active:hover {
+            background: linear-gradient(135deg, #b91c1c 0%, #059669 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(220, 38, 38, 0.4);
+        }
+        canvas { 
+            border: 3px solid #dc2626; 
+            display: block; 
+            margin: 30px auto; 
+            max-width: 450px; 
+            height: auto; 
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.2), 0 0 20px rgba(21, 185, 129, 0.1);
+        }
+        .action-buttons {
+            text-align: center;
+            margin: 30px 0;
+        }
+        button { 
+            padding: 15px 30px; 
+            font-size: 16px; 
+            background: linear-gradient(135deg, #dc2626 0%, #15b981 100%); 
+            color: white; 
+            border: none; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            margin: 8px; 
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        }
+        button:hover { 
+            background: linear-gradient(135deg, #b91c1c 0%, #059669 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(220, 38, 38, 0.4);
+        }
+        .info { 
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.05) 0%, rgba(21, 185, 129, 0.05) 100%); 
+            padding: 20px; 
+            border-radius: 15px; 
+            margin: 25px 0; 
+            border: 1px solid rgba(220, 38, 38, 0.1);
+        }
+        .canvas-info { 
+            text-align: center; 
+            margin: 15px 0; 
+            font-size: 14px; 
+            color: #57534e; 
+            font-weight: 500;
+        }
+        .preview-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(254, 247, 247, 0.5);
+            border-radius: 15px;
+            border: 1px solid rgba(220, 38, 38, 0.1);
+        }
+        .preview-item {
+            text-align: center;
+            padding: 15px;
+            border-radius: 12px;
+            background: white;
+            border: 1px solid rgba(220, 38, 38, 0.1);
+            transition: all 0.3s ease;
+        }
+        .preview-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(220, 38, 38, 0.15);
+        }
+        .preview-emoji {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+        .preview-name {
+            font-size: 0.875rem;
+            color: #dc2626;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="main-title">🎄 Christmas Frame Generator ✨</h1>
+            <p class="subtitle">Create festive holiday frames with Christmas magic</p>
+        </div>
+        
+        <div class="format-selector">
+            <h3>🎁 選擇輸出格式：</h3>
+            <button class="format-btn active" data-format="square">
+                📱 正方形 (1080×1080)
+                <small>Instagram Posts</small>
+            </button>
+            <button class="format-btn" data-format="portrait">
+                📸 直式 (1080×1350)
+                <small>Instagram Portrait</small>
+            </button>
+            <button class="format-btn" data-format="story">
+                📱 限時動態 (1080×1920)
+                <small>Stories & TikTok</small>
+            </button>
+        </div>
+        
+        <div class="format-selector">
+            <h3>🎨 選擇聖誕風格：</h3>
+            <button class="format-btn active" data-style="holly-border">
+                🌿 冬青邊框
+                <small>Classic Holly</small>
+            </button>
+            <button class="format-btn" data-style="snow-frame">
+                ❄️ 雪花邊框
+                <small>Winter Snow</small>
+            </button>
+            <button class="format-btn" data-style="gift-wrapper">
+                🎁 禮物包裝
+                <small>Gift Box Style</small>
+            </button>
+            <button class="format-btn" data-style="winter-glow">
+                ✨ 冬日光暈
+                <small>Magical Glow</small>
+            </button>
+            <button class="format-btn" data-style="festive-lights">
+                🎄 節慶燈飾
+                <small>Christmas Lights</small>
+            </button>
+        </div>
+        
+        <canvas id="frameCanvas"></canvas>
+        <div class="canvas-info" id="canvasInfo">1080 × 1080 像素</div>
+        
+        <div class="action-buttons">
+            <button onclick="downloadFrame()">🎁 下載當前相框</button>
+            <button onclick="downloadAllFrames()">🎄 下載所有格式</button>
+        </div>
+        
+        <div class="preview-gallery">
+            <div class="preview-item">
+                <div class="preview-emoji">🌿</div>
+                <div class="preview-name">冬青邊框</div>
+            </div>
+            <div class="preview-item">
+                <div class="preview-emoji">❄️</div>
+                <div class="preview-name">雪花邊框</div>
+            </div>
+            <div class="preview-item">
+                <div class="preview-emoji">🎁</div>
+                <div class="preview-name">禮物包裝</div>
+            </div>
+            <div class="preview-item">
+                <div class="preview-emoji">✨</div>
+                <div class="preview-name">冬日光暈</div>
+            </div>
+            <div class="preview-item">
+                <div class="preview-emoji">🎄</div>
+                <div class="preview-name">節慶燈飾</div>
+            </div>
+        </div>
+        
+        <div class="info">
+            <strong>🎅 聖誕特色功能：</strong><br>
+            • 五種聖誕主題風格，每種都有獨特的節慶元素<br>
+            • 聖誕色彩搭配：紅色、綠色、金色完美融合<br>
+            • 節慶裝飾元素：雪花、冬青、彩燈、禮物盒等<br>
+            • 溫馨的聖誕祝福文字："Merry Christmas & Happy Holidays!"<br>
+            • 下載檔案命名：frame_[format]_[style]_[尺寸].png<br>
+            • 將檔案放入 assets/frames/ 資料夾以供聖誕主題使用
+        </div>
+    </div>
+    
+    <script>
+        const canvas = document.getElementById('frameCanvas');
+        const ctx = canvas.getContext('2d');
+        const canvasInfo = document.getElementById('canvasInfo');
+        
+        const formats = {
+            square: { width: 1080, height: 1080, name: '正方形', borderWidth: 50 },
+            portrait: { width: 1080, height: 1350, name: '直式', borderWidth: 48 },
+            story: { width: 1080, height: 1920, name: '限時動態', borderWidth: 45 }
+        };
+        
+        let currentFormat = 'square';
+        let currentStyle = 'holly-border';
+        
+        function createFrame(format) {
+            const config = formats[format];
+            
+            // Set canvas size
+            canvas.width = config.width;
+            canvas.height = config.height;
+            canvasInfo.textContent = `${config.width} × ${config.height} 像素`;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, config.width, config.height);
+            
+            // Draw frame based on selected style
+            switch(currentStyle) {
+                case 'holly-border':
+                    drawHollyBorderFrame(ctx, config);
+                    break;
+                case 'snow-frame':
+                    drawSnowFrameFrame(ctx, config);
+                    break;
+                case 'gift-wrapper':
+                    drawGiftWrapperFrame(ctx, config);
+                    break;
+                case 'winter-glow':
+                    drawWinterGlowFrame(ctx, config);
+                    break;
+                case 'festive-lights':
+                    drawFestiveLightsFrame(ctx, config);
+                    break;
+                default:
+                    drawHollyBorderFrame(ctx, config);
+            }
+            
+            // 加入聖誕祝福文字
+            drawChristmasText(ctx, config.width, config.height, config.borderWidth, currentStyle);
+        }
+        
+        function drawRoundedRect(ctx, x, y, width, height, radius) {
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + width - radius, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+            ctx.lineTo(x + width, y + height - radius);
+            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+            ctx.lineTo(x + radius, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+            ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.closePath();
+        }
+        
+        function drawChristmasText(ctx, canvasWidth, canvasHeight, borderWidth, style = 'holly-border') {
+            ctx.save();
+            
+            // 計算文字位置 (底部中央)
+            const textY = canvasHeight - borderWidth * 1.4;
+            const textX = canvasWidth / 2;
+            
+            // 設定聖誕文字樣式
+            const fontSize = Math.max(65, borderWidth * 2.2);
+            ctx.font = `italic bold ${fontSize}px "Georgia", "Times New Roman", serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // 根據風格設定文字顏色和效果
+            let textColor, shadowColor, strokeColor, shadowBlur, shadowOffset;
+            
+            switch(style) {
+                case 'holly-border':
+                    textColor = '#dc2626'; // 聖誕紅
+                    shadowColor = 'rgba(21, 185, 129, 0.6)';
+                    strokeColor = 'rgba(255, 255, 255, 0.9)';
+                    shadowBlur = 4;
+                    shadowOffset = 2;
+                    break;
+                    
+                case 'snow-frame':
+                    textColor = '#1e40af'; // 冰雪藍
+                    shadowColor = 'rgba(219, 234, 254, 0.8)';
+                    strokeColor = 'rgba(255, 255, 255, 0.9)';
+                    shadowBlur = 6;
+                    shadowOffset = 2;
+                    break;
+                    
+                case 'gift-wrapper':
+                    textColor = '#d97706'; // 金色
+                    shadowColor = 'rgba(220, 38, 38, 0.5)';
+                    strokeColor = 'rgba(255, 255, 255, 0.8)';
+                    shadowBlur = 3;
+                    shadowOffset = 2;
+                    break;
+                    
+                case 'winter-glow':
+                    textColor = '#ffffff'; // 純白
+                    shadowColor = 'rgba(59, 130, 246, 0.8)';
+                    strokeColor = 'rgba(21, 185, 129, 0.6)';
+                    shadowBlur = 8;
+                    shadowOffset = 0;
+                    break;
+                    
+                case 'festive-lights':
+                    textColor = '#fbbf24'; // 暖金色
+                    shadowColor = 'rgba(239, 68, 68, 0.6)';
+                    strokeColor = 'rgba(21, 185, 129, 0.7)';
+                    shadowBlur = 5;
+                    shadowOffset = 1;
+                    break;
+                    
+                default:
+                    textColor = '#dc2626';
+                    shadowColor = 'rgba(21, 185, 129, 0.5)';
+                    strokeColor = 'rgba(255, 255, 255, 0.8)';
+                    shadowBlur = 3;
+                    shadowOffset = 2;
+            }
+            
+            // 設定文字樣式
+            ctx.fillStyle = textColor;
+            
+            // 加入文字陰影效果
+            ctx.shadowColor = shadowColor;
+            ctx.shadowBlur = shadowBlur;
+            ctx.shadowOffsetX = shadowOffset;
+            ctx.shadowOffsetY = shadowOffset;
+            
+            // 繪製聖誕祝福文字
+            ctx.fillText('Merry Christmas!', textX, textY);
+            
+            // 加入文字外框
+            ctx.shadowColor = 'transparent';
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = 2;
+            ctx.strokeText('Merry Christmas!', textX, textY);
+            
+            ctx.restore();
+        }
+        
+        // 🌿 冬青邊框風格 - 經典聖誕（增強版）
+        function drawHollyBorderFrame(ctx, config) {
+            const borderWidth = config.borderWidth;
+            const cornerRadius = 12;
+            
+            // 主邊框 - 深綠色漸變
+            ctx.save();
+            const greenGradient = ctx.createLinearGradient(0, 0, config.width, config.height);
+            greenGradient.addColorStop(0, '#166534');
+            greenGradient.addColorStop(0.5, '#059669');
+            greenGradient.addColorStop(1, '#166534');
+            
+            ctx.strokeStyle = greenGradient;
+            ctx.lineWidth = borderWidth;
+            ctx.lineCap = 'round';
+            
+            const margin = borderWidth / 2;
+            drawRoundedRect(ctx, margin, margin, config.width - borderWidth, config.height - borderWidth, cornerRadius);
+            ctx.stroke();
+            
+            // 內邊框 - 聖誕紅漸變
+            const redGradient = ctx.createLinearGradient(0, 0, config.width, config.height);
+            redGradient.addColorStop(0, '#dc2626');
+            redGradient.addColorStop(0.5, '#f87171');
+            redGradient.addColorStop(1, '#dc2626');
+            
+            ctx.strokeStyle = redGradient;
+            ctx.lineWidth = 4;
+            const innerMargin = borderWidth - 8;
+            drawRoundedRect(ctx, innerMargin, innerMargin, config.width - 2 * innerMargin, config.height - 2 * innerMargin, cornerRadius - 2);
+            ctx.stroke();
+            
+            // 繪製歡樂冬青葉裝飾
+            drawEnhancedHollyDecorations(ctx, config, borderWidth);
+            
+            // 添加聖誕鈴鐺
+            drawChristmasBells(ctx, config, borderWidth);
+            
+            ctx.restore();
+        }
+        
+        function drawEnhancedHollyDecorations(ctx, config, borderWidth) {
+            const positions = [
+                {x: borderWidth * 1.5, y: borderWidth * 1.5}, // 左上
+                {x: config.width - borderWidth * 1.5, y: borderWidth * 1.5}, // 右上
+                {x: borderWidth * 1.5, y: config.height - borderWidth * 1.5}, // 左下
+                {x: config.width - borderWidth * 1.5, y: config.height - borderWidth * 1.5} // 右下
+            ];
+            
+            positions.forEach((pos, index) => {
+                ctx.save();
+                ctx.translate(pos.x, pos.y);
+                ctx.rotate((index * Math.PI) / 6); // 稍微旋轉增加動感
+                
+                // 更大更豐富的冬青葉 - 漸層綠色
+                const leafGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 20);
+                leafGradient.addColorStop(0, '#15b981');
+                leafGradient.addColorStop(0.7, '#059669');
+                leafGradient.addColorStop(1, '#064e3b');
+                
+                ctx.fillStyle = leafGradient;
+                // 主要冬青葉
+                ctx.beginPath();
+                ctx.ellipse(0, -10, 18, 10, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.ellipse(-10, 5, 12, 8, Math.PI / 4, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.ellipse(10, 5, 12, 8, -Math.PI / 4, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 額外的小葉子
+                ctx.fillStyle = '#16a34a';
+                ctx.beginPath();
+                ctx.ellipse(-6, -6, 8, 5, Math.PI / 3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.ellipse(6, -6, 8, 5, -Math.PI / 3, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 更多紅色漿果 - 帶光澤
+                const berryGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 4);
+                berryGradient.addColorStop(0, '#f87171');
+                berryGradient.addColorStop(0.6, '#dc2626');
+                berryGradient.addColorStop(1, '#7f1d1d');
+                
+                ctx.fillStyle = berryGradient;
+                // 漿果群
+                ctx.beginPath();
+                ctx.arc(-5, 0, 4, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(5, 2, 4, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(0, 8, 4, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(-3, 5, 3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(3, -2, 3, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 添加小星星裝飾
+                ctx.fillStyle = '#fbbf24';
+                drawStar(ctx, -12, -12, 3, 5);
+                drawStar(ctx, 12, 12, 2, 4);
+                
+                ctx.restore();
+            });
+        }
+        
+        function drawChristmasBells(ctx, config, borderWidth) {
+            const bellPositions = [
+                {x: config.width / 2, y: borderWidth * 0.7},
+                {x: config.width / 2, y: config.height - borderWidth * 0.7},
+                {x: borderWidth * 0.7, y: config.height / 2},
+                {x: config.width - borderWidth * 0.7, y: config.height / 2}
+            ];
+            
+            bellPositions.forEach(pos => {
+                ctx.save();
+                ctx.translate(pos.x, pos.y);
+                
+                // 鈴鐺主體 - 金色漸變
+                const bellGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 8);
+                bellGradient.addColorStop(0, '#fcd34d');
+                bellGradient.addColorStop(0.7, '#f59e0b');
+                bellGradient.addColorStop(1, '#d97706');
+                
+                ctx.fillStyle = bellGradient;
+                ctx.beginPath();
+                ctx.arc(0, 0, 8, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 鈴鐺高光
+                ctx.fillStyle = '#fef3c7';
+                ctx.beginPath();
+                ctx.arc(-2, -2, 3, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 鈴鐺頂部
+                ctx.fillStyle = '#92400e';
+                ctx.fillRect(-2, -8, 4, 3);
+                
+                // 小鈴鐺內芯
+                ctx.fillStyle = '#78350f';
+                ctx.beginPath();
+                ctx.arc(0, 2, 2, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.restore();
+            });
+        }
+        
+        function drawStar(ctx, x, y, innerRadius, outerRadius) {
+            const spikes = 5;
+            let rot = Math.PI / 2 * 3;
+            const step = Math.PI / spikes;
+            
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.beginPath();
+            ctx.moveTo(0, -outerRadius);
+            
+            for (let i = 0; i < spikes; i++) {
+                ctx.lineTo(Math.cos(rot) * outerRadius, Math.sin(rot) * outerRadius);
+                rot += step;
+                ctx.lineTo(Math.cos(rot) * innerRadius, Math.sin(rot) * innerRadius);
+                rot += step;
+            }
+            
+            ctx.lineTo(0, -outerRadius);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+        }
+        
+        // ❄️ 雪花邊框風格 - 冬日純白
+        function drawSnowFrameFrame(ctx, config) {
+            const borderWidth = config.borderWidth;
+            const cornerRadius = borderWidth * 0.4;
+            
+            // 主邊框 - 冰藍色漸變
+            const gradient = ctx.createLinearGradient(0, 0, config.width, config.height);
+            gradient.addColorStop(0, '#dbeafe');    // 淺藍
+            gradient.addColorStop(0.5, '#bfdbfe');  // 中藍
+            gradient.addColorStop(1, '#93c5fd');    // 藍色
+            
+            ctx.save();
+            ctx.strokeStyle = gradient;
+            ctx.lineWidth = borderWidth;
+            ctx.lineCap = 'round';
+            
+            const margin = borderWidth / 2;
+            drawRoundedRect(ctx, margin, margin, config.width - borderWidth, config.height - borderWidth, cornerRadius);
+            ctx.stroke();
+            
+            // 內邊框 - 白色
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 3;
+            const innerMargin = borderWidth - 6;
+            drawRoundedRect(ctx, innerMargin, innerMargin, config.width - 2 * innerMargin, config.height - 2 * innerMargin, cornerRadius - 3);
+            ctx.stroke();
+            
+            // 繪製雪花裝飾
+            drawSnowflakeDecorations(ctx, config, borderWidth);
+            
+            ctx.restore();
+        }
+        
+        function drawSnowflakeDecorations(ctx, config, borderWidth) {
+            const snowflakes = [
+                {x: borderWidth * 1.5, y: borderWidth * 1.5, size: 0.8},
+                {x: config.width - borderWidth * 1.5, y: borderWidth * 1.5, size: 1.0},
+                {x: borderWidth * 1.5, y: config.height - borderWidth * 1.5, size: 1.2},
+                {x: config.width - borderWidth * 1.5, y: config.height - borderWidth * 1.5, size: 0.9},
+                {x: config.width / 2, y: borderWidth, size: 1.1},
+                {x: config.width / 2, y: config.height - borderWidth, size: 1.0}
+            ];
+            
+            snowflakes.forEach(flake => {
+                ctx.save();
+                ctx.translate(flake.x, flake.y);
+                ctx.scale(flake.size, flake.size);
+                
+                ctx.strokeStyle = '#3b82f6';
+                ctx.lineWidth = 2;
+                ctx.lineCap = 'round';
+                
+                // 繪製六角雪花
+                for (let i = 0; i < 6; i++) {
+                    ctx.save();
+                    ctx.rotate((i * Math.PI) / 3);
+                    
+                    // 主線
+                    ctx.beginPath();
+                    ctx.moveTo(0, -12);
+                    ctx.lineTo(0, 12);
+                    ctx.stroke();
+                    
+                    // 分支
+                    ctx.beginPath();
+                    ctx.moveTo(-4, -8);
+                    ctx.lineTo(0, -12);
+                    ctx.lineTo(4, -8);
+                    ctx.stroke();
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(-4, 8);
+                    ctx.lineTo(0, 12);
+                    ctx.lineTo(4, 8);
+                    ctx.stroke();
+                    
+                    ctx.restore();
+                }
+                
+                ctx.restore();
+            });
+        }
+        
+        // 🎁 禮物包裝風格 - 驚喜禮品（歡樂增強版）
+        function drawGiftWrapperFrame(ctx, config) {
+            const borderWidth = config.borderWidth;
+            
+            // 主邊框 - 漸變禮物盒背景
+            ctx.save();
+            const bgGradient = ctx.createLinearGradient(0, 0, config.width, config.height);
+            bgGradient.addColorStop(0, '#dc2626');
+            bgGradient.addColorStop(0.3, '#f87171');
+            bgGradient.addColorStop(0.7, '#dc2626');
+            bgGradient.addColorStop(1, '#b91c1c');
+            
+            ctx.fillStyle = bgGradient;
+            ctx.fillRect(0, 0, config.width, config.height);
+            
+            // 添加歡樂的圓點圖案
+            drawFestivePatterns(ctx, config);
+            
+            // 白色內框
+            const innerMargin = borderWidth;
+            ctx.fillStyle = '#ffffff';
+            drawRoundedRect(ctx, innerMargin, innerMargin, 
+                config.width - 2 * innerMargin, config.height - 2 * innerMargin, 8);
+            ctx.fill();
+            
+            // 繪製豪華緞帶裝飾
+            drawLuxuryGiftRibbons(ctx, config, borderWidth);
+            
+            // 繪製更多禮物裝飾
+            drawEnhancedGiftDecorations(ctx, config, borderWidth);
+            
+            // 添加聖誕襪和糖果
+            drawChristmasStockings(ctx, config, borderWidth);
+            
+            ctx.restore();
+        }
+        
+        function drawFestivePatterns(ctx, config) {
+            // 添加歡樂的圓點和星星圖案
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+            
+            for (let x = 20; x < config.width; x += 60) {
+                for (let y = 20; y < config.height; y += 60) {
+                    if (Math.random() > 0.7) {
+                        ctx.beginPath();
+                        ctx.arc(x, y, 3, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+            }
+            
+            // 添加小星星
+            ctx.fillStyle = 'rgba(251, 191, 36, 0.3)';
+            for (let i = 0; i < 15; i++) {
+                const x = Math.random() * config.width;
+                const y = Math.random() * config.height;
+                drawStar(ctx, x, y, 2, 4);
+            }
+        }
+        
+        function drawLuxuryGiftRibbons(ctx, config, borderWidth) {
+            const ribbonWidth = borderWidth * 0.7;
+            
+            // 垂直緞帶 - 豪華金色漸變
+            const gradient1 = ctx.createLinearGradient(config.width/2 - ribbonWidth/2, 0, config.width/2 + ribbonWidth/2, 0);
+            gradient1.addColorStop(0, '#f59e0b');
+            gradient1.addColorStop(0.2, '#fcd34d');
+            gradient1.addColorStop(0.5, '#fbbf24');
+            gradient1.addColorStop(0.8, '#fcd34d');
+            gradient1.addColorStop(1, '#f59e0b');
+            
+            ctx.fillStyle = gradient1;
+            ctx.fillRect(config.width/2 - ribbonWidth/2, 0, ribbonWidth, config.height);
+            
+            // 緞帶邊緣裝飾
+            ctx.fillStyle = '#d97706';
+            ctx.fillRect(config.width/2 - ribbonWidth/2, 0, 3, config.height);
+            ctx.fillRect(config.width/2 + ribbonWidth/2 - 3, 0, 3, config.height);
+            
+            // 水平緞帶 - 豪華金色漸變
+            const gradient2 = ctx.createLinearGradient(0, config.height/2 - ribbonWidth/2, 0, config.height/2 + ribbonWidth/2);
+            gradient2.addColorStop(0, '#f59e0b');
+            gradient2.addColorStop(0.2, '#fcd34d');
+            gradient2.addColorStop(0.5, '#fbbf24');
+            gradient2.addColorStop(0.8, '#fcd34d');
+            gradient2.addColorStop(1, '#f59e0b');
+            
+            ctx.fillStyle = gradient2;
+            ctx.fillRect(0, config.height/2 - ribbonWidth/2, config.width, ribbonWidth);
+            
+            // 水平緞帶邊緣裝飾
+            ctx.fillStyle = '#d97706';
+            ctx.fillRect(0, config.height/2 - ribbonWidth/2, config.width, 3);
+            ctx.fillRect(0, config.height/2 + ribbonWidth/2 - 3, config.width, 3);
+            
+            // 豪華蝴蝶結
+            drawLuxuryBowDecoration(ctx, config.width/2, config.height/2, borderWidth * 1.0);
+        }
+        
+        function drawLuxuryBowDecoration(ctx, x, y, size) {
+            ctx.save();
+            ctx.translate(x, y);
+            
+            // 蝴蝶結陰影
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.translate(3, 3);
+            ctx.beginPath();
+            ctx.ellipse(-size/2.5, 0, size/1.8, size/2.5, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(size/2.5, 0, size/1.8, size/2.5, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.translate(-3, -3);
+            
+            // 蝴蝶結主體 - 豪華金色
+            const bowGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, size);
+            bowGradient.addColorStop(0, '#fcd34d');
+            bowGradient.addColorStop(0.6, '#f59e0b');
+            bowGradient.addColorStop(1, '#d97706');
+            
+            ctx.fillStyle = bowGradient;
+            
+            // 左翼
+            ctx.beginPath();
+            ctx.ellipse(-size/2.5, 0, size/1.8, size/2.5, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 右翼
+            ctx.beginPath();
+            ctx.ellipse(size/2.5, 0, size/1.8, size/2.5, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 中心結 - 更深的金色
+            ctx.fillStyle = '#b45309';
+            ctx.fillRect(-size/6, -size/2.2, size/3, size/1.1);
+            
+            // 中心結高光
+            ctx.fillStyle = '#fcd34d';
+            ctx.fillRect(-size/8, -size/3, size/4, size/6);
+            
+            // 蝴蝶結條紋裝飾
+            ctx.strokeStyle = '#92400e';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(-size/1.5, -size/4);
+            ctx.lineTo(-size/3, size/4);
+            ctx.moveTo(size/3, -size/4);
+            ctx.lineTo(size/1.5, size/4);
+            ctx.stroke();
+            
+            ctx.restore();
+        }
+        
+        function drawBowDecoration(ctx, x, y, size) {
+            ctx.save();
+            ctx.translate(x, y);
+            
+            // 蝴蝶結 - 深金色
+            ctx.fillStyle = '#d97706';
+            
+            // 左翼
+            ctx.beginPath();
+            ctx.ellipse(-size/3, 0, size/2, size/3, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 右翼
+            ctx.beginPath();
+            ctx.ellipse(size/3, 0, size/2, size/3, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 中心結
+            ctx.fillStyle = '#b45309';
+            ctx.fillRect(-size/8, -size/4, size/4, size/2);
+            
+            ctx.restore();
+        }
+        
+        function drawEnhancedGiftDecorations(ctx, config, borderWidth) {
+            // 更多角落的禮物盒和裝飾
+            const giftSize = borderWidth * 0.5;
+            const positions = [
+                {x: borderWidth * 0.8, y: borderWidth * 0.8, color: '#15b981'},
+                {x: config.width - borderWidth * 0.8, y: borderWidth * 0.8, color: '#dc2626'},
+                {x: borderWidth * 0.8, y: config.height - borderWidth * 0.8, color: '#3b82f6'},
+                {x: config.width - borderWidth * 0.8, y: config.height - borderWidth * 0.8, color: '#8b5cf6'}
+            ];
+            
+            positions.forEach((pos, index) => {
+                ctx.save();
+                ctx.translate(pos.x, pos.y);
+                ctx.rotate((index * Math.PI) / 8); // 輕微旋轉
+                
+                // 禮物盒陰影
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+                ctx.fillRect(-giftSize/2 + 2, -giftSize/2 + 2, giftSize, giftSize);
+                
+                // 主禮物盒 - 漸變色
+                const giftGradient = ctx.createLinearGradient(-giftSize/2, -giftSize/2, giftSize/2, giftSize/2);
+                giftGradient.addColorStop(0, pos.color);
+                giftGradient.addColorStop(1, pos.color + 'CC');
+                
+                ctx.fillStyle = giftGradient;
+                ctx.fillRect(-giftSize/2, -giftSize/2, giftSize, giftSize);
+                
+                // 豪華緞帶
+                const ribbonGradient = ctx.createLinearGradient(-giftSize/2, -giftSize/2, giftSize/2, giftSize/2);
+                ribbonGradient.addColorStop(0, '#fcd34d');
+                ribbonGradient.addColorStop(1, '#f59e0b');
+                
+                ctx.fillStyle = ribbonGradient;
+                ctx.fillRect(-giftSize/2, -giftSize/10, giftSize, giftSize/5);
+                ctx.fillRect(-giftSize/10, -giftSize/2, giftSize/5, giftSize);
+                
+                // 小蝴蝶結
+                ctx.fillStyle = '#d97706';
+                ctx.beginPath();
+                ctx.arc(-giftSize/6, 0, giftSize/8, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(giftSize/6, 0, giftSize/8, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillRect(-giftSize/12, -giftSize/8, giftSize/6, giftSize/4);
+                
+                ctx.restore();
+            });
+        }
+        
+        function drawChristmasStockings(ctx, config, borderWidth) {
+            const stockingPositions = [
+                {x: borderWidth * 1.8, y: config.height / 2},
+                {x: config.width - borderWidth * 1.8, y: config.height / 2}
+            ];
+            
+            stockingPositions.forEach((pos, index) => {
+                ctx.save();
+                ctx.translate(pos.x, pos.y);
+                if (index === 1) ctx.scale(-1, 1); // 鏡像第二個
+                
+                // 聖誕襪主體
+                const sockGradient = ctx.createLinearGradient(0, -15, 0, 20);
+                sockGradient.addColorStop(0, '#dc2626');
+                sockGradient.addColorStop(1, '#7f1d1d');
+                
+                ctx.fillStyle = sockGradient;
+                ctx.beginPath();
+                ctx.roundRect(-8, -15, 16, 25, 3);
+                ctx.fill();
+                
+                // 襪子腳部
+                ctx.beginPath();
+                ctx.roundRect(0, 8, 12, 8, 3);
+                ctx.fill();
+                
+                // 白色襪口
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(-8, -15, 16, 5);
+                
+                // 雪花裝飾
+                ctx.fillStyle = '#bfdbfe';
+                drawStar(ctx, 0, -5, 2, 3);
+                drawStar(ctx, 6, 2, 1, 2);
+                
+                ctx.restore();
+            });
+        }
+        
+        // ✨ 冬日光暈風格 - 溫暖光芒
+        function drawWinterGlowFrame(ctx, config) {
+            const borderWidth = config.borderWidth;
+            const cornerRadius = borderWidth * 0.5;
+            
+            // 創建光暈漸變
+            const glowGradient = ctx.createRadialGradient(
+                config.width/2, config.height/2, 0,
+                config.width/2, config.height/2, Math.max(config.width, config.height)/2
+            );
+            glowGradient.addColorStop(0, 'rgba(59, 130, 246, 0.1)');
+            glowGradient.addColorStop(0.7, 'rgba(147, 197, 253, 0.3)');
+            glowGradient.addColorStop(1, 'rgba(59, 130, 246, 0.6)');
+            
+            ctx.save();
+            
+            // 光暈背景
+            ctx.fillStyle = glowGradient;
+            ctx.fillRect(0, 0, config.width, config.height);
+            
+            // 主邊框
+            ctx.shadowColor = '#3b82f6';
+            ctx.shadowBlur = 20;
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = borderWidth;
+            ctx.lineCap = 'round';
+            
+            const margin = borderWidth / 2;
+            drawRoundedRect(ctx, margin, margin, config.width - borderWidth, config.height - borderWidth, cornerRadius);
+            ctx.stroke();
+            
+            // 內發光
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = '#bfdbfe';
+            ctx.strokeStyle = 'rgba(191, 219, 254, 0.6)';
+            ctx.lineWidth = 6;
+            const innerMargin = borderWidth - 8;
+            drawRoundedRect(ctx, innerMargin, innerMargin, config.width - 2 * innerMargin, config.height - 2 * innerMargin, cornerRadius - 4);
+            ctx.stroke();
+            
+            // 繪製光點裝飾
+            drawGlowDecorations(ctx, config, borderWidth);
+            
+            ctx.restore();
+        }
+        
+        function drawGlowDecorations(ctx, config, borderWidth) {
+            const lightPositions = [
+                {x: borderWidth * 1.2, y: borderWidth * 1.2, size: 8, color: '#3b82f6'},
+                {x: config.width - borderWidth * 1.2, y: borderWidth * 1.2, size: 12, color: '#8b5cf6'},
+                {x: borderWidth * 1.2, y: config.height - borderWidth * 1.2, size: 10, color: '#06b6d4'},
+                {x: config.width - borderWidth * 1.2, y: config.height - borderWidth * 1.2, size: 9, color: '#10b981'},
+                {x: config.width/2, y: borderWidth * 0.8, size: 15, color: '#f59e0b'},
+                {x: config.width/2, y: config.height - borderWidth * 0.8, size: 11, color: '#ef4444'}
+            ];
+            
+            // 添加更多隨機光點
+            for (let i = 0; i < 25; i++) {
+                const colors = ['#3b82f6', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#ec4899'];
+                lightPositions.push({
+                    x: borderWidth * 2 + Math.random() * (config.width - 4 * borderWidth),
+                    y: borderWidth * 2 + Math.random() * (config.height - 4 * borderWidth),
+                    size: 3 + Math.random() * 6,
+                    color: colors[Math.floor(Math.random() * colors.length)]
+                });
+            }
+            
+            lightPositions.forEach((light, index) => {
+                ctx.save();
+                
+                // 動態亮度變化
+                const pulse = 0.7 + 0.3 * Math.sin(Date.now() * 0.003 + index * 0.5);
+                
+                // 外層光暈
+                const outerGlow = ctx.createRadialGradient(
+                    light.x, light.y, 0,
+                    light.x, light.y, light.size * 4
+                );
+                outerGlow.addColorStop(0, light.color + Math.floor(pulse * 100).toString(16).padStart(2, '0'));
+                outerGlow.addColorStop(0.3, light.color + Math.floor(pulse * 60).toString(16).padStart(2, '0'));
+                outerGlow.addColorStop(0.7, light.color + Math.floor(pulse * 30).toString(16).padStart(2, '0'));
+                outerGlow.addColorStop(1, light.color + '00');
+                
+                ctx.fillStyle = outerGlow;
+                ctx.beginPath();
+                ctx.arc(light.x, light.y, light.size * 4, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 主發光體
+                const mainGlow = ctx.createRadialGradient(
+                    light.x, light.y, 0,
+                    light.x, light.y, light.size * 2
+                );
+                mainGlow.addColorStop(0, `rgba(255, 255, 255, ${0.9 * pulse})`);
+                mainGlow.addColorStop(0.4, light.color + Math.floor(pulse * 180).toString(16).padStart(2, '0'));
+                mainGlow.addColorStop(1, light.color + Math.floor(pulse * 80).toString(16).padStart(2, '0'));
+                
+                ctx.fillStyle = mainGlow;
+                ctx.beginPath();
+                ctx.arc(light.x, light.y, light.size * 2, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 中心核心
+                const coreGlow = ctx.createRadialGradient(
+                    light.x - light.size/3, light.y - light.size/3, 0,
+                    light.x, light.y, light.size
+                );
+                coreGlow.addColorStop(0, `rgba(255, 255, 255, ${pulse})`);
+                coreGlow.addColorStop(0.6, light.color);
+                coreGlow.addColorStop(1, light.color + 'AA');
+                
+                ctx.fillStyle = coreGlow;
+                ctx.beginPath();
+                ctx.arc(light.x, light.y, light.size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 高光點
+                ctx.fillStyle = `rgba(255, 255, 255, ${0.8 * pulse})`;
+                ctx.beginPath();
+                ctx.arc(light.x - light.size/3, light.y - light.size/3, light.size/3, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 光線效果
+                if (light.size > 8) {
+                    ctx.strokeStyle = `rgba(255, 255, 255, ${0.3 * pulse})`;
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    for (let ray = 0; ray < 8; ray++) {
+                        const angle = (ray * Math.PI * 2) / 8;
+                        const startX = light.x + Math.cos(angle) * light.size;
+                        const startY = light.y + Math.sin(angle) * light.size;
+                        const endX = light.x + Math.cos(angle) * light.size * 3;
+                        const endY = light.y + Math.sin(angle) * light.size * 3;
+                        
+                        ctx.moveTo(startX, startY);
+                        ctx.lineTo(endX, endY);
+                    }
+                    ctx.stroke();
+                }
+                
+                ctx.restore();
+            });
+            
+            // 添加魔法粒子效果
+            drawMagicParticles(ctx, config);
+        }
+        
+        function drawMagicParticles(ctx, config) {
+            const particleColors = ['#fbbf24', '#f472b6', '#a78bfa', '#34d399', '#60a5fa'];
+            
+            for (let i = 0; i < 15; i++) {
+                const x = Math.random() * config.width;
+                const y = Math.random() * config.height;
+                const time = Date.now() * 0.002 + i;
+                const size = 1 + Math.sin(time) * 0.5;
+                const alpha = 0.3 + 0.3 * Math.sin(time * 2);
+                
+                ctx.fillStyle = particleColors[i % particleColors.length] + Math.floor(alpha * 255).toString(16).padStart(2, '0');
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        
+        // 🎄 節慶燈飾風格 - 繽紛亮麗
+        function drawFestiveLightsFrame(ctx, config) {
+            const borderWidth = config.borderWidth;
+            const cornerRadius = 10;
+            
+            // 主邊框 - 深綠色聖誕樹色
+            ctx.save();
+            ctx.strokeStyle = '#166534';
+            ctx.lineWidth = borderWidth;
+            ctx.lineCap = 'round';
+            
+            const margin = borderWidth / 2;
+            drawRoundedRect(ctx, margin, margin, config.width - borderWidth, config.height - borderWidth, cornerRadius);
+            ctx.stroke();
+            
+            // 內邊框 - 暖金色
+            ctx.strokeStyle = '#fbbf24';
+            ctx.lineWidth = 4;
+            const innerMargin = borderWidth - 8;
+            drawRoundedRect(ctx, innerMargin, innerMargin, config.width - 2 * innerMargin, config.height - 2 * innerMargin, cornerRadius - 2);
+            ctx.stroke();
+            
+            // 繪製彩燈裝飾
+            drawChristmasLights(ctx, config, borderWidth);
+            
+            ctx.restore();
+        }
+        
+        function drawChristmasLights(ctx, config, borderWidth) {
+            const lightColors = ['#dc2626', '#15b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#16a34a', '#f97316'];
+            const lightSize = 10;
+            const spacing = 35;
+            
+            // 繪製燈串線條
+            ctx.strokeStyle = '#374151';
+            ctx.lineWidth = 2;
+            
+            // 上邊燈串線
+            ctx.beginPath();
+            ctx.moveTo(borderWidth, borderWidth/2);
+            ctx.lineTo(config.width - borderWidth, borderWidth/2);
+            ctx.stroke();
+            
+            // 下邊燈串線
+            ctx.beginPath();
+            ctx.moveTo(borderWidth, config.height - borderWidth/2);
+            ctx.lineTo(config.width - borderWidth, config.height - borderWidth/2);
+            ctx.stroke();
+            
+            // 左邊燈串線
+            ctx.beginPath();
+            ctx.moveTo(borderWidth/2, borderWidth);
+            ctx.lineTo(borderWidth/2, config.height - borderWidth);
+            ctx.stroke();
+            
+            // 右邊燈串線
+            ctx.beginPath();
+            ctx.moveTo(config.width - borderWidth/2, borderWidth);
+            ctx.lineTo(config.width - borderWidth/2, config.height - borderWidth);
+            ctx.stroke();
+            
+            // 上邊燈串 - 閃爍效果
+            for (let x = borderWidth + spacing; x < config.width - borderWidth; x += spacing) {
+                const colorIndex = Math.floor((x / spacing) % lightColors.length);
+                const brightness = 0.8 + 0.2 * Math.sin(Date.now() * 0.003 + x * 0.01);
+                drawEnhancedChristmasLight(ctx, x, borderWidth/2, lightSize, lightColors[colorIndex], brightness);
+            }
+            
+            // 下邊燈串
+            for (let x = borderWidth + spacing; x < config.width - borderWidth; x += spacing) {
+                const colorIndex = Math.floor((x / spacing + 3) % lightColors.length);
+                const brightness = 0.8 + 0.2 * Math.sin(Date.now() * 0.003 + x * 0.01 + Math.PI);
+                drawEnhancedChristmasLight(ctx, x, config.height - borderWidth/2, lightSize, lightColors[colorIndex], brightness);
+            }
+            
+            // 左邊燈串
+            for (let y = borderWidth + spacing; y < config.height - borderWidth; y += spacing) {
+                const colorIndex = Math.floor((y / spacing + 1) % lightColors.length);
+                const brightness = 0.8 + 0.2 * Math.sin(Date.now() * 0.003 + y * 0.01 + Math.PI/2);
+                drawEnhancedChristmasLight(ctx, borderWidth/2, y, lightSize, lightColors[colorIndex], brightness);
+            }
+            
+            // 右邊燈串
+            for (let y = borderWidth + spacing; y < config.height - borderWidth; y += spacing) {
+                const colorIndex = Math.floor((y / spacing + 4) % lightColors.length);
+                const brightness = 0.8 + 0.2 * Math.sin(Date.now() * 0.003 + y * 0.01 + Math.PI * 1.5);
+                drawEnhancedChristmasLight(ctx, config.width - borderWidth/2, y, lightSize, lightColors[colorIndex], brightness);
+            }
+            
+            // 添加閃亮的星星裝飾
+            drawTwinklingStars(ctx, config, borderWidth);
+        }
+        
+        function drawTwinklingStars(ctx, config, borderWidth) {
+            const starPositions = [
+                {x: config.width * 0.2, y: config.height * 0.2},
+                {x: config.width * 0.8, y: config.height * 0.2},
+                {x: config.width * 0.2, y: config.height * 0.8},
+                {x: config.width * 0.8, y: config.height * 0.8},
+                {x: config.width * 0.5, y: config.height * 0.15},
+                {x: config.width * 0.5, y: config.height * 0.85}
+            ];
+            
+            starPositions.forEach((star, index) => {
+                const twinkle = 0.5 + 0.5 * Math.sin(Date.now() * 0.005 + index);
+                ctx.fillStyle = `rgba(251, 191, 36, ${twinkle})`;
+                drawStar(ctx, star.x, star.y, 3, 6);
+                
+                // 星星光暈
+                const starGlow = ctx.createRadialGradient(star.x, star.y, 0, star.x, star.y, 15);
+                starGlow.addColorStop(0, `rgba(251, 191, 36, ${twinkle * 0.3})`);
+                starGlow.addColorStop(1, 'rgba(251, 191, 36, 0)');
+                
+                ctx.fillStyle = starGlow;
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, 15, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+        
+        function drawEnhancedChristmasLight(ctx, x, y, size, color, brightness = 1) {
+            ctx.save();
+            
+            // 強化的燈泡發光效果
+            const lightGradient = ctx.createRadialGradient(x, y, 0, x, y, size * 3);
+            lightGradient.addColorStop(0, color);
+            lightGradient.addColorStop(0.3, color + Math.floor(brightness * 200).toString(16).padStart(2, '0'));
+            lightGradient.addColorStop(0.7, color + Math.floor(brightness * 100).toString(16).padStart(2, '0'));
+            lightGradient.addColorStop(1, color + '10');
+            
+            ctx.fillStyle = lightGradient;
+            ctx.beginPath();
+            ctx.arc(x, y, size * 3, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 燈泡外殼 - 立體效果
+            const bulbGradient = ctx.createRadialGradient(x - size/3, y - size/3, 0, x, y, size);
+            bulbGradient.addColorStop(0, '#ffffff');
+            bulbGradient.addColorStop(0.3, color);
+            bulbGradient.addColorStop(1, color + 'CC');
+            
+            ctx.fillStyle = bulbGradient;
+            ctx.beginPath();
+            ctx.arc(x, y, size, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 燈泡頂部金屬部分
+            ctx.fillStyle = '#4b5563';
+            ctx.fillRect(x - size/3, y - size - 3, size * 2/3, 6);
+            
+            // 燈泡高光
+            ctx.fillStyle = `rgba(255, 255, 255, ${0.8 * brightness})`;
+            ctx.beginPath();
+            ctx.arc(x - size/2, y - size/2, size/2.5, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 小高光點
+            ctx.fillStyle = `rgba(255, 255, 255, ${0.9 * brightness})`;
+            ctx.beginPath();
+            ctx.arc(x - size/4, y - size/4, size/6, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.restore();
+        }
+        
+        function switchFormat(format) {
+            currentFormat = format;
+            
+            // Update button states
+            document.querySelectorAll('.format-btn[data-format]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.format === format);
+            });
+            
+            createFrame(format);
+        }
+        
+        function switchStyle(style) {
+            currentStyle = style;
+            
+            // Update button states
+            document.querySelectorAll('.format-btn[data-style]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.style === style);
+            });
+            
+            createFrame(currentFormat);
+        }
+        
+        function downloadFrame() {
+            const config = formats[currentFormat];
+            const filename = `frame_${currentFormat}_${currentStyle}_${config.width}x${config.height}.png`;
+            
+            canvas.toBlob(blob => {
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = filename;
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            }, 'image/png', 1.0);
+        }
+        
+        async function downloadAllFrames() {
+            const originalFormat = currentFormat;
+            const originalStyle = currentStyle;
+            
+            const styles = ['holly-border', 'snow-frame', 'gift-wrapper', 'winter-glow', 'festive-lights'];
+            
+            for (const [format, config] of Object.entries(formats)) {
+                for (const style of styles) {
+                    // Switch to specific format and style
+                    currentFormat = format;
+                    currentStyle = style;
+                    createFrame(format);
+                    
+                    // Wait a bit for rendering
+                    await new Promise(resolve => setTimeout(resolve, 150));
+                    
+                    const filename = `frame_${format}_${style}_${config.width}x${config.height}.png`;
+                    
+                    canvas.toBlob(blob => {
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = filename;
+                        link.style.display = 'none';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(url);
+                    }, 'image/png', 1.0);
+                    
+                    await new Promise(resolve => setTimeout(resolve, 400));
+                }
+            }
+            
+            // Restore original format and style
+            switchFormat(originalFormat);
+            switchStyle(originalStyle);
+        }
+        
+        // Setup event listeners
+        document.querySelectorAll('.format-btn[data-format]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                switchFormat(e.currentTarget.dataset.format);
+            });
+        });
+        
+        // Style selector event listeners
+        document.querySelectorAll('.format-btn[data-style]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                switchStyle(e.currentTarget.dataset.style);
+            });
+        });
+        
+        // 加入聖誕音樂主題視覺元素
+        function addMusicalElements(ctx, config, borderWidth) {
+            const notePositions = [
+                {x: config.width * 0.15, y: config.height * 0.25, type: 'quarter'},
+                {x: config.width * 0.85, y: config.height * 0.3, type: 'eighth'},
+                {x: config.width * 0.2, y: config.height * 0.75, type: 'half'},
+                {x: config.width * 0.8, y: config.height * 0.7, type: 'quarter'},
+                {x: config.width * 0.5, y: config.height * 0.12, type: 'treble'}
+            ];
+            
+            notePositions.forEach((note, index) => {
+                ctx.save();
+                ctx.translate(note.x, note.y);
+                
+                const bounce = Math.sin(Date.now() * 0.003 + index) * 3;
+                ctx.translate(0, bounce);
+                
+                // 音符顏色
+                const noteColors = ['#fbbf24', '#f87171', '#34d399', '#60a5fa', '#a78bfa'];
+                ctx.fillStyle = noteColors[index % noteColors.length];
+                
+                switch(note.type) {
+                    case 'quarter':
+                        // 四分音符
+                        ctx.beginPath();
+                        ctx.arc(0, 0, 6, 0, Math.PI * 2);
+                        ctx.fill();
+                        // 符桿
+                        ctx.fillRect(5, -20, 2, 20);
+                        break;
+                        
+                    case 'eighth':
+                        // 八分音符
+                        ctx.beginPath();
+                        ctx.arc(0, 0, 5, 0, Math.PI * 2);
+                        ctx.fill();
+                        // 符桿
+                        ctx.fillRect(4, -18, 2, 18);
+                        // 符尾
+                        ctx.beginPath();
+                        ctx.moveTo(6, -18);
+                        ctx.quadraticCurveTo(12, -15, 8, -10);
+                        ctx.lineTo(6, -12);
+                        ctx.fill();
+                        break;
+                        
+                    case 'half':
+                        // 二分音符
+                        ctx.strokeStyle = noteColors[index % noteColors.length];
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.arc(0, 0, 6, 0, Math.PI * 2);
+                        ctx.stroke();
+                        // 符桿
+                        ctx.fillRect(5, -22, 2, 22);
+                        break;
+                        
+                    case 'treble':
+                        // 高音譜號
+                        ctx.beginPath();
+                        ctx.moveTo(-3, -10);
+                        ctx.quadraticCurveTo(-8, -15, -3, -20);
+                        ctx.quadraticCurveTo(5, -18, 3, -8);
+                        ctx.quadraticCurveTo(8, -5, 3, 0);
+                        ctx.quadraticCurveTo(-2, 2, -4, -2);
+                        ctx.quadraticCurveTo(-6, -8, -3, -10);
+                        ctx.fill();
+                        break;
+                }
+                
+                // 音符光暈
+                const noteGlow = ctx.createRadialGradient(0, 0, 0, 0, 0, 15);
+                noteGlow.addColorStop(0, noteColors[index % noteColors.length] + '40');
+                noteGlow.addColorStop(1, noteColors[index % noteColors.length] + '00');
+                
+                ctx.fillStyle = noteGlow;
+                ctx.beginPath();
+                ctx.arc(0, 0, 15, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.restore();
+            });
+            
+            // 音樂線條流動效果
+            drawMusicalStaff(ctx, config);
+        }
+        
+        function drawMusicalStaff(ctx, config) {
+            const staffY = config.height * 0.1;
+            const staffSpacing = 8;
+            
+            ctx.strokeStyle = 'rgba(251, 191, 36, 0.3)';
+            ctx.lineWidth = 1;
+            
+            // 繪製五線譜（部分）
+            for (let i = 0; i < 3; i++) {
+                const y = staffY + i * staffSpacing;
+                const wave = Math.sin(Date.now() * 0.002 + i) * 5;
+                
+                ctx.beginPath();
+                ctx.moveTo(config.width * 0.1, y + wave);
+                
+                for (let x = config.width * 0.1; x < config.width * 0.9; x += 10) {
+                    const waveY = y + Math.sin((x * 0.02) + Date.now() * 0.002 + i) * 3;
+                    ctx.lineTo(x, waveY);
+                }
+                
+                ctx.stroke();
+            }
+        }
+        
+        // 修改現有的邊框繪製函數，添加音樂元素
+        const originalCreateFrame = createFrame;
+        createFrame = function(format) {
+            originalCreateFrame(format);
+            
+            // 為所有風格添加音樂元素
+            const config = formats[format];
+            if (currentStyle === 'festive-lights' || currentStyle === 'winter-glow') {
+                addMusicalElements(ctx, config, config.borderWidth);
+            }
+        };
+        
+        // 增強動畫循環
+        function startChristmasAnimation() {
+            function animate() {
+                if (currentStyle === 'festive-lights' || currentStyle === 'winter-glow' || 
+                    currentStyle === 'snow-frame' || currentStyle === 'gift-wrapper') {
+                    createFrame(currentFormat);
+                }
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+        
+        // Initialize
+        createFrame(currentFormat);
+        startChristmasAnimation();
+        
+        // Update todo status
+        console.log('🎄 Enhanced Christmas Frame Generator initialized successfully with music and animations!');
+    </script>
+</body>
+</html>
