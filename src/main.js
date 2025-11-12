@@ -22,6 +22,22 @@ class PhotoFrameApp {
         this.shareBtn = document.getElementById('shareBtn');
         this.formatButtons = document.querySelectorAll('.format-btn');
         
+        // 精確調整面板元素
+        this.precisionPanel = document.getElementById('precisionPanel');
+        this.precisionToggle = document.getElementById('precisionToggle');
+        this.precisionControls = document.getElementById('precisionControls');
+        this.scaleSlider = document.getElementById('scaleSlider');
+        this.rotationSlider = document.getElementById('rotationSlider');
+        this.scaleValue = document.getElementById('scaleValue');
+        this.rotationValue = document.getElementById('rotationValue');
+        
+        // 位置微調按鈕
+        this.moveUpBtn = document.getElementById('moveUp');
+        this.moveDownBtn = document.getElementById('moveDown');
+        this.moveLeftBtn = document.getElementById('moveLeft');
+        this.moveRightBtn = document.getElementById('moveRight');
+        this.centerPositionBtn = document.getElementById('centerPosition');
+        
         this.currentImage = null;
         this.frameImage = null;
         this.transform = {
@@ -123,6 +139,14 @@ class PhotoFrameApp {
             });
         });
         
+        // 畫布區域智能點擊事件
+        this.canvas.addEventListener('click', (e) => {
+            // 只有在沒有圖片且沒有正在進行手勢操作時才觸發上傳
+            if (!this.currentImage && !this.isInteracting) {
+                this.fileInput.click();
+            }
+        });
+        
         this.gestureHandler.on('transformStart', () => {
             this.isInteracting = true;
             this.startContinuousRender();
@@ -145,6 +169,21 @@ class PhotoFrameApp {
         this.gestureHandler.on('doubleTap', () => {
             this.centerImage();
         });
+        
+        // 精確模式事件監聽
+        this.gestureHandler.on('precisionModeEnter', () => {
+            this.enterPrecisionMode();
+        });
+        
+        this.gestureHandler.on('precisionModeExit', () => {
+            this.exitPrecisionMode();
+        });
+        
+        // 精確調整面板事件
+        this.setupPrecisionPanelEvents();
+        
+        // 鍵盤快捷鍵事件
+        this.setupKeyboardShortcuts();
         
         window.addEventListener('resize', () => {
             this.scheduleRender();
@@ -400,13 +439,28 @@ class PhotoFrameApp {
         this.downloadBtn.disabled = !hasImage;
         this.shareBtn.disabled = !hasImage;
         
+        // 精確調整面板啟用狀態
+        this.precisionToggle.disabled = !hasImage;
+        this.scaleSlider.disabled = !hasImage;
+        this.rotationSlider.disabled = !hasImage;
+        this.moveUpBtn.disabled = !hasImage;
+        this.moveDownBtn.disabled = !hasImage;
+        this.moveLeftBtn.disabled = !hasImage;
+        this.moveRightBtn.disabled = !hasImage;
+        this.centerPositionBtn.disabled = !hasImage;
+        
         this.canvas.classList.toggle('has-image', hasImage);
         this.placeholderText.classList.toggle('hidden', hasImage);
         
         if (hasImage) {
             this.gestureHandler.enable();
+            // 有圖片時顯示精確調整面板
+            this.precisionPanel.style.display = 'block';
         } else {
             this.gestureHandler.disable();
+            // 無圖片時隱藏精確調整面板
+            this.precisionPanel.style.display = 'none';
+            this.precisionPanel.classList.remove('expanded');
         }
     }
     
@@ -498,6 +552,266 @@ class PhotoFrameApp {
     
     showLoading(show) {
         this.loadingOverlay.classList.toggle('show', show);
+    }
+    
+    // 精確模式相關方法
+    enterPrecisionMode() {
+        console.log('PhotoFrameApp: 進入精確調整模式');
+        this.showStatus('精確調整模式 - 更精確的縮放和旋轉', 'success');
+        
+        // 顯示即時數值
+        this.showTransformValues();
+        
+        // 視覺提示
+        this.canvas.classList.add('precision-mode');
+    }
+    
+    exitPrecisionMode() {
+        console.log('PhotoFrameApp: 退出精確調整模式');
+        this.showStatus('', '');
+        
+        // 隱藏即時數值
+        this.hideTransformValues();
+        
+        // 移除視覺提示
+        this.canvas.classList.remove('precision-mode');
+    }
+    
+    showTransformValues() {
+        if (!this.currentImage) return;
+        
+        const scalePercent = Math.round(this.transform.scale * 100);
+        const rotationDegree = Math.round((this.transform.rotation * 180 / Math.PI) % 360);
+        
+        // 創建或更新數值顯示元素
+        let valueDisplay = document.getElementById('transformValues');
+        if (!valueDisplay) {
+            valueDisplay = document.createElement('div');
+            valueDisplay.id = 'transformValues';
+            valueDisplay.className = 'transform-values';
+            document.body.appendChild(valueDisplay);
+        }
+        
+        valueDisplay.innerHTML = `
+            <div class="value-item">
+                <span class="value-label">縮放</span>
+                <span class="value-number">${scalePercent}%</span>
+            </div>
+            <div class="value-item">
+                <span class="value-label">旋轉</span>
+                <span class="value-number">${rotationDegree}°</span>
+            </div>
+        `;
+        
+        valueDisplay.style.display = 'flex';
+    }
+    
+    hideTransformValues() {
+        const valueDisplay = document.getElementById('transformValues');
+        if (valueDisplay) {
+            valueDisplay.style.display = 'none';
+        }
+    }
+    
+    // 重載 updateTransform 以支援即時數值更新
+    updateTransform(deltaTransform) {
+        if (!this.currentImage) return;
+        
+        const { dx, dy, scale, rotation } = deltaTransform;
+        
+        this.transform.x += dx || 0;
+        this.transform.y += dy || 0;
+        this.transform.scale = Math.max(0.1, Math.min(5, this.transform.scale * (scale || 1)));
+        this.transform.rotation += rotation || 0;
+        
+        // 精確模式下即時更新數值顯示
+        if (this.gestureHandler.isPrecisionMode()) {
+            this.showTransformValues();
+        }
+        
+        this.scheduleRender();
+    }
+    
+    // 精確調整面板相關方法
+    setupPrecisionPanelEvents() {
+        // 面板展開/收合
+        this.precisionToggle.addEventListener('click', () => {
+            this.togglePrecisionPanel();
+        });
+        
+        // 縮放滑桿
+        this.scaleSlider.addEventListener('input', (e) => {
+            const scale = parseFloat(e.target.value) / 100;
+            this.setAbsoluteScale(scale);
+            this.scaleValue.textContent = `${e.target.value}%`;
+        });
+        
+        // 旋轉滑桿
+        this.rotationSlider.addEventListener('input', (e) => {
+            const rotation = parseFloat(e.target.value) * Math.PI / 180;
+            this.setAbsoluteRotation(rotation);
+            this.rotationValue.textContent = `${e.target.value}°`;
+        });
+        
+        // 位置微調按鈕
+        this.moveUpBtn.addEventListener('click', () => this.movePosition(0, -5));
+        this.moveDownBtn.addEventListener('click', () => this.movePosition(0, 5));
+        this.moveLeftBtn.addEventListener('click', () => this.movePosition(-5, 0));
+        this.moveRightBtn.addEventListener('click', () => this.movePosition(5, 0));
+        this.centerPositionBtn.addEventListener('click', () => this.centerImage());
+    }
+    
+    togglePrecisionPanel() {
+        const isExpanded = this.precisionPanel.classList.contains('expanded');
+        
+        if (isExpanded) {
+            this.precisionPanel.classList.remove('expanded');
+            this.precisionToggle.setAttribute('aria-label', '展開精確調整控制項');
+        } else {
+            this.precisionPanel.classList.add('expanded');
+            this.precisionToggle.setAttribute('aria-label', '收合精確調整控制項');
+            this.updatePrecisionControls();
+        }
+    }
+    
+    updatePrecisionControls() {
+        if (!this.currentImage) return;
+        
+        // 更新滑桿值
+        const scalePercent = Math.round(this.transform.scale * 100);
+        const rotationDegree = Math.round((this.transform.rotation * 180 / Math.PI) % 360);
+        
+        this.scaleSlider.value = scalePercent;
+        this.scaleValue.textContent = `${scalePercent}%`;
+        
+        this.rotationSlider.value = rotationDegree;
+        this.rotationValue.textContent = `${rotationDegree}°`;
+    }
+    
+    setAbsoluteScale(scale) {
+        if (!this.currentImage) return;
+        
+        this.transform.scale = Math.max(0.1, Math.min(5, scale));
+        this.scheduleRender();
+    }
+    
+    setAbsoluteRotation(rotation) {
+        if (!this.currentImage) return;
+        
+        this.transform.rotation = rotation;
+        this.scheduleRender();
+    }
+    
+    movePosition(dx, dy) {
+        if (!this.currentImage) return;
+        
+        this.transform.x += dx;
+        this.transform.y += dy;
+        this.scheduleRender();
+    }
+    
+    // 鍵盤快捷鍵相關方法
+    setupKeyboardShortcuts() {
+        document.addEventListener('keydown', (e) => {
+            // 只在有圖片且沒有聚焦在輸入元素時響應
+            if (!this.currentImage || this.isInputFocused()) return;
+            
+            const moveStep = e.shiftKey ? 10 : 1; // Shift + 方向鍵 = 快速移動
+            
+            switch(e.code) {
+                case 'ArrowUp':
+                    e.preventDefault();
+                    this.movePosition(0, -moveStep);
+                    break;
+                    
+                case 'ArrowDown':
+                    e.preventDefault();
+                    this.movePosition(0, moveStep);
+                    break;
+                    
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    this.movePosition(-moveStep, 0);
+                    break;
+                    
+                case 'ArrowRight':
+                    e.preventDefault();
+                    this.movePosition(moveStep, 0);
+                    break;
+                    
+                case 'Equal': // + 鍵
+                case 'NumpadAdd':
+                    e.preventDefault();
+                    this.adjustScale(0.05);
+                    break;
+                    
+                case 'Minus': // - 鍵
+                case 'NumpadSubtract':
+                    e.preventDefault();
+                    this.adjustScale(-0.05);
+                    break;
+                    
+                case 'KeyR':
+                    e.preventDefault();
+                    if (e.ctrlKey || e.metaKey) {
+                        // Ctrl/Cmd + R: 重置
+                        this.resetTransform();
+                    } else {
+                        // R: 旋轉 90 度
+                        this.rotateImage();
+                    }
+                    break;
+                    
+                case 'Space':
+                    e.preventDefault();
+                    this.resetTransform();
+                    break;
+                    
+                case 'Escape':
+                    e.preventDefault();
+                    if (this.precisionPanel.classList.contains('expanded')) {
+                        this.togglePrecisionPanel();
+                    }
+                    break;
+                    
+                case 'KeyP':
+                    e.preventDefault();
+                    this.togglePrecisionPanel();
+                    break;
+            }
+        });
+        
+        // 滾輪精確縮放（按住 Ctrl）
+        document.addEventListener('wheel', (e) => {
+            if (!this.currentImage || !e.ctrlKey) return;
+            
+            e.preventDefault();
+            const scaleDelta = e.deltaY > 0 ? -0.02 : 0.02;
+            this.adjustScale(scaleDelta);
+        }, { passive: false });
+    }
+    
+    isInputFocused() {
+        const activeElement = document.activeElement;
+        return activeElement && (
+            activeElement.tagName === 'INPUT' ||
+            activeElement.tagName === 'TEXTAREA' ||
+            activeElement.contentEditable === 'true'
+        );
+    }
+    
+    adjustScale(delta) {
+        if (!this.currentImage) return;
+        
+        const newScale = Math.max(0.1, Math.min(5, this.transform.scale + delta));
+        this.transform.scale = newScale;
+        
+        // 更新精確調整面板的滑桿
+        if (this.precisionPanel.classList.contains('expanded')) {
+            this.updatePrecisionControls();
+        }
+        
+        this.scheduleRender();
     }
 }
 

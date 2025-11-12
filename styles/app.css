@@ -161,7 +161,13 @@ body {
     flex-direction: column;
     min-height: 100vh;
     max-width: 100vw;
-    padding-bottom: calc(var(--space-16) + var(--space-8)); /* Space for floating toolbar */
+}
+
+/* 行動版需要底部內距給浮動工具列 */
+@media (max-width: 767px) {
+    .app-container {
+        padding-bottom: calc(var(--space-16) + var(--space-8)); /* Space for floating toolbar */
+    }
 }
 
 /* Header */
@@ -281,6 +287,77 @@ body {
     object-fit: contain;
 }
 
+/* 無圖片時的點擊提示樣式 */
+#mainCanvas:not(.has-image) {
+    cursor: pointer;
+}
+
+#mainCanvas:not(.has-image):hover {
+    border-color: var(--primary-400);
+    box-shadow: 
+        var(--shadow-lg),
+        0 0 0 1px rgba(59, 130, 246, 0.1),
+        0 0 20px rgba(59, 130, 246, 0.15);
+    transform: scale(1.01);
+}
+
+/* 精確模式視覺提示 */
+#mainCanvas.precision-mode {
+    border-color: var(--warning-500);
+    box-shadow: 
+        var(--shadow-xl),
+        0 0 0 2px rgba(245, 158, 11, 0.2),
+        0 0 30px rgba(245, 158, 11, 0.1);
+}
+
+/* 即時數值顯示 */
+.transform-values {
+    position: fixed;
+    top: 50%;
+    right: var(--space-4);
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+    border-radius: var(--rounded-lg);
+    padding: var(--space-3);
+    display: none;
+    flex-direction: column;
+    gap: var(--space-2);
+    z-index: var(--z-tooltip);
+    color: var(--neutral-0);
+    font-size: var(--text-sm);
+    min-width: 80px;
+}
+
+.value-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.value-label {
+    font-weight: var(--font-medium);
+    opacity: 0.8;
+    color: var(--neutral-300);
+}
+
+.value-number {
+    font-weight: var(--font-semibold);
+    color: var(--warning-400);
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+}
+
+/* 行動版數值顯示位置調整 */
+@media (max-width: 767px) {
+    .transform-values {
+        top: auto;
+        bottom: calc(var(--space-16) + var(--space-4));
+        right: var(--space-4);
+        transform: none;
+    }
+}
+
 #mainCanvas:active {
     cursor: grabbing;
     transform: scale(0.98);
@@ -322,6 +399,26 @@ body {
     font-size: var(--text-base);
     font-weight: var(--font-medium);
     animation: pulse 2s ease-in-out infinite;
+}
+
+.placeholder-text p {
+    margin-top: var(--space-2);
+    font-size: var(--text-sm);
+    opacity: 0.8;
+}
+
+/* 當畫布可點擊時的樣式變化 */
+#mainCanvas:not(.has-image) + .canvas-overlay .placeholder-text {
+    transition: all var(--transition-base);
+}
+
+#mainCanvas:not(.has-image):hover + .canvas-overlay .placeholder-text {
+    color: var(--primary-300);
+    transform: scale(1.05);
+}
+
+#mainCanvas:not(.has-image):hover + .canvas-overlay .placeholder-icon {
+    color: var(--primary-400);
 }
 
 .placeholder-text.hidden {
@@ -436,7 +533,7 @@ body {
 /* Format Selector */
 .format-selector {
     background: var(--neutral-800);
-    padding: var(--space-5);
+    padding: var(--space-6);
     border-bottom: 1px solid var(--neutral-700);
     position: relative;
 }
@@ -446,19 +543,19 @@ body {
     font-size: var(--text-sm);
     font-weight: var(--font-semibold);
     color: var(--neutral-300);
-    margin-bottom: var(--space-4);
+    margin-bottom: var(--space-6);
     text-align: center;
     letter-spacing: 0.025em;
 }
 
 .format-buttons {
     display: flex;
-    gap: var(--space-2);
+    gap: var(--space-4);
     justify-content: center;
     align-items: center;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    padding: var(--space-1);
+    padding: var(--space-2);
     scrollbar-width: none;
     -ms-overflow-style: none;
 }
@@ -469,17 +566,20 @@ body {
 
 .format-btn {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: var(--space-2);
-    min-height: 44px;
-    padding: var(--space-2) var(--space-4);
+    min-width: 80px;
+    width: 80px;
+    min-height: 80px;
+    height: 80px;
+    padding: var(--space-3);
     border: 1px solid var(--neutral-600);
-    border-radius: var(--rounded-full);
+    border-radius: var(--rounded-xl);
     background: var(--neutral-700);
     color: var(--neutral-300);
-    font-size: var(--text-sm);
+    font-size: var(--text-xs);
     font-weight: var(--font-medium);
     cursor: pointer;
     transition: all var(--transition-base);
@@ -488,7 +588,6 @@ body {
     flex-shrink: 0;
     position: relative;
     overflow: hidden;
-    white-space: nowrap;
 }
 
 .format-btn::before {
@@ -542,35 +641,204 @@ body {
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    margin-bottom: 2px;
 }
 
 .format-icon .icon {
-    width: 1rem;
-    height: 1rem;
+    width: 1.5rem;
+    height: 1.5rem;
 }
 
 .format-content {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     gap: 1px;
     min-width: 0;
+    text-align: center;
 }
 
 .format-text {
     font-weight: var(--font-semibold);
     line-height: var(--leading-tight);
+    font-size: var(--text-xs);
 }
 
 .format-desc {
-    font-size: var(--text-xs);
+    font-size: 0.625rem;
     opacity: 0.8;
     font-weight: var(--font-normal);
     line-height: var(--leading-tight);
+    white-space: nowrap;
 }
 
 .format-btn.active .format-desc {
     opacity: 0.9;
+}
+
+/* Precision Controls Panel */
+.precision-panel {
+    background: var(--neutral-800);
+    border-bottom: 1px solid var(--neutral-700);
+    position: relative;
+    overflow: hidden;
+    transition: all var(--transition-base);
+}
+
+.precision-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    background: transparent;
+    border: none;
+    color: var(--neutral-300);
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.precision-toggle:hover {
+    color: var(--primary-400);
+    background: var(--neutral-700);
+}
+
+.precision-toggle .icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    transition: transform var(--transition-base);
+}
+
+.precision-panel.expanded .precision-toggle .icon {
+    transform: rotate(180deg);
+}
+
+.precision-controls {
+    padding: 0 var(--space-6) var(--space-6);
+    max-height: 0;
+    opacity: 0;
+    transition: all var(--transition-base);
+    overflow: hidden;
+}
+
+.precision-panel.expanded .precision-controls {
+    max-height: 300px;
+    opacity: 1;
+    padding: var(--space-4) var(--space-6) var(--space-6);
+}
+
+.control-group {
+    margin-bottom: var(--space-6);
+}
+
+.control-group:last-child {
+    margin-bottom: 0;
+}
+
+.control-label {
+    display: block;
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
+    color: var(--neutral-300);
+    margin-bottom: var(--space-3);
+}
+
+.slider-container {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.control-slider {
+    flex: 1;
+    height: 4px;
+    background: var(--neutral-600);
+    border-radius: var(--rounded-full);
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.control-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: var(--primary-500);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.control-slider::-webkit-slider-thumb:hover {
+    background: var(--primary-400);
+    transform: scale(1.1);
+}
+
+.control-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: var(--primary-500);
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+    transition: all var(--transition-base);
+}
+
+.control-slider::-moz-range-thumb:hover {
+    background: var(--primary-400);
+    transform: scale(1.1);
+}
+
+.slider-value {
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
+    color: var(--primary-400);
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+    min-width: 45px;
+    text-align: right;
+}
+
+.position-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.position-row {
+    display: flex;
+    gap: var(--space-2);
+}
+
+.position-btn {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--neutral-600);
+    border-radius: var(--rounded-lg);
+    background: var(--neutral-700);
+    color: var(--neutral-300);
+    font-size: var(--text-base);
+    font-weight: var(--font-bold);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.position-btn:hover {
+    border-color: var(--primary-400);
+    color: var(--primary-400);
+    background: var(--neutral-600);
+    transform: translateY(-1px);
+}
+
+.position-btn:active {
+    transform: translateY(0) scale(0.95);
 }
 
 /* Toolbar */
@@ -619,11 +887,11 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-width: 52px;
-    width: 52px;
+    min-width: 58px;
+    width: auto;
     min-height: 52px;
     height: 52px;
-    padding: var(--space-2);
+    padding: var(--space-2) var(--space-3);
     border: 1px solid var(--neutral-600);
     border-radius: var(--rounded-xl);
     background: var(--neutral-700);
@@ -867,21 +1135,36 @@ body {
     }
     
     .format-selector {
-        padding: 0.75rem 1rem;
+        padding: var(--space-4);
+    }
+    
+    .format-label {
+        margin-bottom: var(--space-4);
+    }
+    
+    .format-buttons {
+        gap: var(--space-3);
     }
     
     .format-btn {
         min-width: 70px;
-        padding: 0.5rem 0.25rem;
-        font-size: 0.7rem;
+        width: 70px;
+        min-height: 70px;
+        height: 70px;
+        padding: var(--space-2);
     }
     
-    .format-icon {
-        font-size: 1rem;
+    .format-icon .icon {
+        width: 1.25rem;
+        height: 1.25rem;
+    }
+    
+    .format-text {
+        font-size: 0.6875rem;
     }
     
     .format-desc {
-        font-size: 0.55rem;
+        font-size: 0.5625rem;
     }
     
     .toolbar {
@@ -912,6 +1195,7 @@ body {
         margin-bottom: 2rem;
         box-shadow: 0 8px 32px rgba(0,0,0,0.4);
         background: #3a3a3a;
+        padding-bottom: 0; /* 移除底部內距，因為工具列不再浮動 */
     }
     
     .header {
@@ -923,24 +1207,60 @@ body {
     }
     
     .format-selector {
-        padding: 1.5rem;
+        padding: var(--space-8);
+    }
+    
+    .format-label {
+        margin-bottom: var(--space-8);
+    }
+    
+    .format-buttons {
+        gap: var(--space-6);
     }
     
     .format-btn {
-        min-width: 100px;
-        padding: 1rem 0.75rem;
-        font-size: 0.8rem;
+        min-width: 90px;
+        width: 90px;
+        min-height: 90px;
+        height: 90px;
+        padding: var(--space-4);
     }
     
+    .format-icon .icon {
+        width: 1.75rem;
+        height: 1.75rem;
+    }
+    
+    .format-text {
+        font-size: var(--text-sm);
+    }
+    
+    .format-desc {
+        font-size: var(--text-xs);
+    }
+    
+    /* 桌面版工具列 - 嵌入式設計 */
     .toolbar {
-        gap: 1rem;
-        padding: 1.5rem;
+        position: static;
+        bottom: auto;
+        left: auto;
+        right: auto;
+        background: var(--neutral-800);
+        backdrop-filter: none;
+        border: none;
+        border-top: 1px solid var(--neutral-700);
+        border-radius: 0;
+        padding: var(--space-6);
+        box-shadow: none;
+        gap: var(--space-6);
+        animation: none;
+        margin: 0;
     }
     
     .toolbar-btn {
         min-width: 80px;
         min-height: 80px;
-        padding: 1rem;
+        padding: var(--space-4);
         font-size: 0.875rem;
     }
     
@@ -955,8 +1275,14 @@ body {
     }
     
     .toolbar {
-        padding: 2rem;
-        gap: 1.5rem;
+        padding: var(--space-8);
+        gap: var(--space-8);
+    }
+    
+    .toolbar-btn {
+        min-width: 90px;
+        min-height: 90px;
+        padding: var(--space-5);
     }
 }
 

@@ -101,7 +101,7 @@
                                 <use href="#icon-camera"></use>
                             </svg>
                         </div>
-                        <p>點擊「Upload」開始上傳照片</p>
+                        <p>點擊「Upload」或此區域開始上傳照片</p>
                     </div>
                     
                     <!-- Gesture Hints (shown after image upload) -->
@@ -175,27 +175,72 @@
             </div>
         </div>
 
+        <!-- Precision Controls Panel -->
+        <div class="precision-panel" id="precisionPanel">
+            <button class="precision-toggle" id="precisionToggle" aria-label="展開精確調整控制項">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 12l2 2 4-4"/>
+                    <circle cx="12" cy="12" r="10"/>
+                </svg>
+                <span>精確調整</span>
+            </button>
+            
+            <div class="precision-controls" id="precisionControls">
+                <div class="control-group">
+                    <label class="control-label">縮放</label>
+                    <div class="slider-container">
+                        <input type="range" class="control-slider" id="scaleSlider" 
+                               min="10" max="500" step="1" value="100">
+                        <span class="slider-value" id="scaleValue">100%</span>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label">旋轉</label>
+                    <div class="slider-container">
+                        <input type="range" class="control-slider" id="rotationSlider" 
+                               min="0" max="360" step="1" value="0">
+                        <span class="slider-value" id="rotationValue">0°</span>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label">位置微調</label>
+                    <div class="position-controls">
+                        <button class="position-btn" id="moveUp" aria-label="向上微調">↑</button>
+                        <div class="position-row">
+                            <button class="position-btn" id="moveLeft" aria-label="向左微調">←</button>
+                            <button class="position-btn" id="centerPosition" aria-label="居中">⊙</button>
+                            <button class="position-btn" id="moveRight" aria-label="向右微調">→</button>
+                        </div>
+                        <button class="position-btn" id="moveDown" aria-label="向下微調">↓</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Controls Toolbar -->
         <nav class="toolbar" role="toolbar" aria-label="Photo editing controls">
             <input 
                 type="file" 
                 id="fileInput" 
                 accept="image/*" 
+                capture="environment"
                 style="display: none;"
-                aria-label="Select photo file"
+                aria-label="Select photo file or take photo"
             >
             
             <button 
                 class="toolbar-btn primary" 
                 id="uploadBtn"
-                aria-label="Upload photo from device"
+                aria-label="Upload photo from device or take photo"
             >
                 <span class="btn-icon">
                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <use href="#icon-upload"></use>
                     </svg>
                 </span>
-                <span class="btn-text">Upload</span>
+                <span class="btn-text">上傳/拍照</span>
             </button>
 
             <button 

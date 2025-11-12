@@ -4,13 +4,56 @@ A mobile-first web application for adding decorative frames to photos with touch
 
 ## Features
 
-- **Upload & Process**: Automatic EXIF orientation correction and image optimization
-- **Touch Gestures**: Drag, pinch-zoom, rotate, and double-tap to center
-- **Multiple Output Formats**: Square (1080×1080), Portrait (1080×1350), Story (1080×1920)
-- **Social Media Optimized**: Format recommendations for Instagram, TikTok, Facebook
-- **Native Sharing**: Web Share API support with clipboard copy and download fallback
-- **Mobile Optimized**: Responsive design with touch-friendly controls and IG-fit button
-- **Cross-Platform**: Works on iOS Safari 15+, Android Chrome 100+, and desktop browsers
+### 🎨 **Modern UI/UX Design**
+- **Professional Design System**: Comprehensive CSS custom properties and design tokens
+- **SVG Icon Library**: Professional vector icons replacing emoji for better consistency
+- **Card-based Layout**: Modern glassmorphism effects with backdrop blur
+- **Responsive Toolbar**: Mobile floating design, desktop integrated layout
+- **Format Selector**: Large touch-friendly buttons (80x80px) for better usability
+
+### 📱 **Smart Upload & Processing**
+- **Automatic EXIF Correction**: Proper image orientation handling
+- **Intelligent Canvas Interaction**: Click empty canvas to upload/capture photos
+- **Camera Integration**: Direct camera capture on mobile devices
+- **Multiple Input Methods**: File selection, camera capture, drag & drop
+
+### 🎛️ **Advanced Photo Adjustment**
+- **Precision Mode**: Double-finger long-press (500ms) for ultra-precise adjustments
+- **Real-time Feedback**: Live scale percentage and rotation degree display
+- **Collapsible Controls**: Professional adjustment panel with sliders and micro-controls
+- **Pixel-perfect Positioning**: Direction buttons for precise photo placement
+
+### ⌨️ **Keyboard Shortcuts** (Desktop)
+- **Arrow Keys**: Pixel-level positioning (Shift + Arrow = fast movement)
+- **+/- Keys**: Scale adjustment (5% increments)  
+- **R Key**: 90° rotation (Ctrl+R = reset)
+- **Space**: Reset to fit
+- **P Key**: Toggle precision panel
+- **Ctrl+Wheel**: Precise zoom control
+
+### 🖱️ **Enhanced Touch Gestures**
+- **Single Touch**: Pan/drag photo positioning
+- **Two-finger Gestures**: Simultaneous scale, rotate, and position
+- **Precision Mode**: Reduced sensitivity for fine-tuning (30% scale, 20% rotation)
+- **Double Tap**: Auto-center photo
+- **Visual Feedback**: Golden border during precision mode
+
+### 📐 **Multiple Output Formats**
+- **Square (1080×1080)**: Perfect for Instagram posts, Facebook, Twitter
+- **Portrait (1080×1350)**: Ideal for Instagram portrait posts  
+- **Story (1080×1920)**: Great for Instagram Stories, TikTok, Facebook Stories
+- **Smart Recommendations**: Platform-specific sharing suggestions
+
+### 🔗 **Advanced Sharing**
+- **Native Web Share API**: Seamless mobile sharing experience
+- **Multi-platform Support**: Instagram, TikTok, Facebook optimized
+- **Download Fallback**: Automatic download when sharing unavailable
+- **Smart File Naming**: Format and dimension-aware filenames
+
+### 🛡️ **Resource Management**
+- **Memory Optimization**: Automatic cleanup of blob URLs and canvases
+- **Performance Monitoring**: Efficient rendering with minimal resource usage
+- **Error Handling**: Comprehensive validation and user feedback
 
 ## File Structure
 
@@ -21,15 +64,19 @@ A mobile-first web application for adding decorative frames to photos with touch
 ├── src/
 │   ├── main.js            # App initialization and coordination
 │   ├── image.js           # Image upload and EXIF processing
-│   ├── gesture.js         # Touch gesture handling
+│   ├── gesture.js         # Advanced touch gesture handling with precision mode
 │   ├── render.js          # Canvas rendering engine
-│   └── share.js           # Download and sharing functionality
-├── assets/frames/
-│   ├── frame_square_1080x1080.png   # Square format frame
-│   ├── frame_portrait_1080x1350.png # Portrait format frame  
-│   ├── frame_story_1080x1920.png    # Story format frame
-│   ├── frame_1080.png               # Fallback frame
-│   └── frame_1080.svg               # Alternative SVG frame
+│   ├── share.js           # Download and sharing functionality
+│   ├── gesture-hints.js   # Tutorial system for first-time users
+│   └── resource-manager.js # Memory and resource management system
+├── assets/
+│   ├── icons.svg          # Professional SVG icon library
+│   └── frames/            # Frame assets for different formats
+│       ├── frame_square_1080x1080.png   # Square format frame
+│       ├── frame_portrait_1080x1350.png # Portrait format frame  
+│       ├── frame_story_1080x1920.png    # Story format frame
+│       ├── frame_1080.png               # Fallback frame
+│       └── frame_1080.svg               # Alternative SVG frame
 ├── create_frame_canvas.html          # Single frame generator
 └── create_multi_frames.html          # Multi-format frame generator
 ```
@@ -58,6 +105,34 @@ A mobile-first web application for adding decorative frames to photos with touch
    ```
    http://localhost:8000
    ```
+
+## Quick Start Guide
+
+### 📱 **Mobile Usage**
+1. **Upload Photo**: Tap "上傳/拍照" button or click the empty canvas area
+2. **Basic Adjustments**: Use single finger to drag, two fingers to scale/rotate
+3. **Precision Mode**: Long-press with two fingers (500ms) for fine-tuning
+4. **Format Selection**: Choose from Square/Portrait/Story formats
+5. **Advanced Controls**: Tap "精確調整" to expand precision panel
+6. **Share**: Use "分享" button for native sharing or "Download" for manual saving
+
+### 💻 **Desktop Usage**
+1. **Upload Photo**: Click "上傳/拍照" button or click the empty canvas
+2. **Mouse Controls**: Drag to move, scroll wheel to zoom, Ctrl+scroll for precision
+3. **Keyboard Shortcuts**: 
+   - Arrow keys for positioning
+   - +/- for scaling  
+   - R for rotation
+   - P for precision panel
+   - Space to reset
+4. **Precision Panel**: Use sliders and micro-adjustment buttons for exact control
+
+### 🎯 **Pro Tips**
+- **First Time**: Follow the gesture hints that appear after uploading
+- **Precision Work**: Use the collapsible precision panel for exact adjustments
+- **Quick Reset**: Double-tap or press Space to center and fit photo
+- **Optimal Quality**: Upload high-resolution photos for best results
+- **Social Media**: Each format is optimized for specific platforms
 
 ## GitHub Pages Deployment
 
@@ -126,12 +201,17 @@ A mobile-first web application for adding decorative frames to photos with touch
 - **Compression**: Long edge limited to 3000px for performance
 - **Quality**: JPEG quality 92% for processing
 
-### Gesture Controls
-- **Single Touch**: Pan/drag the photo
-- **Two Finger Pinch**: Scale (0.1× to 5×)
-- **Two Finger Rotate**: Rotate the photo
-- **Double Tap**: Center the photo
+### Advanced Gesture Controls
+- **Single Touch**: Pan/drag photo positioning
+- **Two-finger Pinch**: Scale (0.1× to 5×) with precision mode support
+- **Two-finger Rotate**: Continuous rotation with precision mode
+- **Precision Mode**: Long-press (500ms) for ultra-fine adjustments
+  - Scale sensitivity: 30% of normal
+  - Rotation sensitivity: 20% of normal
+  - Visual feedback: Golden border + haptic vibration
+- **Double Tap**: Auto-center photo
 - **Mouse Wheel**: Zoom (desktop)
+- **Ctrl+Wheel**: Precision zoom (desktop)
 
 ### Performance Optimizations
 - **Event-Driven Rendering**: Only renders during interactions
@@ -166,6 +246,11 @@ this.jpegQuality = 0.92;   // JPEG compression quality
 this.minScale = 0.1;       // Minimum zoom level
 this.maxScale = 5;         // Maximum zoom level
 this.rotationThreshold = Math.PI / 180 * 5; // 5 degree rotation sensitivity
+
+// Precision Mode Settings
+this.longPressDelay = 500; // 500ms to trigger precision mode
+this.precisionScaleSensitivity = 0.3;  // 30% scale sensitivity
+this.precisionRotationSensitivity = 0.2; // 20% rotation sensitivity
 ```
 
 ### Canvas Rendering (`src/render.js`)
