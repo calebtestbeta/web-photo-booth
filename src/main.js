@@ -559,7 +559,7 @@ class PhotoFrameApp {
         
         // Christmas theme style names
         const christmasStyles = {
-            'holly-border': '冬青邊框',
+            'hfp_polaroid': '信友拍立得',
             'snow-frame': '雪花邊框',
             'christmas-ornaments': '聖誕飾品',
             'winter-glow': '冬日光暈',

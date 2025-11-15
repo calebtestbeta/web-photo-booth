@@ -191,9 +191,9 @@
         
         <div class="format-selector">
             <h3>🎨 選擇聖誕風格：</h3>
-            <button class="format-btn active" data-style="holly-border">
-                🌿 冬青邊框
-                <small>Classic Holly</small>
+            <button class="format-btn active" data-style="hfp_polaroid">
+                📸 信友拍立得
+                <small>Vintage Polaroid</small>
             </button>
             <button class="format-btn" data-style="snow-frame">
                 ❄️ 雪花邊框
@@ -267,7 +267,7 @@
         };
         
         let currentFormat = 'square';
-        let currentStyle = 'holly-border';
+        let currentStyle = 'hfp_polaroid';
         
         function createFrame(format) {
             const config = formats[format];
@@ -282,8 +282,8 @@
             
             // Draw frame based on selected style
             switch(currentStyle) {
-                case 'holly-border':
-                    drawHollyBorderFrame(ctx, config);
+                case 'hfp_polaroid':
+                    drawHfpPolaroidFrame(ctx, config);
                     break;
                 case 'snow-frame':
                     drawSnowFrameFrame(ctx, config);
@@ -301,8 +301,10 @@
                     drawHollyBorderFrame(ctx, config);
             }
             
-            // 加入聖誕祝福文字
-            drawChristmasText(ctx, config.width, config.height, config.borderWidth, currentStyle);
+            // 加入聖誕祝福文字（信友拍立得風格除外）
+            if (currentStyle !== 'hfp_polaroid') {
+                drawChristmasText(ctx, config.width, config.height, config.borderWidth, currentStyle);
+            }
         }
         
         function drawRoundedRect(ctx, x, y, width, height, radius) {
@@ -319,7 +321,7 @@
             ctx.closePath();
         }
         
-        function drawChristmasText(ctx, canvasWidth, canvasHeight, borderWidth, style = 'holly-border') {
+        function drawChristmasText(ctx, canvasWidth, canvasHeight, borderWidth, style = 'hfp_polaroid') {
             ctx.save();
             
             // 計算文字位置 (底部中央)
@@ -336,7 +338,7 @@
             let textColor, shadowColor, strokeColor, shadowBlur, shadowOffset;
             
             switch(style) {
-                case 'holly-border':
+                case 'hfp_polaroid':
                     textColor = '#dc2626'; // 聖誕紅
                     shadowColor = 'rgba(21, 185, 129, 0.6)';
                     strokeColor = 'rgba(255, 255, 255, 0.9)';
@@ -405,43 +407,151 @@
             ctx.restore();
         }
         
-        // 🌿 冬青邊框風格 - 經典聖誕（增強版）
-        function drawHollyBorderFrame(ctx, config) {
-            const borderWidth = config.borderWidth;
-            const cornerRadius = 12;
-            
-            // 主邊框 - 深綠色漸變
+        // 📸 信友拍立得風格 - 復古情懷（經典白邊框）
+        function drawHfpPolaroidFrame(ctx, config) {
             ctx.save();
-            const greenGradient = ctx.createLinearGradient(0, 0, config.width, config.height);
-            greenGradient.addColorStop(0, '#166534');
-            greenGradient.addColorStop(0.5, '#059669');
-            greenGradient.addColorStop(1, '#166534');
             
-            ctx.strokeStyle = greenGradient;
-            ctx.lineWidth = borderWidth;
+            // 拍立得特色尺寸計算
+            const totalBorderWidth = config.borderWidth * 1.8; // 加寬邊框
+            const sideBorderWidth = totalBorderWidth * 0.7;    // 左右上邊框寬度
+            const bottomBorderWidth = totalBorderWidth * 1.4;  // 底部加寬（拍立得特色）
+            
+            // 1. 外陰影效果（立體感）
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+            ctx.shadowBlur = 20;
+            ctx.shadowOffsetX = 8;
+            ctx.shadowOffsetY = 8;
+            
+            // 2. 主要白色邊框（拍立得風格）
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, config.width, config.height);
+            
+            // 清除陰影效果
+            ctx.shadowColor = 'transparent';
+            
+            // 3. 內部照片區域（透明，讓照片顯示）
+            ctx.globalCompositeOperation = 'destination-out';
+            const photoX = sideBorderWidth;
+            const photoY = sideBorderWidth;
+            const photoWidth = config.width - 2 * sideBorderWidth;
+            const photoHeight = config.height - sideBorderWidth - bottomBorderWidth;
+            
+            // 圓角矩形照片區域
+            const cornerRadius = 8;
+            drawRoundedRect(ctx, photoX, photoY, photoWidth, photoHeight, cornerRadius);
+            ctx.fill();
+            
+            // 重置合成模式
+            ctx.globalCompositeOperation = 'source-over';
+            
+            // 4. 微妙的內邊框線（增加質感）
+            ctx.strokeStyle = '#f0f0f0';
+            ctx.lineWidth = 1;
+            drawRoundedRect(ctx, photoX - 1, photoY - 1, photoWidth + 2, photoHeight + 2, cornerRadius + 1);
+            ctx.stroke();
+            
+            // 5. 添加信友堂 LOGO 和文字
+            drawHfpcLogo(ctx, config, bottomBorderWidth);
+            
+            ctx.restore();
+        }
+        
+        // 繪製信友堂 LOGO 和文字
+        function drawHfpcLogo(ctx, config, bottomBorderWidth) {
+            ctx.save();
+            
+            // LOGO 和文字的位置計算
+            const logoY = config.height - bottomBorderWidth * 0.7;
+            const logoSize = Math.min(bottomBorderWidth * 0.6, 80); // 自適應大小
+            
+            // 1. 繪製教堂建築 LOGO（簡化版）
+            const logoX = bottomBorderWidth * 0.8; // 偏左位置
+            drawChurchLogo(ctx, logoX, logoY, logoSize);
+            
+            // 2. 繪製 "台北信友堂" 文字
+            const textX = logoX + logoSize + 20;
+            drawHfpcText(ctx, textX, logoY, logoSize);
+            
+            ctx.restore();
+        }
+        
+        // 繪製簡化的教堂建築圖標
+        function drawChurchLogo(ctx, x, y, size) {
+            ctx.save();
+            ctx.translate(x, y);
+            
+            // 設定繪製樣式
+            ctx.strokeStyle = '#000000';
+            ctx.fillStyle = '#000000';
+            ctx.lineWidth = size / 30;
             ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
             
-            const margin = borderWidth / 2;
-            drawRoundedRect(ctx, margin, margin, config.width - borderWidth, config.height - borderWidth, cornerRadius);
+            // 縮放比例
+            const s = size / 100;
+            
+            // 1. 圓形外框
+            ctx.beginPath();
+            ctx.arc(0, 0, 40 * s, 0, Math.PI * 2);
             ctx.stroke();
             
-            // 內邊框 - 聖誕紅漸變
-            const redGradient = ctx.createLinearGradient(0, 0, config.width, config.height);
-            redGradient.addColorStop(0, '#dc2626');
-            redGradient.addColorStop(0.5, '#f87171');
-            redGradient.addColorStop(1, '#dc2626');
-            
-            ctx.strokeStyle = redGradient;
-            ctx.lineWidth = 4;
-            const innerMargin = borderWidth - 8;
-            drawRoundedRect(ctx, innerMargin, innerMargin, config.width - 2 * innerMargin, config.height - 2 * innerMargin, cornerRadius - 2);
+            // 2. 主教堂建築（簡化）
+            ctx.beginPath();
+            // 主建築體（矩形）
+            ctx.rect(-25 * s, -10 * s, 50 * s, 35 * s);
+            // 尖塔屋頂（三角形）
+            ctx.moveTo(-25 * s, -10 * s);
+            ctx.lineTo(0, -35 * s);
+            ctx.lineTo(25 * s, -10 * s);
             ctx.stroke();
             
-            // 繪製歡樂冬青葉裝飾
-            drawEnhancedHollyDecorations(ctx, config, borderWidth);
+            // 3. 十字架
+            const crossSize = 8 * s;
+            ctx.beginPath();
+            // 垂直線
+            ctx.moveTo(0, -35 * s);
+            ctx.lineTo(0, -35 * s - crossSize);
+            // 水平線
+            ctx.moveTo(-crossSize/2, -35 * s - crossSize * 0.3);
+            ctx.lineTo(crossSize/2, -35 * s - crossSize * 0.3);
+            ctx.stroke();
             
-            // 添加聖誕鈴鐺
-            drawChristmasBells(ctx, config, borderWidth);
+            // 4. 門和窗戶細節
+            // 主門
+            ctx.beginPath();
+            ctx.rect(-4 * s, 10 * s, 8 * s, 15 * s);
+            ctx.stroke();
+            
+            // 窗戶
+            ctx.beginPath();
+            ctx.rect(-15 * s, 0, 6 * s, 8 * s);
+            ctx.rect(9 * s, 0, 6 * s, 8 * s);
+            ctx.stroke();
+            
+            ctx.restore();
+        }
+        
+        // 繪製信友堂文字
+        function drawHfpcText(ctx, x, y, size) {
+            ctx.save();
+            
+            ctx.fillStyle = '#000000';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+            
+            // 中文字體大小
+            const chineseFontSize = size * 0.4;
+            ctx.font = `bold ${chineseFontSize}px "SimHei", "Microsoft YaHei", "黑體", sans-serif`;
+            
+            // 繪製 "台北信友堂"
+            ctx.fillText('台北信友堂', x, y - size * 0.15);
+            
+            // 英文字體大小（較小）
+            const englishFontSize = size * 0.25;
+            ctx.font = `normal ${englishFontSize}px "Arial", sans-serif`;
+            
+            // 繪製 "HFPC CHURCH"
+            ctx.fillText('H F P C  C H U R C H', x, y + size * 0.2);
             
             ctx.restore();
         }
@@ -1294,7 +1404,7 @@
             const originalFormat = currentFormat;
             const originalStyle = currentStyle;
             
-            const styles = ['holly-border', 'snow-frame', 'christmas-ornaments', 'winter-glow', 'festive-lights'];
+            const styles = ['hfp_polaroid', 'snow-frame', 'christmas-ornaments', 'winter-glow', 'festive-lights'];
             
             for (const [format, config] of Object.entries(formats)) {
                 for (const style of styles) {

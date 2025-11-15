@@ -30,7 +30,7 @@ export class ThemeConfig {
                 cssFile: 'themes/christmas.css',
                 primaryColor: '#dc2626',
                 frameStyles: [
-                    'holly-border',
+                    'hfp_polaroid',
                     'snow-frame',
                     'christmas-ornaments',
                     'winter-glow',
