@@ -178,7 +178,7 @@ A mobile-first web application for adding decorative frames to photos with touch
 - **科技現代 (Tech Modern)**: Futuristic design with "Johnny Be Good!" text
 
 #### Christmas Magic Theme (Red/Green Festive)
-- **🌿 冬青邊框 (Holly Border)**: Classic Christmas with holly leaves, berries, and golden bells
+- **📸 信友拍立得 (HFP Polaroid)**: Classic instant photo aesthetic with vintage white border and HFPC church branding
 - **❄️ 雪花邊框 (Snow Frame)**: Winter wonderland with animated snowflakes and falling snow
 - **🎄 聖誕飾品 (Christmas Ornaments)**: Transparent border with colorful Christmas balls, garlands, and swinging bells
 - **✨ 冬日光暈 (Winter Glow)**: Magical glow effects with colorful light particles
