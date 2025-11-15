@@ -5,6 +5,7 @@ import { ShareHandler } from './share.js';
 import { resourceManager } from './resource-manager.js';
 import { GestureHints } from './gesture-hints.js';
 import { themeConfig } from './theme-config.js';
+import { analytics } from './analytics.js';
 
 class PhotoFrameApp {
     constructor() {
@@ -338,6 +339,9 @@ class PhotoFrameApp {
             console.log('圖片處理成功');
             this.showStatus('圖片載入成功！可使用手勢調整位置，或點擊旋轉按鈕調整方向。', 'success');
             
+            // 追蹤照片上傳成功
+            analytics.trackPhotoUpload('file_select', analytics.getCurrentTheme(), file.size);
+            
             // 顯示手勢提示
             if (this.gestureHints && this.gestureHints.shouldShowHints()) {
                 setTimeout(() => {
@@ -366,6 +370,9 @@ class PhotoFrameApp {
             }
             
             this.showStatus(errorMessage, 'error');
+            
+            // 追蹤照片上傳錯誤
+            analytics.trackError('photo_upload_failed', error.message, 'handleImageUpload');
         } finally {
             this.showLoading(false);
         }
@@ -507,6 +514,9 @@ class PhotoFrameApp {
             this.resetTransform();
         }
         
+        // 追蹤格式選擇
+        analytics.trackFormatSelected(format, analytics.getCurrentTheme());
+        
         // Always render to show frame preview
         this.scheduleRender();
         
@@ -542,6 +552,9 @@ class PhotoFrameApp {
         const displayName = styleNames[style] || style;
         
         this.showStatus(`已切換至${displayName}風格`, 'success');
+        
+        // 追蹤邊框風格選擇
+        analytics.trackFrameStyleSelected(style, analytics.getCurrentTheme(), !this.currentImage);
     }
     
     // Get style display names based on current theme
@@ -663,9 +676,18 @@ class PhotoFrameApp {
             
             await this.shareHandler.downloadBlob(blob, filename);
             this.showStatus('Image downloaded successfully!', 'success');
+            
+            // 追蹤下載成功
+            const formatInfo = this.renderEngine.getCurrentFormat();
+            analytics.trackDownload(formatInfo.key, analytics.getCurrentTheme(), true);
         } catch (error) {
             console.error('Download failed:', error);
             this.showStatus('Failed to download image. Please try again.', 'error');
+            
+            // 追蹤下載失敗
+            const formatInfo = this.renderEngine.getCurrentFormat();
+            analytics.trackDownload(formatInfo.key, analytics.getCurrentTheme(), false);
+            analytics.trackError('download_failed', error.message, 'downloadImage');
         }
     }
     

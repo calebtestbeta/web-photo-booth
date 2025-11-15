@@ -1,4 +1,5 @@
 import { resourceManager } from './resource-manager.js';
+import { analytics } from './analytics.js';
 
 export class ShareHandler {
     constructor() {
@@ -131,6 +132,10 @@ export class ShareHandler {
                 console.log(`ShareHandler: 嘗試策略 ${i + 1}`);
                 const result = await strategies[i]();
                 if (result.success || result.method === 'cancelled') {
+                    // 追蹤分享成功
+                    if (result.success) {
+                        analytics.trackShare(result.method, 'unknown', analytics.getCurrentTheme(), true);
+                    }
                     return result;
                 }
             } catch (error) {
@@ -140,6 +145,9 @@ export class ShareHandler {
         }
         
         // 所有策略都失敗
+        analytics.trackShare('all_strategies_failed', 'unknown', analytics.getCurrentTheme(), false);
+        analytics.trackError('share_all_failed', '所有分享策略都失敗', 'tryMultipleShareStrategies');
+        
         return {
             success: false,
             method: 'failed',

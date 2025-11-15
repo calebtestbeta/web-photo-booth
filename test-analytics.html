@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics 測試頁面</title>
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GPLJLSF9S0"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-GPLJLSF9S0', {
+        // 隱私友善設定
+        anonymize_ip: true,
+        allow_google_signals: false,
+        allow_ad_personalization_signals: false
+      });
+    </script>
+    
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 2rem;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 2rem;
+        }
+        
+        .test-section {
+            margin: 1.5rem 0;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 0.5rem;
+        }
+        
+        button:hover {
+            background: #0056b3;
+        }
+        
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 1rem;
+            margin-top: 1rem;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .success {
+            color: #28a745;
+        }
+        
+        .error {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Google Analytics 測試頁面</h1>
+        
+        <div class="test-section">
+            <h3>基本功能測試</h3>
+            <button onclick="testPageView()">測試頁面訪問</button>
+            <button onclick="testThemeSelection()">測試主題選擇</button>
+            <button onclick="testPhotoUpload()">測試照片上傳</button>
+            <button onclick="testFrameStyle()">測試邊框風格</button>
+            <button onclick="testFormatChange()">測試格式切換</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>進階功能測試</h3>
+            <button onclick="testShare()">測試分享功能</button>
+            <button onclick="testDownload()">測試下載功能</button>
+            <button onclick="testError()">測試錯誤追蹤</button>
+            <button onclick="testPrecisionMode()">測試精確模式</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>設備資訊</h3>
+            <button onclick="showDeviceInfo()">顯示設備資訊</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>測試結果日誌</h3>
+            <button onclick="clearLog()">清除日誌</button>
+            <div id="log" class="log"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { analytics } from './src/analytics.js';
+        
+        // 將 analytics 物件暴露到全域以便測試
+        window.analytics = analytics;
+        
+        // 日誌功能
+        window.logMessage = function(message, type = 'info') {
+            const log = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : '';
+            log.innerHTML += `<span class="${className}">[${timestamp}] ${message}</span>\n`;
+            log.scrollTop = log.scrollHeight;
+        };
+        
+        // 清除日誌
+        window.clearLog = function() {
+            document.getElementById('log').innerHTML = '';
+        };
+        
+        // 測試函數
+        window.testPageView = function() {
+            try {
+                analytics.trackPageView('test_page', 'test_theme');
+                logMessage('✅ 頁面訪問事件已發送', 'success');
+            } catch (error) {
+                logMessage('❌ 頁面訪問事件發送失敗: ' + error.message, 'error');
+            }
+        };
+        
+        window.testThemeSelection = function() {
+            try {
+                analytics.trackThemeSelected('johnny-be-good', 'test');
+                logMessage('✅ 主題選擇事件已發送', 'success');
+            } catch (error) {
+                logMessage('❌ 主題選擇事件發送失敗: ' + error.message, 'error');
+            }
+        };
+        
+        window.testPhotoUpload = function() {
+            try {
+                analytics.trackPhotoUpload('file_select', 'test_theme', 1234567);
+                logMessage('✅ 照片上傳事件已發送', 'success');
+            } catch (error) {
+                logMessage('❌ 照片上傳事件發送失敗: ' + error.message, 'error');
+            }
+        };
+        
+        window.testFrameStyle = function() {
+            try {
+                analytics.trackFrameStyleSelected('modern-gallery', 'test_theme', false);
+                logMessage('✅ 邊框風格選擇事件已發送', 'success');
+            } catch (error) {
+                logMessage('❌ 邊框風格選擇事件發送失敗: ' + error.message, 'error');
+            }
+        };
+        
+        window.testFormatChange = function() {
+            try {
+                analytics.trackFormatSelected('square', 'test_theme');
+                logMessage('✅ 格式切換事件已發送', 'success');
+            } catch (error) {
+                logMessage('❌ 格式切換事件發送失敗: ' + error.message, 'error');
+            }
+        };
+        
+        window.testShare = function() {
+            try {
+                analytics.trackShare('native_share', 'square', 'test_theme', true);
+                logMessage('✅ 分享事件已發送', 'success');
+            } catch (error) {
+                logMessage('❌ 分享事件發送失敗: ' + error.message, 'error');
+            }
+        };
+        
+        window.testDownload = function() {
+            try {
+                analytics.trackDownload('square', 'test_theme', true);
+                logMessage('✅ 下載事件已發送', 'success');
+            } catch (error) {
+                logMessage('❌ 下載事件發送失敗: ' + error.message, 'error');
+            }
+        };
+        
+        window.testError = function() {
+            try {
+                analytics.trackError('test_error', '這是一個測試錯誤', 'test_context');
+                logMessage('✅ 錯誤追蹤事件已發送', 'success');
+            } catch (error) {
+                logMessage('❌ 錯誤追蹤事件發送失敗: ' + error.message, 'error');
+            }
+        };
+        
+        window.testPrecisionMode = function() {
+            try {
+                analytics.trackPrecisionMode('enter', 'test_theme', 5000);
+                logMessage('✅ 精確模式事件已發送', 'success');
+            } catch (error) {
+                logMessage('❌ 精確模式事件發送失敗: ' + error.message, 'error');
+            }
+        };
+        
+        window.showDeviceInfo = function() {
+            try {
+                const deviceType = analytics.getDeviceType();
+                const currentTheme = analytics.getCurrentTheme();
+                
+                logMessage(`設備類型: ${deviceType}`, 'info');
+                logMessage(`當前主題: ${currentTheme}`, 'info');
+                logMessage(`螢幕解析度: ${screen.width}x${screen.height}`, 'info');
+                logMessage(`視窗大小: ${window.innerWidth}x${window.innerHeight}`, 'info');
+                logMessage(`用戶代理: ${navigator.userAgent.substring(0, 100)}...`, 'info');
+                logMessage(`GA 是否啟用: ${analytics.isEnabled}`, 'info');
+            } catch (error) {
+                logMessage('❌ 獲取設備資訊失敗: ' + error.message, 'error');
+            }
+        };
+        
+        // 頁面載入時自動顯示初始化資訊
+        document.addEventListener('DOMContentLoaded', () => {
+            logMessage('📊 Analytics 測試頁面載入完成', 'success');
+            logMessage(`GA 追蹤 ID: G-GPLJLSF9S0`, 'info');
+            logMessage(`Analytics 模組狀態: ${analytics.isEnabled ? '已啟用' : '未啟用'}`, analytics.isEnabled ? 'success' : 'error');
+            
+            if (typeof gtag !== 'undefined') {
+                logMessage('✅ Google Analytics 腳本載入成功', 'success');
+            } else {
+                logMessage('❌ Google Analytics 腳本載入失敗', 'error');
+            }
+        });
+        
+        // 監聽所有 gtag 調用（用於調試）
+        if (typeof gtag !== 'undefined') {
+            const originalGtag = gtag;
+            window.gtag = function(...args) {
+                logMessage(`📡 GA 事件: ${args[0]} - ${args[1]} - ${JSON.stringify(args[2] || {})}`, 'info');
+                return originalGtag.apply(this, args);
+            };
+        }
+    </script>
+</body>
+</html>
