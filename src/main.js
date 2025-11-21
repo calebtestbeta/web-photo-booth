@@ -678,14 +678,12 @@ class PhotoFrameApp {
             this.showStatus('Image downloaded successfully!', 'success');
             
             // 追蹤下載成功
-            const formatInfo = this.renderEngine.getCurrentFormat();
             analytics.trackDownload(formatInfo.key, analytics.getCurrentTheme(), true);
         } catch (error) {
             console.error('Download failed:', error);
             this.showStatus('Failed to download image. Please try again.', 'error');
             
             // 追蹤下載失敗
-            const formatInfo = this.renderEngine.getCurrentFormat();
             analytics.trackDownload(formatInfo.key, analytics.getCurrentTheme(), false);
             analytics.trackError('download_failed', error.message, 'downloadImage');
         }
