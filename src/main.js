@@ -1530,10 +1530,16 @@ class PhotoFrameApp {
             
             if (target) {
                 e.preventDefault();
+                e.stopPropagation(); // 阻止事件冒泡到手勢處理器
                 isDragging = true;
                 dragTarget = target;
                 dragStartX = pos.x;
                 dragStartY = pos.y;
+                
+                // 暫時禁用手勢處理器以避免衝突
+                if (this.gestureHandler) {
+                    this.gestureHandler.disable();
+                }
                 
                 // 保存初始值
                 if (target === 'text') {
@@ -1549,7 +1555,9 @@ class PhotoFrameApp {
                 }
                 
                 this.canvas.style.cursor = 'grabbing';
+                return true; // 表示已處理事件
             }
+            return false; // 表示未處理事件，可讓其他處理器處理
         };
         
         // 拖拽中
@@ -1614,6 +1622,11 @@ class PhotoFrameApp {
                 isDragging = false;
                 dragTarget = null;
                 this.canvas.style.cursor = 'default';
+                
+                // 重新啟用手勢處理器
+                if (this.gestureHandler && this.currentImage) {
+                    this.gestureHandler.enable();
+                }
             }
         };
         
@@ -1626,9 +1639,9 @@ class PhotoFrameApp {
             }
         };
         
-        // 事件監聽器
-        this.canvas.addEventListener('mousedown', startDragging);
-        this.canvas.addEventListener('touchstart', startDragging, { passive: false });
+        // 事件監聽器 - 使用 capture: true 確保優先處理自定義元素
+        this.canvas.addEventListener('mousedown', startDragging, { capture: true });
+        this.canvas.addEventListener('touchstart', startDragging, { passive: false, capture: true });
         this.canvas.addEventListener('mousemove', handleMouseMove);
         
         document.addEventListener('mousemove', doDragging);
