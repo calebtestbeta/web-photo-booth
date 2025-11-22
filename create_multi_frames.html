@@ -2,111 +2,1296 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Multi-Format Frame Generator</title>
+    <title>自定義相框生成器</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }
-        .format-selector { margin: 20px 0; }
-        .format-selector h3 { 
-            color: #2c3e50; 
-            font-size: 16px; 
-            margin-bottom: 10px; 
-            font-weight: 600;
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            padding: 20px; 
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
         }
-        .format-btn { 
-            padding: 10px 20px; 
-            margin: 5px; 
-            border: 2px solid #ddd; 
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
             background: white; 
-            color: #333; 
+            padding: 30px; 
+            border-radius: 15px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        /* 標題區域 */
+        h1 { 
+            text-align: center; 
+            color: #2c3e50; 
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        
+        /* 主要布局 */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+            align-items: start;
+        }
+        
+        /* 控制面板樣式 */
+        .control-panel {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .section {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .section h3 { 
+            color: #495057; 
+            font-size: 18px; 
+            margin-bottom: 15px; 
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .section-icon {
+            width: 20px;
+            height: 20px;
+            opacity: 0.7;
+        }
+        
+        /* 按鈕樣式 */
+        .format-btn { 
+            padding: 12px 20px; 
+            margin: 5px; 
+            border: 2px solid #dee2e6; 
+            background: white; 
+            color: #495057; 
             cursor: pointer; 
-            border-radius: 5px; 
+            border-radius: 8px; 
             font-size: 14px;
             font-weight: 500;
             transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
         .format-btn.active { 
-            border-color: #3498db; 
-            background: #f0f8ff; 
-            color: #2c3e50;
+            border-color: #007bff; 
+            background: #007bff; 
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+        }
+        .format-btn:hover:not(.active) {
+            border-color: #007bff;
+            background: #f8f9ff;
+            color: #007bff;
+            transform: translateY(-1px);
+        }
+        
+        /* 輸入控件樣式 */
+        .input-group {
+            margin: 15px 0;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
             font-weight: 600;
+            color: #495057;
+            font-size: 14px;
         }
-        .format-btn:hover {
-            border-color: #3498db;
-            background: #f8f9fa;
-            color: #2c3e50;
+        
+        .input-group input, .input-group select, .input-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+            box-sizing: border-box;
         }
-        canvas { border: 2px solid #ddd; display: block; margin: 20px auto; max-width: 400px; height: auto; }
-        button { padding: 12px 24px; font-size: 16px; background: #3498db; color: white; border: none; border-radius: 6px; cursor: pointer; margin: 5px; }
-        button:hover { background: #2980b9; }
-        .info { background: #e8f4fd; padding: 15px; border-radius: 6px; margin: 20px 0; }
-        .canvas-info { text-align: center; margin: 10px 0; font-size: 14px; color: #666; }
+        
+        .input-group input:focus, .input-group select:focus, .input-group textarea:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+        }
+        
+        .input-group textarea {
+            resize: vertical;
+            min-height: 80px;
+            font-family: inherit;
+        }
+        
+        /* 滑桿樣式 */
+        .slider-group {
+            margin: 15px 0;
+        }
+        
+        .slider-group label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+            font-size: 14px;
+        }
+        
+        .slider-value {
+            background: #007bff;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            min-width: 40px;
+            text-align: center;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #dee2e6;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #007bff;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,123,255,0.3);
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #007bff;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(0,123,255,0.3);
+        }
+        
+        /* 顏色選擇器樣式 */
+        .color-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        input[type="color"] {
+            width: 60px;
+            height: 40px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            cursor: pointer;
+            background: none;
+        }
+        
+        .color-presets {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+        
+        .color-preset {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid #dee2e6;
+            transition: transform 0.2s ease;
+        }
+        
+        .color-preset:hover {
+            transform: scale(1.1);
+        }
+        
+        /* 預覽區域 */
+        .preview-area {
+            text-align: center;
+        }
+        
+        canvas { 
+            border: 3px solid #dee2e6; 
+            border-radius: 12px;
+            max-width: 100%;
+            height: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .canvas-info { 
+            margin: 15px 0; 
+            font-size: 14px; 
+            color: #6c757d;
+            font-weight: 500;
+        }
+        
+        /* 動作按鈕 */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #1e7e34;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40,167,69,0.3);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #545b62;
+            transform: translateY(-2px);
+        }
+        
+        /* 檔案上傳區域 */
+        .upload-area {
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 15px 0;
+        }
+        
+        .upload-area:hover {
+            border-color: #007bff;
+            background: #f8f9ff;
+        }
+        
+        .upload-area.dragover {
+            border-color: #007bff;
+            background: #f0f8ff;
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+        
+        .image-preview {
+            max-width: 100%;
+            max-height: 120px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        
+        /* 開關樣式 */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: #007bff;
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+        
+        /* Checkbox 樣式修復 */
+        .checkbox-label {
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            margin-bottom: 8px !important;
+            font-weight: 600 !important;
+            color: #495057 !important;
+            font-size: 14px !important;
+            cursor: pointer !important;
+        }
+        
+        .checkbox-label input[type="checkbox"] {
+            width: 18px !important;
+            height: 18px !important;
+            margin: 0 !important;
+            cursor: pointer !important;
+            accent-color: #007bff !important;
+        }
+        
+        .checkbox-text {
+            line-height: 1 !important;
+            user-select: none !important;
+        }
+        
+        /* 響應式設計 */
+        @media (max-width: 768px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+        }
+        
+        /* 使用說明 */
+        .info { 
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%); 
+            padding: 20px; 
+            border-radius: 12px; 
+            margin: 30px 0; 
+            border-left: 4px solid #007bff;
+        }
+        
+        .info h4 {
+            color: #007bff;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        
+        .info ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .info li {
+            margin: 5px 0;
+            color: #495057;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>多格式相框生成器</h1>
+        <h1>🎨 自定義相框生成器</h1>
         
-        <div class="format-selector">
-            <h3>選擇輸出格式：</h3>
-            <button class="format-btn active" data-format="square">正方形 (1080×1080)</button>
-            <button class="format-btn" data-format="portrait">直式 (1080×1350)</button>
-            <button class="format-btn" data-format="story">限時動態 (1080×1920)</button>
-        </div>
-        
-        <div class="format-selector">
-            <h3>選擇藝術風格：</h3>
-            <button class="format-btn active" data-style="modern-gallery">現代畫廊</button>
-            <button class="format-btn" data-style="gradient-glow">漸變光暈</button>
-            <button class="format-btn" data-style="geometric-art">幾何抽象</button>
-            <button class="format-btn" data-style="minimal-lines">極簡線條</button>
-            <button class="format-btn" data-style="tech-modern">科技現代</button>
-        </div>
-        
-        <canvas id="frameCanvas"></canvas>
-        <div class="canvas-info" id="canvasInfo">1080 × 1080 像素</div>
-        
-        <div style="text-align: center;">
-            <button onclick="downloadFrame()">下載當前相框</button>
-            <button onclick="downloadAllFrames()">下載所有格式</button>
+        <div class="main-layout">
+            <!-- 預覽區域 -->
+            <div class="preview-area">
+                <canvas id="frameCanvas"></canvas>
+                <div class="canvas-info" id="canvasInfo">1080 × 1080 像素</div>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="downloadFrame()">
+                        📥 下載當前相框
+                    </button>
+                    <button class="btn btn-success" onclick="downloadAllFrames()">
+                        📦 下載所有格式
+                    </button>
+                    <button class="btn btn-secondary" onclick="resetAll()">
+                        🔄 重置所有設定
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 控制面板 -->
+            <div class="control-panel">
+                <!-- 格式選擇 -->
+                <div class="section">
+                    <h3>
+                        📐 輸出格式
+                    </h3>
+                    <button class="format-btn active" data-format="square">
+                        📱 正方形 (1080×1080)
+                    </button>
+                    <button class="format-btn" data-format="portrait">
+                        📱 直式 (1080×1350)
+                    </button>
+                    <button class="format-btn" data-format="story">
+                        📱 限時動態 (1080×1920)
+                    </button>
+                </div>
+                
+                <!-- 藝術風格 -->
+                <div class="section">
+                    <h3>
+                        🎨 邊框風格
+                    </h3>
+                    <button class="format-btn active" data-style="modern-gallery">
+                        🖼️ 現代畫廊
+                    </button>
+                    <button class="format-btn" data-style="gradient-glow">
+                        ✨ 漸變光暈
+                    </button>
+                    <button class="format-btn" data-style="geometric-art">
+                        🔶 幾何抽象
+                    </button>
+                    <button class="format-btn" data-style="minimal-lines">
+                        ➖ 極簡線條
+                    </button>
+                    <button class="format-btn" data-style="tech-modern">
+                        💻 科技現代
+                    </button>
+                </div>
+                
+                <!-- 文字設定 -->
+                <div class="section">
+                    <h3>
+                        ✏️ 文字設定
+                    </h3>
+                    
+                    <div class="input-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="enableText" checked>
+                            <span class="checkbox-text">啟用文字</span>
+                        </label>
+                    </div>
+                    
+                    <div id="textControls">
+                        <div class="input-group">
+                            <label for="customText">自定義文字</label>
+                            <textarea id="customText" placeholder="輸入您的文字..."></textarea>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="fontFamily">字體</label>
+                            <select id="fontFamily">
+                                <option value="cursive">草寫體</option>
+                                <option value="serif">標楷體</option>
+                                <option value="sans-serif">微軟正黑體</option>
+                                <option value="monospace">等寬字體</option>
+                                <option value="fantasy">藝術字體</option>
+                            </select>
+                        </div>
+                        
+                        <div class="slider-group">
+                            <label>
+                                字體大小
+                                <span class="slider-value" id="fontSizeValue">72px</span>
+                            </label>
+                            <input type="range" id="fontSize" min="16" max="200" value="72">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="textColor">文字顏色</label>
+                            <div class="color-group">
+                                <input type="color" id="textColor" value="#FFD700">
+                                <div class="color-presets">
+                                    <div class="color-preset" style="background: #FFD700" data-color="#FFD700"></div>
+                                    <div class="color-preset" style="background: #FF6B35" data-color="#FF6B35"></div>
+                                    <div class="color-preset" style="background: #FFFFFF" data-color="#FFFFFF"></div>
+                                    <div class="color-preset" style="background: #000000" data-color="#000000"></div>
+                                    <div class="color-preset" style="background: #007BFF" data-color="#007BFF"></div>
+                                    <div class="color-preset" style="background: #28A745" data-color="#28A745"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="shadowColor">陰影顏色</label>
+                            <input type="color" id="shadowColor" value="#000000">
+                        </div>
+                        
+                        <div class="slider-group">
+                            <label>
+                                陰影模糊
+                                <span class="slider-value" id="shadowBlurValue">3px</span>
+                            </label>
+                            <input type="range" id="shadowBlur" min="0" max="20" value="3">
+                        </div>
+                        
+                        <div class="slider-group">
+                            <label>
+                                文字角度
+                                <span class="slider-value" id="textRotationValue">0°</span>
+                            </label>
+                            <input type="range" id="textRotation" min="-45" max="45" value="0">
+                        </div>
+                        
+                        <div class="slider-group">
+                            <label>
+                                水平位置
+                                <span class="slider-value" id="textPositionXValue">50%</span>
+                            </label>
+                            <input type="range" id="textPositionX" min="10" max="90" value="50">
+                        </div>
+                        
+                        <div class="slider-group">
+                            <label>
+                                垂直位置
+                                <span class="slider-value" id="textPositionYValue">85%</span>
+                            </label>
+                            <input type="range" id="textPositionY" min="10" max="90" value="85">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 圖片設定 -->
+                <div class="section">
+                    <h3>
+                        🖼️ 圖片設定
+                    </h3>
+                    
+                    <div class="input-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="enableImage">
+                            <span class="checkbox-text">啟用圖片</span>
+                        </label>
+                    </div>
+                    
+                    <div id="imageControls" style="display: none;">
+                        <div class="upload-area" id="uploadArea">
+                            <div class="upload-icon">📁</div>
+                            <p>點擊或拖拽上傳圖片</p>
+                            <p style="font-size: 12px; color: #6c757d;">支援 PNG, JPG 格式</p>
+                            <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+                        </div>
+                        
+                        <img id="imagePreview" class="image-preview" style="display: none;">
+                        
+                        <div class="slider-group">
+                            <label>
+                                圖片大小
+                                <span class="slider-value" id="imageSizeValue">100%</span>
+                            </label>
+                            <input type="range" id="imageSize" min="10" max="200" value="100">
+                        </div>
+                        
+                        <div class="slider-group">
+                            <label>
+                                透明度
+                                <span class="slider-value" id="imageOpacityValue">100%</span>
+                            </label>
+                            <input type="range" id="imageOpacity" min="0" max="100" value="100">
+                        </div>
+                        
+                        <div class="slider-group">
+                            <label>
+                                旋轉角度
+                                <span class="slider-value" id="imageRotationValue">0°</span>
+                            </label>
+                            <input type="range" id="imageRotation" min="-180" max="180" value="0">
+                        </div>
+                        
+                        <div class="slider-group">
+                            <label>
+                                水平位置
+                                <span class="slider-value" id="imagePositionXValue">50%</span>
+                            </label>
+                            <input type="range" id="imagePositionX" min="0" max="100" value="50">
+                        </div>
+                        
+                        <div class="slider-group">
+                            <label>
+                                垂直位置
+                                <span class="slider-value" id="imagePositionYValue">20%</span>
+                            </label>
+                            <input type="range" id="imagePositionY" min="0" max="100" value="20">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label>
+                                <input type="checkbox" id="imageBehindText">
+                                圖片置於文字後方
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         
         <div class="info">
-            <strong>使用說明：</strong><br>
-            • 選擇格式後會自動生成對應尺寸的相框<br>
-            • 每個格式的邊框粗細都已針對該尺寸優化<br>
-            • 下載的檔案命名格式：frame_[format]_[width]x[height].png<br>
-            • 將檔案放入 assets/frames/ 資料夾中
+            <h4>✨ 使用說明</h4>
+            <ul>
+                <li>選擇輸出格式和邊框風格</li>
+                <li>啟用文字功能並輸入自定義內容</li>
+                <li>上傳圖片並調整位置、大小等屬性</li>
+                <li>即時預覽效果，滿意後下載 PNG 檔案</li>
+                <li>支援批次下載所有格式</li>
+                <li>檔案命名格式：custom_frame_[format]_[width]x[height].png</li>
+            </ul>
         </div>
     </div>
     
     <script>
+        // Canvas 和基本設定
         const canvas = document.getElementById('frameCanvas');
         const ctx = canvas.getContext('2d');
         const canvasInfo = document.getElementById('canvasInfo');
         
+        // 格式配置
         const formats = {
             square: { width: 1080, height: 1080, name: '正方形', borderWidth: 45 },
             portrait: { width: 1080, height: 1350, name: '直式', borderWidth: 42 },
             story: { width: 1080, height: 1920, name: '限時動態', borderWidth: 40 }
         };
         
+        // 全局狀態
         let currentFormat = 'square';
         let currentStyle = 'modern-gallery';
+        let uploadedImage = null;
         
+        // UI 元素引用
+        const elements = {
+            // 文字控制
+            enableText: document.getElementById('enableText'),
+            textControls: document.getElementById('textControls'),
+            customText: document.getElementById('customText'),
+            fontFamily: document.getElementById('fontFamily'),
+            fontSize: document.getElementById('fontSize'),
+            fontSizeValue: document.getElementById('fontSizeValue'),
+            textColor: document.getElementById('textColor'),
+            shadowColor: document.getElementById('shadowColor'),
+            shadowBlur: document.getElementById('shadowBlur'),
+            shadowBlurValue: document.getElementById('shadowBlurValue'),
+            textRotation: document.getElementById('textRotation'),
+            textRotationValue: document.getElementById('textRotationValue'),
+            textPositionX: document.getElementById('textPositionX'),
+            textPositionXValue: document.getElementById('textPositionXValue'),
+            textPositionY: document.getElementById('textPositionY'),
+            textPositionYValue: document.getElementById('textPositionYValue'),
+            
+            // 圖片控制
+            enableImage: document.getElementById('enableImage'),
+            imageControls: document.getElementById('imageControls'),
+            uploadArea: document.getElementById('uploadArea'),
+            imageUpload: document.getElementById('imageUpload'),
+            imagePreview: document.getElementById('imagePreview'),
+            imageSize: document.getElementById('imageSize'),
+            imageSizeValue: document.getElementById('imageSizeValue'),
+            imageOpacity: document.getElementById('imageOpacity'),
+            imageOpacityValue: document.getElementById('imageOpacityValue'),
+            imageRotation: document.getElementById('imageRotation'),
+            imageRotationValue: document.getElementById('imageRotationValue'),
+            imagePositionX: document.getElementById('imagePositionX'),
+            imagePositionXValue: document.getElementById('imagePositionXValue'),
+            imagePositionY: document.getElementById('imagePositionY'),
+            imagePositionYValue: document.getElementById('imagePositionYValue'),
+            imageBehindText: document.getElementById('imageBehindText')
+        };
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeEventListeners();
+            createFrame(currentFormat);
+        });
+        
+        // 設定所有事件監聽器
+        function initializeEventListeners() {
+            // 格式選擇按鈕
+            document.querySelectorAll('[data-format]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // 移除其他按鈕的 active 類
+                    document.querySelectorAll('[data-format]').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentFormat = this.dataset.format;
+                    createFrame(currentFormat);
+                });
+            });
+            
+            // 風格選擇按鈕
+            document.querySelectorAll('[data-style]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('[data-style]').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentStyle = this.dataset.style;
+                    createFrame(currentFormat);
+                });
+            });
+            
+            // 文字控制
+            elements.enableText.addEventListener('change', function() {
+                elements.textControls.style.display = this.checked ? 'block' : 'none';
+                createFrame(currentFormat);
+            });
+            
+            elements.customText.addEventListener('input', () => createFrame(currentFormat));
+            elements.fontFamily.addEventListener('change', () => createFrame(currentFormat));
+            
+            // 滑桿控制
+            setupSlider('fontSize', 'fontSizeValue', 'px');
+            setupSlider('shadowBlur', 'shadowBlurValue', 'px');
+            setupSlider('textRotation', 'textRotationValue', '°');
+            setupSlider('textPositionX', 'textPositionXValue', '%');
+            setupSlider('textPositionY', 'textPositionYValue', '%');
+            
+            // 顏色控制
+            elements.textColor.addEventListener('change', () => createFrame(currentFormat));
+            elements.shadowColor.addEventListener('change', () => createFrame(currentFormat));
+            
+            // 顏色預設按鈕
+            document.querySelectorAll('.color-preset').forEach(preset => {
+                preset.addEventListener('click', function() {
+                    const color = this.dataset.color;
+                    elements.textColor.value = color;
+                    createFrame(currentFormat);
+                });
+            });
+            
+            // 圖片控制
+            elements.enableImage.addEventListener('change', function() {
+                elements.imageControls.style.display = this.checked ? 'block' : 'none';
+                createFrame(currentFormat);
+            });
+            
+            // 圖片上傳
+            elements.uploadArea.addEventListener('click', () => elements.imageUpload.click());
+            elements.imageUpload.addEventListener('change', handleImageUpload);
+            
+            // 拖拽上傳
+            elements.uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('dragover');
+            });
+            
+            elements.uploadArea.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
+            });
+            
+            elements.uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleImageFile(files[0]);
+                }
+            });
+            
+            // 圖片控制滑桿
+            setupSlider('imageSize', 'imageSizeValue', '%');
+            setupSlider('imageOpacity', 'imageOpacityValue', '%');
+            setupSlider('imageRotation', 'imageRotationValue', '°');
+            setupSlider('imagePositionX', 'imagePositionXValue', '%');
+            setupSlider('imagePositionY', 'imagePositionYValue', '%');
+            
+            elements.imageBehindText.addEventListener('change', () => createFrame(currentFormat));
+            
+            // 畫布直接拖曳功能
+            setupCanvasDragging();
+        }
+        
+        // 畫布拖曳功能設定
+        function setupCanvasDragging() {
+            const canvas = document.getElementById('frameCanvas');
+            let isDragging = false;
+            let dragTarget = null; // 'text' 或 'image'
+            let dragStartX, dragStartY;
+            let initialTextX, initialTextY, initialImageX, initialImageY;
+            
+            // 多點觸控變數
+            let isMultiTouch = false;
+            let touchStartDistance = 0;
+            let touchStartAngle = 0;
+            let initialScale = 1;
+            let initialRotation = 0;
+            
+            // 取得滑鼠/觸控位置相對於畫布的座標
+            function getCanvasPosition(e, canvas) {
+                const rect = canvas.getBoundingClientRect();
+                const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+                const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+                
+                return {
+                    x: (clientX - rect.left) * (canvas.width / rect.width),
+                    y: (clientY - rect.top) * (canvas.height / rect.height)
+                };
+            }
+            
+            // 計算兩點間距離
+            function getDistance(touch1, touch2) {
+                const dx = touch1.clientX - touch2.clientX;
+                const dy = touch1.clientY - touch2.clientY;
+                return Math.sqrt(dx * dx + dy * dy);
+            }
+            
+            // 計算兩點間角度
+            function getAngle(touch1, touch2) {
+                const dx = touch1.clientX - touch2.clientX;
+                const dy = touch1.clientY - touch2.clientY;
+                return Math.atan2(dy, dx);
+            }
+            
+            // 取得觸控中心點
+            function getTouchCenter(touch1, touch2) {
+                const rect = canvas.getBoundingClientRect();
+                const centerX = (touch1.clientX + touch2.clientX) / 2;
+                const centerY = (touch1.clientY + touch2.clientY) / 2;
+                
+                return {
+                    x: (centerX - rect.left) * (canvas.width / rect.width),
+                    y: (centerY - rect.top) * (canvas.height / rect.height)
+                };
+            }
+            
+            // 檢測點擊位置是否在文字或圖片範圍內
+            function detectDragTarget(canvasX, canvasY) {
+                const config = formats[currentFormat];
+                
+                // 檢測文字區域（如果啟用且有文字）
+                if (elements.enableText.checked && elements.customText.value.trim()) {
+                    const textY = config.height * (elements.textPositionY.value / 100);
+                    const textX = config.width / 2;
+                    const fontSize = parseInt(elements.fontSize.value);
+                    
+                    // 簡單的文字區域檢測（矩形範圍）
+                    const textWidth = elements.customText.value.length * fontSize * 0.6; // 概估
+                    if (Math.abs(canvasX - textX) < textWidth / 2 && 
+                        Math.abs(canvasY - textY) < fontSize) {
+                        return 'text';
+                    }
+                }
+                
+                // 檢測圖片區域（如果啟用且有圖片）
+                if (elements.enableImage.checked && uploadedImage) {
+                    const imageX = (elements.imagePositionX.value / 100) * config.width;
+                    const imageY = (elements.imagePositionY.value / 100) * config.height;
+                    const imageSize = elements.imageSize.value / 100;
+                    
+                    // 計算圖片實際尺寸
+                    const maxSize = Math.min(config.width, config.height) * 0.8;
+                    const scale = (maxSize * imageSize) / Math.max(uploadedImage.width, uploadedImage.height);
+                    const drawWidth = uploadedImage.width * scale;
+                    const drawHeight = uploadedImage.height * scale;
+                    
+                    if (Math.abs(canvasX - imageX) < drawWidth / 2 && 
+                        Math.abs(canvasY - imageY) < drawHeight / 2) {
+                        return 'image';
+                    }
+                }
+                
+                return null;
+            }
+            
+            // 開始拖曳或多點觸控
+            function startDragging(e) {
+                e.preventDefault();
+                
+                // 檢查是否為多點觸控
+                if (e.touches && e.touches.length === 2) {
+                    isMultiTouch = true;
+                    isDragging = false;
+                    
+                    // 檢測目標元素
+                    const touch1 = e.touches[0];
+                    const touch2 = e.touches[1];
+                    const center = getTouchCenter(touch1, touch2);
+                    dragTarget = detectDragTarget(center.x, center.y);
+                    
+                    if (dragTarget) {
+                        touchStartDistance = getDistance(touch1, touch2);
+                        touchStartAngle = getAngle(touch1, touch2);
+                        
+                        if (dragTarget === 'text') {
+                            initialScale = parseFloat(elements.fontSize.value);
+                            initialRotation = parseFloat(elements.textRotation.value);
+                        } else if (dragTarget === 'image') {
+                            initialScale = parseFloat(elements.imageSize.value);
+                            initialRotation = parseFloat(elements.imageRotation.value);
+                        }
+                        
+                        canvas.style.cursor = 'grabbing';
+                    }
+                } else {
+                    // 單點觸控或滑鼠操作
+                    isMultiTouch = false;
+                    const pos = getCanvasPosition(e, canvas);
+                    dragTarget = detectDragTarget(pos.x, pos.y);
+                    
+                    if (dragTarget) {
+                        isDragging = true;
+                        dragStartX = pos.x;
+                        dragStartY = pos.y;
+                        
+                        if (dragTarget === 'text') {
+                            initialTextX = elements.textPositionX.value;
+                            initialTextY = elements.textPositionY.value;
+                            canvas.style.cursor = 'grabbing';
+                        } else if (dragTarget === 'image') {
+                            initialImageX = elements.imagePositionX.value;
+                            initialImageY = elements.imagePositionY.value;
+                            canvas.style.cursor = 'grabbing';
+                        }
+                    }
+                }
+            }
+            
+            // 拖曳中或多點觸控
+            function doDragging(e) {
+                if ((!isDragging && !isMultiTouch) || !dragTarget) return;
+                
+                e.preventDefault();
+                const config = formats[currentFormat];
+                
+                if (isMultiTouch && e.touches && e.touches.length === 2) {
+                    // 多點觸控：縮放和旋轉
+                    const touch1 = e.touches[0];
+                    const touch2 = e.touches[1];
+                    const currentDistance = getDistance(touch1, touch2);
+                    const currentAngle = getAngle(touch1, touch2);
+                    
+                    // 計算縮放比例
+                    const scaleChange = currentDistance / touchStartDistance;
+                    
+                    // 計算旋轉變化
+                    const angleChange = (currentAngle - touchStartAngle) * 180 / Math.PI;
+                    
+                    if (dragTarget === 'text') {
+                        // 文字縮放（調整字體大小）
+                        const newSize = Math.max(16, Math.min(200, 
+                            initialScale * scaleChange
+                        ));
+                        elements.fontSize.value = Math.round(newSize);
+                        elements.fontSizeValue.textContent = Math.round(newSize) + 'px';
+                        
+                        // 文字旋轉
+                        const newRotation = Math.max(-45, Math.min(45, 
+                            initialRotation + angleChange
+                        ));
+                        elements.textRotation.value = Math.round(newRotation);
+                        elements.textRotationValue.textContent = Math.round(newRotation) + '°';
+                        
+                    } else if (dragTarget === 'image') {
+                        // 圖片縮放
+                        const newSize = Math.max(10, Math.min(200, 
+                            initialScale * scaleChange
+                        ));
+                        elements.imageSize.value = Math.round(newSize);
+                        elements.imageSizeValue.textContent = Math.round(newSize) + '%';
+                        
+                        // 圖片旋轉
+                        const newRotation = Math.max(-180, Math.min(180, 
+                            initialRotation + angleChange
+                        ));
+                        elements.imageRotation.value = Math.round(newRotation);
+                        elements.imageRotationValue.textContent = Math.round(newRotation) + '°';
+                    }
+                    
+                } else if (isDragging) {
+                    // 單點觸控：位置拖曳
+                    const pos = getCanvasPosition(e, canvas);
+                    
+                    if (dragTarget === 'text') {
+                        // 計算新的文字位置（支援水平和垂直移動）
+                        const deltaX = pos.x - dragStartX;
+                        const deltaY = pos.y - dragStartY;
+                        
+                        const newX = Math.max(10, Math.min(90,
+                            parseFloat(initialTextX) + (deltaX / config.width) * 100
+                        ));
+                        const newY = Math.max(10, Math.min(90, 
+                            parseFloat(initialTextY) + (deltaY / config.height) * 100
+                        ));
+                        
+                        elements.textPositionX.value = newX;
+                        elements.textPositionXValue.textContent = Math.round(newX) + '%';
+                        elements.textPositionY.value = newY;
+                        elements.textPositionYValue.textContent = Math.round(newY) + '%';
+                        
+                    } else if (dragTarget === 'image') {
+                        // 計算新的圖片位置
+                        const deltaX = pos.x - dragStartX;
+                        const deltaY = pos.y - dragStartY;
+                        
+                        const newX = Math.max(0, Math.min(100,
+                            parseFloat(initialImageX) + (deltaX / config.width) * 100
+                        ));
+                        const newY = Math.max(0, Math.min(100,
+                            parseFloat(initialImageY) + (deltaY / config.height) * 100
+                        ));
+                        
+                        elements.imagePositionX.value = newX;
+                        elements.imagePositionXValue.textContent = Math.round(newX) + '%';
+                        elements.imagePositionY.value = newY;
+                        elements.imagePositionYValue.textContent = Math.round(newY) + '%';
+                    }
+                }
+                
+                createFrame(currentFormat); // 即時更新預覽
+            }
+            
+            // 結束拖曳
+            function stopDragging(e) {
+                if (isDragging || isMultiTouch) {
+                    isDragging = false;
+                    isMultiTouch = false;
+                    dragTarget = null;
+                    canvas.style.cursor = 'default';
+                }
+            }
+            
+            // 滑鼠事件
+            canvas.addEventListener('mousedown', startDragging);
+            document.addEventListener('mousemove', doDragging);
+            document.addEventListener('mouseup', stopDragging);
+            
+            // 觸控事件
+            canvas.addEventListener('touchstart', startDragging, { passive: false });
+            document.addEventListener('touchmove', doDragging, { passive: false });
+            document.addEventListener('touchend', stopDragging);
+            
+            // 滑鼠懸停效果
+            canvas.addEventListener('mousemove', function(e) {
+                if (!isDragging && !isMultiTouch) {
+                    const pos = getCanvasPosition(e, canvas);
+                    const target = detectDragTarget(pos.x, pos.y);
+                    canvas.style.cursor = target ? 'grab' : 'default';
+                }
+            });
+        }
+        
+        // 設定滑桿
+        function setupSlider(sliderId, valueId, unit) {
+            const slider = document.getElementById(sliderId);
+            const valueDisplay = document.getElementById(valueId);
+            
+            slider.addEventListener('input', function() {
+                valueDisplay.textContent = this.value + unit;
+                createFrame(currentFormat);
+            });
+        }
+        
+        // 處理圖片上傳
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                handleImageFile(file);
+            }
+        }
+        
+        function handleImageFile(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('請選擇圖片檔案 (PNG, JPG)');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    uploadedImage = img;
+                    elements.imagePreview.src = e.target.result;
+                    elements.imagePreview.style.display = 'block';
+                    
+                    // 自動啟用圖片功能
+                    elements.enableImage.checked = true;
+                    elements.imageControls.style.display = 'block';
+                    
+                    createFrame(currentFormat);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // 主要的相框創建函數
         function createFrame(format) {
             const config = formats[format];
             
-            // Set canvas size
+            // 設定 canvas 尺寸
             canvas.width = config.width;
             canvas.height = config.height;
+            canvas.style.maxWidth = '100%';
+            canvas.style.height = 'auto';
+            
+            // 更新資訊顯示
             canvasInfo.textContent = `${config.width} × ${config.height} 像素`;
             
-            // Clear canvas
+            // 清除畫布
             ctx.clearRect(0, 0, config.width, config.height);
             
-            // Draw frame based on selected style
-            switch(currentStyle) {
+            // 繪製邊框
+            drawFrame(ctx, config, currentStyle);
+            
+            // 繪製圖片 (如果啟用且在文字後方)
+            if (elements.enableImage.checked && uploadedImage && elements.imageBehindText.checked) {
+                drawCustomImage(ctx, config);
+            }
+            
+            // 繪製文字
+            if (elements.enableText.checked && elements.customText.value.trim()) {
+                drawCustomText(ctx, config);
+            }
+            
+            // 繪製圖片 (如果啟用且在文字前方)
+            if (elements.enableImage.checked && uploadedImage && !elements.imageBehindText.checked) {
+                drawCustomImage(ctx, config);
+            }
+        }
+        
+        // 繪製自定義文字
+        function drawCustomText(ctx, config) {
+            const text = elements.customText.value.trim();
+            if (!text) return;
+            
+            ctx.save();
+            
+            // 計算文字位置
+            const textX = config.width * (elements.textPositionX.value / 100);
+            const textY = config.height * (elements.textPositionY.value / 100);
+            
+            // 設定字體
+            let fontFamily = elements.fontFamily.value;
+            if (fontFamily === 'cursive') {
+                fontFamily = '"Brush Script MT", "Lucida Handwriting", "Apple Chancery", cursive';
+            }
+            
+            const fontSize = parseInt(elements.fontSize.value);
+            ctx.font = `${fontSize}px ${fontFamily}`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // 文字旋轉
+            if (elements.textRotation.value != 0) {
+                ctx.translate(textX, textY);
+                ctx.rotate((elements.textRotation.value * Math.PI) / 180);
+                ctx.translate(-textX, -textY);
+            }
+            
+            // 設定陰影
+            const shadowBlur = parseInt(elements.shadowBlur.value);
+            if (shadowBlur > 0) {
+                ctx.shadowColor = elements.shadowColor.value;
+                ctx.shadowBlur = shadowBlur;
+                ctx.shadowOffsetX = 2;
+                ctx.shadowOffsetY = 2;
+            }
+            
+            // 繪製文字
+            ctx.fillStyle = elements.textColor.value;
+            
+            // 處理多行文字
+            const lines = text.split('\n');
+            const lineHeight = fontSize * 1.2;
+            const startY = textY - ((lines.length - 1) * lineHeight) / 2;
+            
+            lines.forEach((line, index) => {
+                ctx.fillText(line, textX, startY + (index * lineHeight));
+            });
+            
+            ctx.restore();
+        }
+        
+        // 繪製自定義圖片
+        function drawCustomImage(ctx, config) {
+            if (!uploadedImage) return;
+            
+            ctx.save();
+            
+            // 計算圖片位置和尺寸
+            const size = parseInt(elements.imageSize.value) / 100;
+            const opacity = parseInt(elements.imageOpacity.value) / 100;
+            const rotation = parseInt(elements.imageRotation.value);
+            const posX = (parseInt(elements.imagePositionX.value) / 100) * config.width;
+            const posY = (parseInt(elements.imagePositionY.value) / 100) * config.height;
+            
+            // 計算縮放尺寸
+            const maxSize = Math.min(config.width, config.height) * 0.8;
+            const scale = (maxSize * size) / Math.max(uploadedImage.width, uploadedImage.height);
+            const drawWidth = uploadedImage.width * scale;
+            const drawHeight = uploadedImage.height * scale;
+            
+            // 設定透明度
+            ctx.globalAlpha = opacity;
+            
+            // 移動到圖片中心並旋轉
+            ctx.translate(posX, posY);
+            if (rotation !== 0) {
+                ctx.rotate((rotation * Math.PI) / 180);
+            }
+            
+            // 繪製圖片
+            ctx.drawImage(
+                uploadedImage,
+                -drawWidth / 2,
+                -drawHeight / 2,
+                drawWidth,
+                drawHeight
+            );
+            
+            ctx.restore();
+        }
+        
+        // 繪製邊框基礎函數 (保留原有的邊框樣式)
+        function drawFrame(ctx, config, style) {
+            switch(style) {
                 case 'modern-gallery':
                     drawModernGalleryFrame(ctx, config);
                     break;
@@ -125,11 +1310,9 @@
                 default:
                     drawModernGalleryFrame(ctx, config);
             }
-            
-            // 加入草寫文字 "Johnny Be Good!" - 根據當前風格設定顏色
-            drawCursiveText(ctx, config.width, config.height, config.borderWidth, currentStyle);
         }
         
+        // 輔助函數：繪製圓角矩形
         function drawRoundedRect(ctx, x, y, width, height, radius) {
             ctx.beginPath();
             ctx.moveTo(x + radius, y);
@@ -144,100 +1327,13 @@
             ctx.closePath();
         }
         
-        function drawCursiveText(ctx, canvasWidth, canvasHeight, borderWidth, style = 'modern-gallery') {
-            ctx.save();
-            
-            // 計算文字位置 (底部中央) - 再向上調整確保文字完全顯示
-            const textY = canvasHeight - borderWidth * 1.5;
-            const textX = canvasWidth / 2;
-            
-            // 設定草寫文字樣式 - 大幅加大字體
-            const fontSize = Math.max(72, borderWidth * 2.5);
-            ctx.font = `italic ${fontSize}px "Brush Script MT", "Lucida Handwriting", "Apple Chancery", cursive`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            
-            // 根據風格設定文字顏色和效果
-            let textColor, shadowColor, strokeColor, shadowBlur, shadowOffset;
-            
-            switch(style) {
-                case 'modern-gallery':
-                    textColor = '#FFD700'; // 金色
-                    shadowColor = 'rgba(0, 0, 0, 0.5)';
-                    strokeColor = 'rgba(255, 255, 255, 0.3)';
-                    shadowBlur = 3;
-                    shadowOffset = 2;
-                    break;
-                    
-                case 'gradient-glow':
-                    textColor = '#FFFFFF'; // 白色
-                    shadowColor = 'rgba(0, 0, 0, 0.8)';
-                    strokeColor = 'rgba(0, 0, 0, 0.6)';
-                    shadowBlur = 4;
-                    shadowOffset = 2;
-                    break;
-                    
-                case 'geometric-art':
-                    textColor = '#FF6B35'; // 橙色
-                    shadowColor = 'rgba(45, 55, 72, 0.4)';
-                    strokeColor = 'rgba(255, 255, 255, 0.7)';
-                    shadowBlur = 2;
-                    shadowOffset = 1;
-                    break;
-                    
-                case 'minimal-lines':
-                    textColor = '#2D3748'; // 深灰色
-                    shadowColor = 'rgba(148, 163, 184, 0.3)';
-                    strokeColor = 'rgba(255, 255, 255, 0.5)';
-                    shadowBlur = 1;
-                    shadowOffset = 1;
-                    break;
-                    
-                case 'tech-modern':
-                    textColor = '#00D4FF'; // 亮藍色
-                    shadowColor = 'rgba(59, 130, 246, 0.6)';
-                    strokeColor = 'rgba(255, 255, 255, 0.4)';
-                    shadowBlur = 3;
-                    shadowOffset = 1;
-                    break;
-                    
-                default:
-                    textColor = '#1d4ed8';
-                    shadowColor = 'rgba(29, 78, 216, 0.3)';
-                    strokeColor = 'rgba(255, 255, 255, 0.8)';
-                    shadowBlur = 2;
-                    shadowOffset = 1;
-            }
-            
-            // 設定文字樣式
-            ctx.fillStyle = textColor;
-            
-            // 加入文字陰影效果
-            ctx.shadowColor = shadowColor;
-            ctx.shadowBlur = shadowBlur;
-            ctx.shadowOffsetX = shadowOffset;
-            ctx.shadowOffsetY = shadowOffset;
-            
-            // 繪製文字
-            ctx.fillText('Johnny Be Good!', textX, textY);
-            
-            // 加入文字外框
-            ctx.shadowColor = 'transparent';
-            ctx.strokeStyle = strokeColor;
-            ctx.lineWidth = 1.5;
-            ctx.strokeText('Johnny Be Good!', textX, textY);
-            
-            ctx.restore();
-        }
-        
-        // 現代畫廊風格 - 簡潔專業
+        // 邊框繪製函數們
         function drawModernGalleryFrame(ctx, config) {
             const borderWidth = config.borderWidth;
-            const cornerRadius = 8; // 小圓角，專業感
+            const cornerRadius = 8;
             
-            // 外邊框 - 深灰專業色
             ctx.save();
-            ctx.strokeStyle = '#1f2937'; // Gray-800
+            ctx.strokeStyle = '#1f2937';
             ctx.lineWidth = borderWidth;
             ctx.lineCap = 'round';
             
@@ -245,321 +1341,237 @@
             drawRoundedRect(ctx, margin, margin, config.width - borderWidth, config.height - borderWidth, cornerRadius);
             ctx.stroke();
             
-            // 內邊框 - 白色精緻線條
-            ctx.strokeStyle = '#f9fafb'; // Gray-50
-            ctx.lineWidth = 2;
-            const innerMargin = borderWidth - 6;
-            drawRoundedRect(ctx, innerMargin, innerMargin, config.width - 2 * innerMargin, config.height - 2 * innerMargin, cornerRadius - 2);
+            ctx.strokeStyle = '#f9fafb';
+            ctx.lineWidth = 3;
+            const innerMargin = borderWidth + 5;
+            drawRoundedRect(ctx, innerMargin, innerMargin, config.width - innerMargin * 2, config.height - innerMargin * 2, cornerRadius - 2);
             ctx.stroke();
+            
             ctx.restore();
         }
         
-        // 漸變光暈風格 - 夢幻光暈
         function drawGradientGlowFrame(ctx, config) {
             const borderWidth = config.borderWidth;
-            const cornerRadius = borderWidth * 0.6;
             
-            // 創建彩虹漸變
-            const gradient = ctx.createLinearGradient(0, 0, config.width, config.height);
-            gradient.addColorStop(0, '#ff6b6b');    // 紅
-            gradient.addColorStop(0.2, '#4ecdc4');  // 青
-            gradient.addColorStop(0.4, '#45b7d1');  // 藍
-            gradient.addColorStop(0.6, '#96ceb4');  // 綠
-            gradient.addColorStop(0.8, '#feca57');  // 黃
-            gradient.addColorStop(1, '#ff9ff3');    // 粉
-            
-            // 主邊框帶光暈
             ctx.save();
-            ctx.shadowColor = 'rgba(255, 105, 180, 0.8)';
-            ctx.shadowBlur = 20;
+            const gradient = ctx.createLinearGradient(0, 0, config.width, config.height);
+            gradient.addColorStop(0, '#667eea');
+            gradient.addColorStop(0.5, '#764ba2');
+            gradient.addColorStop(1, '#f093fb');
+            
             ctx.strokeStyle = gradient;
             ctx.lineWidth = borderWidth;
             ctx.lineCap = 'round';
             
             const margin = borderWidth / 2;
-            drawRoundedRect(ctx, margin, margin, config.width - borderWidth, config.height - borderWidth, cornerRadius);
+            drawRoundedRect(ctx, margin, margin, config.width - borderWidth, config.height - borderWidth, 12);
             ctx.stroke();
             
-            // 內光暈
-            ctx.shadowBlur = 10;
-            ctx.shadowColor = 'rgba(255, 255, 255, 0.6)';
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-            ctx.lineWidth = 3;
-            const innerMargin = borderWidth - 8;
-            drawRoundedRect(ctx, innerMargin, innerMargin, config.width - 2 * innerMargin, config.height - 2 * innerMargin, cornerRadius - 4);
+            ctx.shadowColor = 'rgba(102, 126, 234, 0.5)';
+            ctx.shadowBlur = 20;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
             ctx.stroke();
+            
             ctx.restore();
         }
         
-        // 幾何抽象風格 - 現代藝術
         function drawGeometricArtFrame(ctx, config) {
             const borderWidth = config.borderWidth;
             
-            // 主邊框
             ctx.save();
-            ctx.strokeStyle = '#2d3748';
-            ctx.lineWidth = borderWidth / 3;
+            ctx.strokeStyle = '#FF6B35';
+            ctx.lineWidth = borderWidth;
             
-            // 繪製多重幾何線條
-            for (let i = 0; i < 3; i++) {
-                const offset = i * (borderWidth / 3);
-                const lineWidth = borderWidth / 3 - 2;
-                
-                ctx.lineWidth = lineWidth;
-                ctx.strokeStyle = `hsla(${200 + i * 30}, 70%, 50%, ${0.8 - i * 0.2})`;
-                
-                drawRoundedRect(ctx, offset, offset, 
-                    config.width - 2 * offset, config.height - 2 * offset, 
-                    Math.max(0, borderWidth / 2 - i * 5));
-                ctx.stroke();
+            const margin = borderWidth / 2;
+            ctx.strokeRect(margin, margin, config.width - borderWidth, config.height - borderWidth);
+            
+            // 幾何裝飾
+            ctx.strokeStyle = '#4ECDC4';
+            ctx.lineWidth = 3;
+            const step = borderWidth * 2;
+            
+            for (let i = 0; i < 4; i++) {
+                const offset = step + (i * step);
+                ctx.strokeRect(offset, offset, config.width - (offset * 2), config.height - (offset * 2));
             }
-            
-            // 加入幾何裝飾
-            const corners = [
-                {x: borderWidth, y: borderWidth},
-                {x: config.width - borderWidth, y: borderWidth},
-                {x: borderWidth, y: config.height - borderWidth},
-                {x: config.width - borderWidth, y: config.height - borderWidth}
-            ];
-            
-            corners.forEach(corner => {
-                ctx.fillStyle = '#4299e1';
-                ctx.fillRect(corner.x - 8, corner.y - 8, 16, 16);
-                
-                ctx.fillStyle = '#ed8936';
-                ctx.beginPath();
-                ctx.arc(corner.x, corner.y, 6, 0, Math.PI * 2);
-                ctx.fill();
-            });
             
             ctx.restore();
         }
         
-        // 極簡線條風格 - 細緻線條藝術
         function drawMinimalLinesFrame(ctx, config) {
             const borderWidth = config.borderWidth;
             
             ctx.save();
-            ctx.lineCap = 'round';
-            
-            // 外層細線
-            ctx.strokeStyle = '#374151';
-            ctx.lineWidth = 2;
-            drawRoundedRect(ctx, 2, 2, config.width - 4, config.height - 4, 16);
-            ctx.stroke();
-            
-            // 中層線條
-            ctx.strokeStyle = '#6b7280';
-            ctx.lineWidth = 1;
-            drawRoundedRect(ctx, borderWidth/2, borderWidth/2, 
-                config.width - borderWidth, config.height - borderWidth, 12);
-            ctx.stroke();
-            
-            // 內層精緻線
-            ctx.strokeStyle = '#9ca3af';
-            ctx.lineWidth = 0.5;
-            drawRoundedRect(ctx, borderWidth - 4, borderWidth - 4, 
-                config.width - 2 * (borderWidth - 4), config.height - 2 * (borderWidth - 4), 8);
-            ctx.stroke();
-            
-            // 四個角落的線條裝飾
-            const lineLength = borderWidth / 2;
-            ctx.strokeStyle = '#4f46e5';
+            ctx.strokeStyle = '#2D3748';
             ctx.lineWidth = 2;
             
+            const margin = borderWidth;
+            const lineLength = 60;
+            
+            // 四個角的線條
             // 左上角
             ctx.beginPath();
-            ctx.moveTo(borderWidth, borderWidth + lineLength);
-            ctx.lineTo(borderWidth, borderWidth);
-            ctx.lineTo(borderWidth + lineLength, borderWidth);
+            ctx.moveTo(margin, margin + lineLength);
+            ctx.lineTo(margin, margin);
+            ctx.lineTo(margin + lineLength, margin);
             ctx.stroke();
             
             // 右上角
             ctx.beginPath();
-            ctx.moveTo(config.width - borderWidth - lineLength, borderWidth);
-            ctx.lineTo(config.width - borderWidth, borderWidth);
-            ctx.lineTo(config.width - borderWidth, borderWidth + lineLength);
-            ctx.stroke();
-            
-            // 左下角
-            ctx.beginPath();
-            ctx.moveTo(borderWidth, config.height - borderWidth - lineLength);
-            ctx.lineTo(borderWidth, config.height - borderWidth);
-            ctx.lineTo(borderWidth + lineLength, config.height - borderWidth);
+            ctx.moveTo(config.width - margin - lineLength, margin);
+            ctx.lineTo(config.width - margin, margin);
+            ctx.lineTo(config.width - margin, margin + lineLength);
             ctx.stroke();
             
             // 右下角
             ctx.beginPath();
-            ctx.moveTo(config.width - borderWidth - lineLength, config.height - borderWidth);
-            ctx.lineTo(config.width - borderWidth, config.height - borderWidth);
-            ctx.lineTo(config.width - borderWidth, config.height - borderWidth - lineLength);
+            ctx.moveTo(config.width - margin, config.height - margin - lineLength);
+            ctx.lineTo(config.width - margin, config.height - margin);
+            ctx.lineTo(config.width - margin - lineLength, config.height - margin);
+            ctx.stroke();
+            
+            // 左下角
+            ctx.beginPath();
+            ctx.moveTo(margin + lineLength, config.height - margin);
+            ctx.lineTo(margin, config.height - margin);
+            ctx.lineTo(margin, config.height - margin - lineLength);
             ctx.stroke();
             
             ctx.restore();
         }
         
-        // 科技現代風格 - 未來感設計
         function drawTechModernFrame(ctx, config) {
             const borderWidth = config.borderWidth;
             
-            // 主邊框 - 科技藍
             ctx.save();
-            const techGradient = ctx.createLinearGradient(0, 0, config.width, config.height);
-            techGradient.addColorStop(0, '#0ea5e9');    // Sky-500
-            techGradient.addColorStop(0.5, '#3b82f6');  // Blue-500  
-            techGradient.addColorStop(1, '#8b5cf6');    // Violet-500
             
-            ctx.strokeStyle = techGradient;
+            // 主邊框
+            const gradient = ctx.createLinearGradient(0, 0, config.width, 0);
+            gradient.addColorStop(0, '#00D4FF');
+            gradient.addColorStop(0.5, '#3B82F6');
+            gradient.addColorStop(1, '#8B5CF6');
+            
+            ctx.strokeStyle = gradient;
             ctx.lineWidth = borderWidth;
             ctx.lineCap = 'round';
             
             const margin = borderWidth / 2;
-            drawRoundedRect(ctx, margin, margin, config.width - borderWidth, config.height - borderWidth, 24);
-            ctx.stroke();
+            ctx.strokeRect(margin, margin, config.width - borderWidth, config.height - borderWidth);
             
-            // 內發光效果
-            ctx.shadowColor = '#3b82f6';
-            ctx.shadowBlur = 15;
-            ctx.shadowOffsetX = 0;
-            ctx.shadowOffsetY = 0;
-            ctx.strokeStyle = 'rgba(59, 130, 246, 0.3)';
-            ctx.lineWidth = 4;
-            const innerMargin = borderWidth - 8;
-            drawRoundedRect(ctx, innerMargin, innerMargin, 
-                config.width - 2 * innerMargin, config.height - 2 * innerMargin, 20);
-            ctx.stroke();
-            
-            // 科技裝飾線條
-            ctx.shadowBlur = 0;
-            ctx.strokeStyle = '#06b6d4'; // Cyan-500
+            // 內部科技線條
+            ctx.strokeStyle = '#00D4FF';
             ctx.lineWidth = 2;
             
-            // 四個角落的科技裝飾
-            const decorSize = borderWidth / 3;
-            const positions = [
-                {x: borderWidth * 1.5, y: borderWidth * 1.5},
-                {x: config.width - borderWidth * 1.5, y: borderWidth * 1.5},
-                {x: borderWidth * 1.5, y: config.height - borderWidth * 1.5},
-                {x: config.width - borderWidth * 1.5, y: config.height - borderWidth * 1.5}
-            ];
+            const innerMargin = borderWidth + 10;
+            const stepSize = 30;
             
-            positions.forEach((pos, index) => {
-                ctx.save();
-                ctx.translate(pos.x, pos.y);
-                ctx.rotate((index * Math.PI) / 2);
-                
-                // 繪製科技裝飾圖案
+            // 水平線條
+            for (let y = innerMargin; y < config.height - innerMargin; y += stepSize) {
                 ctx.beginPath();
-                ctx.moveTo(-decorSize, 0);
-                ctx.lineTo(decorSize, 0);
-                ctx.moveTo(0, -decorSize);
-                ctx.lineTo(0, decorSize);
-                ctx.moveTo(-decorSize/2, -decorSize/2);
-                ctx.lineTo(decorSize/2, decorSize/2);
-                ctx.moveTo(-decorSize/2, decorSize/2);
-                ctx.lineTo(decorSize/2, -decorSize/2);
+                ctx.moveTo(innerMargin, y);
+                ctx.lineTo(innerMargin + 20, y);
                 ctx.stroke();
                 
-                ctx.restore();
-            });
+                ctx.beginPath();
+                ctx.moveTo(config.width - innerMargin - 20, y);
+                ctx.lineTo(config.width - innerMargin, y);
+                ctx.stroke();
+            }
             
             ctx.restore();
         }
         
-        function switchFormat(format) {
-            currentFormat = format;
-            
-            // Update button states
-            document.querySelectorAll('.format-btn[data-format]').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.format === format);
-            });
-            
-            createFrame(format);
-        }
-        
-        function switchStyle(style) {
-            currentStyle = style;
-            
-            // Update button states
-            document.querySelectorAll('.format-btn[data-style]').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.style === style);
-            });
-            
-            createFrame(currentFormat);
-        }
-        
+        // 下載功能
         function downloadFrame() {
-            const config = formats[currentFormat];
-            const filename = `frame_${currentFormat}_${currentStyle}_${config.width}x${config.height}.png`;
+            const format = formats[currentFormat];
+            const filename = `custom_frame_${currentFormat}_${format.width}x${format.height}.png`;
             
-            canvas.toBlob(blob => {
+            canvas.toBlob(function(blob) {
                 const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = filename;
-                link.style.display = 'none';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
                 URL.revokeObjectURL(url);
-            }, 'image/png', 1.0);
+            }, 'image/png');
         }
         
-        async function downloadAllFrames() {
+        function downloadAllFrames() {
             const originalFormat = currentFormat;
-            const originalStyle = currentStyle;
+            const formatKeys = Object.keys(formats);
+            let downloadCount = 0;
             
-            const styles = ['modern-gallery', 'gradient-glow', 'geometric-art', 'minimal-lines', 'tech-modern'];
-            
-            for (const [format, config] of Object.entries(formats)) {
-                for (const style of styles) {
-                    // Switch to specific format and style
+            function downloadNext() {
+                if (downloadCount < formatKeys.length) {
+                    const format = formatKeys[downloadCount];
                     currentFormat = format;
-                    currentStyle = style;
                     createFrame(format);
                     
-                    // Wait a bit for rendering
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                    
-                    const filename = `frame_${format}_${style}_${config.width}x${config.height}.png`;
-                    
-                    canvas.toBlob(blob => {
-                        const url = URL.createObjectURL(blob);
-                        const link = document.createElement('a');
-                        link.href = url;
-                        link.download = filename;
-                        link.style.display = 'none';
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                        URL.revokeObjectURL(url);
-                    }, 'image/png', 1.0);
-                    
-                    await new Promise(resolve => setTimeout(resolve, 300));
+                    setTimeout(() => {
+                        const config = formats[format];
+                        const filename = `custom_frame_${format}_${config.width}x${config.height}.png`;
+                        
+                        canvas.toBlob(function(blob) {
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = filename;
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                            URL.revokeObjectURL(url);
+                            
+                            downloadCount++;
+                            downloadNext();
+                        }, 'image/png');
+                    }, 100);
+                } else {
+                    // 恢復原始格式
+                    currentFormat = originalFormat;
+                    createFrame(originalFormat);
                 }
             }
             
-            // Restore original format and style
-            switchFormat(originalFormat);
-            switchStyle(originalStyle);
+            downloadNext();
         }
         
-        // Setup event listeners
-        document.querySelectorAll('.format-btn[data-format]').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                switchFormat(e.target.dataset.format);
-            });
-        });
-        
-        // Style selector event listeners
-        document.querySelectorAll('.format-btn[data-style]').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                switchStyle(e.target.dataset.style);
-            });
-        });
-        
-        // Initialize
-        createFrame(currentFormat);
+        function resetAll() {
+            // 重置所有控制項
+            elements.enableText.checked = true;
+            elements.customText.value = '';
+            elements.fontFamily.value = 'cursive';
+            elements.fontSize.value = 72;
+            elements.fontSizeValue.textContent = '72px';
+            elements.textColor.value = '#FFD700';
+            elements.shadowColor.value = '#000000';
+            elements.shadowBlur.value = 3;
+            elements.shadowBlurValue.textContent = '3px';
+            elements.textRotation.value = 0;
+            elements.textRotationValue.textContent = '0°';
+            elements.textPositionY.value = 85;
+            elements.textPositionYValue.textContent = '85%';
+            
+            elements.enableImage.checked = false;
+            elements.imageControls.style.display = 'none';
+            elements.imagePreview.style.display = 'none';
+            elements.imageSize.value = 100;
+            elements.imageSizeValue.textContent = '100%';
+            elements.imageOpacity.value = 100;
+            elements.imageOpacityValue.textContent = '100%';
+            elements.imageRotation.value = 0;
+            elements.imageRotationValue.textContent = '0°';
+            elements.imagePositionX.value = 50;
+            elements.imagePositionXValue.textContent = '50%';
+            elements.imagePositionY.value = 20;
+            elements.imagePositionYValue.textContent = '20%';
+            elements.imageBehindText.checked = false;
+            
+            uploadedImage = null;
+            createFrame(currentFormat);
+        }
     </script>
 </body>
 </html>

@@ -1122,16 +1122,67 @@ body {
         margin-bottom: var(--space-4);
     }
     
+    .format-selector {
+        position: relative; /* 為漸層遮罩提供定位基準 */
+    }
+    
     .format-buttons {
-        gap: var(--space-3);
+        gap: var(--space-2);
+        padding: var(--space-2) var(--space-4);
+        justify-content: flex-start;
+    }
+    
+    /* 左側漸層遮罩 - 固定在容器左邊 */
+    .format-selector::before {
+        content: '';
+        position: absolute;
+        left: var(--space-4);
+        top: 0;
+        bottom: 0;
+        width: 24px;
+        background: linear-gradient(to right, 
+            rgba(244, 241, 234, 0.95), 
+            rgba(244, 241, 234, 0.7),
+            rgba(244, 241, 234, 0.3),
+            transparent
+        );
+        pointer-events: none;
+        z-index: 2;
+    }
+    
+    /* 右側漸層遮罩 - 固定在容器右邊 */
+    .format-selector::after {
+        content: '';
+        position: absolute;
+        right: var(--space-4);
+        top: 0;
+        bottom: 0;
+        width: 24px;
+        background: linear-gradient(to left, 
+            rgba(244, 241, 234, 0.95), 
+            rgba(244, 241, 234, 0.7),
+            rgba(244, 241, 234, 0.3),
+            transparent
+        );
+        pointer-events: none;
+        z-index: 2;
     }
     
     .format-btn {
-        min-width: 70px;
-        width: 70px;
+        min-width: 75px;
+        width: 75px;
         min-height: 70px;
         height: 70px;
-        padding: var(--space-2);
+        padding: var(--space-1);
+        flex-shrink: 0;
+    }
+    
+    .format-btn:first-child {
+        margin-left: var(--space-2);
+    }
+    
+    .format-btn:last-child {
+        margin-right: var(--space-2);
     }
     
     .format-icon .icon {
@@ -1140,7 +1191,9 @@ body {
     }
     
     .format-text {
-        font-size: 0.6875rem;
+        font-size: 0.7rem;
+        line-height: 1.1;
+        font-weight: 600;
     }
     
     .format-desc {
@@ -1161,6 +1214,28 @@ body {
     
     .btn-icon {
         font-size: 1.1rem;
+    }
+}
+
+/* 中等寬度螢幕：按鈕居中顯示，無需滑動 */
+@media (min-width: 480px) and (max-width: 767px) {
+    .format-buttons {
+        justify-content: center;
+        overflow-x: visible;
+        padding: var(--space-2) var(--space-4);
+    }
+    
+    .format-selector::before,
+    .format-selector::after {
+        display: none; /* 隱藏漸層遮罩 */
+    }
+    
+    .format-btn:first-child {
+        margin-left: 0;
+    }
+    
+    .format-btn:last-child {
+        margin-right: 0;
     }
 }
 
@@ -1194,6 +1269,13 @@ body {
     
     .format-buttons {
         gap: var(--space-6);
+        justify-content: center;
+        overflow-x: visible;
+    }
+    
+    .format-selector::before,
+    .format-selector::after {
+        display: none; /* 桌面版隱藏漸層遮罩 */
     }
     
     .format-btn {

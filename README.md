@@ -47,6 +47,33 @@ A mobile-first web application for adding decorative frames to photos with touch
 - **Story (1080×1920)**: Great for Instagram Stories, TikTok, Facebook Stories
 - **Smart Recommendations**: Platform-specific sharing suggestions
 
+### 🎨 **Custom Frame Generator** (NEW!)
+- **Text Customization**: Full control over custom text with 8 adjustment dimensions
+  - Font family selection (cursive, serif, sans-serif, monospace, fantasy)
+  - Font size (16-200px with real-time preview)
+  - Color picker with preset color palette
+  - Text rotation (-45° to 45°)
+  - Vertical positioning (10%-90%)
+  - Shadow effects with blur and color controls
+  - Multi-line text support with line breaks
+- **Image Composition**: Complete image upload and layering system
+  - Drag & drop image upload (PNG, JPG support)
+  - Size control (10%-200% scaling)
+  - Opacity adjustment (0%-100% transparency)
+  - Rotation control (-180° to 180°)
+  - Precise positioning (0%-100% X/Y coordinates)
+  - Layer order control (behind/in front of text)
+- **Canvas Direct Dragging**: 🎯 Revolutionary direct manipulation
+  - **Single Touch/Click**: Drag text/images freely on canvas (horizontal + vertical)
+  - **Multi-touch Gestures**: Two-finger pinch-to-zoom and rotate for precise control
+  - **Visual cursor feedback**: Smart grab/grabbing states during interaction
+  - **Real-time synchronization**: Instant slider updates during direct manipulation
+  - **Smart collision detection**: Accurate element selection and targeting
+  - **Advanced Controls**: Text font size scaling + rotation, Image size scaling + rotation
+- **Batch Export**: Download all formats simultaneously
+- **Modern Interface**: Responsive design with gradient backgrounds
+- **Real-time Preview**: Instant visual feedback for all adjustments
+
 ### 🔗 **Advanced Sharing**
 - **Native Web Share API**: Seamless mobile sharing experience
 - **Multi-platform Support**: Instagram, TikTok, Facebook optimized
@@ -83,7 +110,7 @@ A mobile-first web application for adding decorative frames to photos with touch
 ├── johnny-be-good.html               # Johnny Be Good theme photo tool
 ├── christmas.html                    # Christmas Magic theme photo tool  
 ├── create_frame_canvas.html          # Single frame generator
-├── create_multi_frames.html          # Multi-format frame generator
+├── create_multi_frames.html          # 🎨 Custom Frame Generator (NEW!)
 └── create_christmas_frames.html      # Christmas frame generator
 ```
 
@@ -132,6 +159,25 @@ A mobile-first web application for adding decorative frames to photos with touch
    - P for precision panel
    - Space to reset
 4. **Precision Panel**: Use sliders and micro-adjustment buttons for exact control
+
+### 🎨 **Custom Frame Generator Usage**
+1. **Access**: Open `create_multi_frames.html` in your browser
+2. **Format Selection**: Choose output format (Square/Portrait/Story)
+3. **Frame Style**: Select from 5 artistic frame styles
+4. **Add Text**: 
+   - Check "啟用文字" to enable text features
+   - Enter custom text in the textarea
+   - Adjust font, size, color, rotation, and position
+   - **Direct Dragging**: Click and drag text freely on canvas (horizontal + vertical)
+   - **Multi-touch Control**: Two-finger pinch to resize text, twist to rotate
+5. **Add Images**:
+   - Check "啟用圖片" to enable image features  
+   - Upload PNG/JPG images via click or drag & drop
+   - Control size, opacity, rotation, and position
+   - **Direct Dragging**: Click and drag images freely on canvas
+   - **Multi-touch Control**: Two-finger pinch to scale, twist to rotate images
+   - Set layer order (behind/in front of text)
+6. **Export**: Download current format or use "下載所有格式" for batch export
 
 ### 🎯 **Pro Tips**
 - **First Time**: Follow the gesture hints that appear after uploading
