@@ -1480,24 +1480,17 @@ class PhotoFrameApp {
         
         // 檢測點擊位置是否在自定義元素範圍內
         const detectDragTarget = (canvasX, canvasY) => {
-            // 檢測文字區域
-            if (this.customState.text.enabled && this.customState.text.visible && 
-                this.customState.text.content.trim()) {
-                const textX = this.canvas.width * (this.customState.text.positionX / 100);
-                const textY = this.canvas.height * (this.customState.text.positionY / 100);
-                const fontSize = this.customState.text.fontSize;
-                
-                // 簡單的矩形區域檢測 (實際應該更精確)
-                const textWidth = this.customState.text.content.length * fontSize * 0.6;
-                const textHeight = fontSize * 1.2;
-                
-                if (canvasX >= textX - textWidth/2 && canvasX <= textX + textWidth/2 &&
-                    canvasY >= textY - textHeight/2 && canvasY <= textY + textHeight/2) {
-                    return 'text';
-                }
-            }
+            console.log('🔍 開始檢測拖拽目標');
+            console.log('📊 自定義狀態:', {
+                textEnabled: this.customState.text.enabled,
+                textVisible: this.customState.text.visible,
+                textContent: this.customState.text.content,
+                imageEnabled: this.customState.image.enabled,
+                imageVisible: this.customState.image.visible,
+                hasImageData: !!this.customState.image.data
+            });
             
-            // 檢測圖片區域
+            // 檢測圖片區域 (優先檢測圖片，因為通常在上層)
             if (this.customState.image.enabled && this.customState.image.visible && 
                 this.customState.image.data) {
                 const imageX = this.canvas.width * (this.customState.image.positionX / 100);
@@ -1509,28 +1502,73 @@ class PhotoFrameApp {
                 const drawWidth = this.customState.image.data.width * scale;
                 const drawHeight = this.customState.image.data.height * scale;
                 
+                console.log('🖼️ 圖片檢測範圍:', {
+                    imageX, imageY, drawWidth, drawHeight,
+                    left: imageX - drawWidth/2,
+                    right: imageX + drawWidth/2,
+                    top: imageY - drawHeight/2,
+                    bottom: imageY + drawHeight/2
+                });
+                
                 if (canvasX >= imageX - drawWidth/2 && canvasX <= imageX + drawWidth/2 &&
                     canvasY >= imageY - drawHeight/2 && canvasY <= imageY + drawHeight/2) {
+                    console.log('✅ 檢測到圖片區域');
                     return 'image';
                 }
             }
             
+            // 檢測文字區域
+            if (this.customState.text.enabled && this.customState.text.visible && 
+                this.customState.text.content.trim()) {
+                const textX = this.canvas.width * (this.customState.text.positionX / 100);
+                const textY = this.canvas.height * (this.customState.text.positionY / 100);
+                const fontSize = this.customState.text.fontSize;
+                
+                // 簡單的矩形區域檢測 (實際應該更精確)
+                const textWidth = this.customState.text.content.length * fontSize * 0.6;
+                const textHeight = fontSize * 1.2;
+                
+                console.log('📝 文字檢測範圍:', {
+                    textX, textY, textWidth, textHeight,
+                    left: textX - textWidth/2,
+                    right: textX + textWidth/2,
+                    top: textY - textHeight/2,
+                    bottom: textY + textHeight/2
+                });
+                
+                if (canvasX >= textX - textWidth/2 && canvasX <= textX + textWidth/2 &&
+                    canvasY >= textY - textHeight/2 && canvasY <= textY + textHeight/2) {
+                    console.log('✅ 檢測到文字區域');
+                    return 'text';
+                }
+            }
+            
+            console.log('❌ 未檢測到任何自定義元素');
             return null;
         };
         
         // 開始拖拽
         const startDragging = (e) => {
+            console.log('🎯 自定義拖拽 startDragging 被觸發');
+            
             // 只有在自定義面板關閉時才允許拖拽
             if (this.customPanel && this.customPanel.classList.contains('active')) {
+                console.log('❌ 自定義面板開啟中，忽略拖拽');
                 return;
             }
             
             const pos = getCanvasPosition(e);
+            console.log('📍 點擊位置:', pos.x, pos.y);
+            
             const target = detectDragTarget(pos.x, pos.y);
+            console.log('🎯 檢測到的目標:', target);
             
             if (target) {
+                console.log('✅ 開始拖拽自定義元素:', target);
                 e.preventDefault();
                 e.stopPropagation(); // 阻止事件冒泡到手勢處理器
+                e.stopImmediatePropagation(); // 阻止同級事件監聽器
+                
                 isDragging = true;
                 dragTarget = target;
                 dragStartX = pos.x;
@@ -1539,6 +1577,7 @@ class PhotoFrameApp {
                 // 暫時禁用手勢處理器以避免衝突
                 if (this.gestureHandler) {
                     this.gestureHandler.disable();
+                    console.log('🚫 暫時禁用手勢處理器');
                 }
                 
                 // 保存初始值
@@ -1556,6 +1595,8 @@ class PhotoFrameApp {
                 
                 this.canvas.style.cursor = 'grabbing';
                 return true; // 表示已處理事件
+            } else {
+                console.log('❌ 未檢測到自定義元素，允許手勢處理器處理');
             }
             return false; // 表示未處理事件，可讓其他處理器處理
         };
