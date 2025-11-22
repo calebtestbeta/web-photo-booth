@@ -1469,8 +1469,19 @@ class PhotoFrameApp {
         // 取得滑鼠/觸控位置相對於畫布的座標
         const getCanvasPosition = (e) => {
             const rect = this.canvas.getBoundingClientRect();
-            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            let clientX, clientY;
+            
+            // 優先處理觸控事件的座標獲取
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else if (e.changedTouches && e.changedTouches.length > 0) {
+                clientX = e.changedTouches[0].clientX;
+                clientY = e.changedTouches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
             
             return {
                 x: (clientX - rect.left) * (this.canvas.width / rect.width),
@@ -1522,16 +1533,23 @@ class PhotoFrameApp {
         const startDragging = (e) => {
             // 只有在自定義面板關閉時才允許拖拽
             if (this.customPanel && this.customPanel.classList.contains('active')) {
-                return;
+                return false;
             }
             
             const pos = getCanvasPosition(e);
             const target = detectDragTarget(pos.x, pos.y);
             
+            console.log('📱 拖拽檢測:', {
+                eventType: e.type,
+                position: pos,
+                target: target,
+                touchCount: e.touches ? e.touches.length : 0
+            });
+            
             if (target) {
                 e.preventDefault();
-                e.stopPropagation(); // 阻止事件冒泡到手勢處理器
-                e.stopImmediatePropagation(); // 阻止同級事件監聽器
+                e.stopPropagation();
+                e.stopImmediatePropagation();
                 
                 isDragging = true;
                 dragTarget = target;
@@ -1557,8 +1575,10 @@ class PhotoFrameApp {
                 }
                 
                 this.canvas.style.cursor = 'grabbing';
+                console.log('✅ 自定義元素拖拽開始:', target);
                 return true; // 表示已處理事件
             }
+            
             return false; // 表示未處理事件，可讓其他處理器處理
         };
         
@@ -1641,15 +1661,51 @@ class PhotoFrameApp {
             }
         };
         
-        // 事件監聽器 - 使用 capture: true 確保優先處理自定義元素
+        // 先移除手勢處理器的觸控事件監聽器，然後重新註冊我們的優先處理器
+        // 這樣確保我們的自定義元素拖拽有最高優先權
+        
+        // 保存原始的手勢處理器事件
+        const originalTouchStart = this.gestureHandler.canvas.ontouchstart;
+        const originalTouchMove = this.gestureHandler.canvas.ontouchmove;
+        const originalTouchEnd = this.gestureHandler.canvas.ontouchend;
+        
+        // 事件監聽器 - 滑鼠事件使用 capture
         this.canvas.addEventListener('mousedown', startDragging, { capture: true });
-        this.canvas.addEventListener('touchstart', startDragging, { passive: false, capture: true });
         this.canvas.addEventListener('mousemove', handleMouseMove);
         
+        // 觸控事件 - 在 pointerdown 之前處理
+        this.canvas.addEventListener('pointerdown', (e) => {
+            // 只處理觸控事件
+            if (e.pointerType === 'touch') {
+                const pos = getCanvasPosition(e);
+                const target = detectDragTarget(pos.x, pos.y);
+                
+                console.log('🎯 Pointer 事件檢測:', {
+                    pointerType: e.pointerType,
+                    position: pos,
+                    target: target
+                });
+                
+                if (target) {
+                    console.log('✋ 攔截 pointer 事件，啟動自定義拖拽');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    
+                    // 手動觸發我們的 startDragging
+                    startDragging(e);
+                    return;
+                }
+            }
+        }, { capture: true });
+        
+        // 其他事件正常處理
         document.addEventListener('mousemove', doDragging);
         document.addEventListener('touchmove', doDragging, { passive: false });
+        document.addEventListener('pointermove', doDragging);
         document.addEventListener('mouseup', stopDragging);
         document.addEventListener('touchend', stopDragging);
+        document.addEventListener('pointerup', stopDragging);
     }
     
 }
