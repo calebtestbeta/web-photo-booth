@@ -884,6 +884,7 @@
             document.addEventListener('keydown', function(e) {
                 if (e.altKey) {
                     isAltPressed = true;
+                    console.log('Alt 鍵按下，isAltPressed:', isAltPressed);
                     updateCornerVisuals();
                 }
             });
@@ -891,6 +892,7 @@
             document.addEventListener('keyup', function(e) {
                 if (!e.altKey) {
                     isAltPressed = false;
+                    console.log('Alt 鍵釋放，isAltPressed:', isAltPressed);
                     updateCornerVisuals();
                 }
             });
@@ -941,8 +943,35 @@
                     const textX = config.width * (elements.textPositionX.value / 100);
                     const textY = config.height * (elements.textPositionY.value / 100);
                     const fontSize = parseInt(elements.fontSize.value);
-                    const textWidth = elements.customText.value.length * fontSize * 0.6;
-                    const textHeight = fontSize;
+                    const text = elements.customText.value.trim();
+                    
+                    // 使用和 drawTextBoundingBox 相同的計算邏輯
+                    ctx.save();
+                    let fontFamily = elements.fontFamily.value;
+                    if (fontFamily === 'cursive') {
+                        fontFamily = '"Brush Script MT", "Lucida Handwriting", "Apple Chancery", cursive';
+                    }
+                    ctx.font = `${fontSize}px ${fontFamily}`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    
+                    // 計算多行文字的總尺寸
+                    const lines = text.split('\n');
+                    const lineHeight = fontSize * 1.2;
+                    let maxWidth = 0;
+                    
+                    lines.forEach(line => {
+                        const metrics = ctx.measureText(line);
+                        maxWidth = Math.max(maxWidth, metrics.width);
+                    });
+                    
+                    const totalHeight = lines.length * lineHeight;
+                    const padding = fontSize * 0.1;
+                    
+                    const textWidth = maxWidth + (padding * 2);
+                    const textHeight = totalHeight + (padding * 2);
+                    
+                    ctx.restore();
                     
                     return {
                         centerX: textX,
@@ -1055,7 +1084,9 @@
                 
                 corners.forEach(corner => {
                     // 繪製控制點背景
-                    ctx.fillStyle = isAltPressed ? '#ff6b35' : '#007bff';
+                    const fillColor = isAltPressed ? '#ff6b35' : '#007bff';
+                    console.log(`繪製控制點 ${corner.id}，isAltPressed: ${isAltPressed}，顏色: ${fillColor}`);
+                    ctx.fillStyle = fillColor;
                     ctx.beginPath();
                     ctx.arc(corner.x, corner.y, handleSize, 0, 2 * Math.PI);
                     ctx.fill();
@@ -1134,31 +1165,69 @@
             
             // 繪製旋轉箭頭
             function drawRotationArrow(x, y, cornerId) {
-                const radius = 4;
-                const startAngle = Math.PI * 0.2;
-                const endAngle = Math.PI * 1.8;
+                const radius = 4.5;
+                const arrowSize = 2.5;
                 
+                ctx.save();
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 1.8;
+                ctx.lineCap = 'round';
+                
+                // 繪製雙弧形旋轉箭頭 (↻ 符號風格)
+                // macOS 優化：更粗的線條和更大的箭頭
+                if (navigator.platform.includes('Mac')) {
+                    ctx.lineWidth = 2.2;
+                    ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+                    ctx.shadowBlur = 1;
+                }
+                
+                // 第一個弧形箭頭 (上半部)
                 ctx.beginPath();
-                ctx.arc(x, y, radius, startAngle, endAngle);
+                ctx.arc(x, y, radius, -Math.PI * 0.7, -Math.PI * 0.1);
                 ctx.stroke();
                 
-                // 箭頭頭部
-                const arrowX = x + radius * Math.cos(endAngle);
-                const arrowY = y + radius * Math.sin(endAngle);
-                const arrowAngle = endAngle + Math.PI / 2;
+                // 上弧形的箭頭頭
+                const topArrowX = x + radius * Math.cos(-Math.PI * 0.1);
+                const topArrowY = y + radius * Math.sin(-Math.PI * 0.1);
+                const topArrowAngle = -Math.PI * 0.1 + Math.PI / 2;
                 
                 ctx.beginPath();
-                ctx.moveTo(arrowX, arrowY);
+                ctx.moveTo(topArrowX, topArrowY);
                 ctx.lineTo(
-                    arrowX + 3 * Math.cos(arrowAngle + 0.5),
-                    arrowY + 3 * Math.sin(arrowAngle + 0.5)
+                    topArrowX + arrowSize * Math.cos(topArrowAngle + 0.6),
+                    topArrowY + arrowSize * Math.sin(topArrowAngle + 0.6)
                 );
-                ctx.moveTo(arrowX, arrowY);
+                ctx.moveTo(topArrowX, topArrowY);
                 ctx.lineTo(
-                    arrowX + 3 * Math.cos(arrowAngle - 0.5),
-                    arrowY + 3 * Math.sin(arrowAngle - 0.5)
+                    topArrowX + arrowSize * Math.cos(topArrowAngle - 0.6),
+                    topArrowY + arrowSize * Math.sin(topArrowAngle - 0.6)
                 );
                 ctx.stroke();
+                
+                // 第二個弧形箭頭 (下半部)
+                ctx.beginPath();
+                ctx.arc(x, y, radius, Math.PI * 0.1, Math.PI * 0.7);
+                ctx.stroke();
+                
+                // 下弧形的箭頭頭
+                const bottomArrowX = x + radius * Math.cos(Math.PI * 0.7);
+                const bottomArrowY = y + radius * Math.sin(Math.PI * 0.7);
+                const bottomArrowAngle = Math.PI * 0.7 + Math.PI / 2;
+                
+                ctx.beginPath();
+                ctx.moveTo(bottomArrowX, bottomArrowY);
+                ctx.lineTo(
+                    bottomArrowX + arrowSize * Math.cos(bottomArrowAngle + 0.6),
+                    bottomArrowY + arrowSize * Math.sin(bottomArrowAngle + 0.6)
+                );
+                ctx.moveTo(bottomArrowX, bottomArrowY);
+                ctx.lineTo(
+                    bottomArrowX + arrowSize * Math.cos(bottomArrowAngle - 0.6),
+                    bottomArrowY + arrowSize * Math.sin(bottomArrowAngle - 0.6)
+                );
+                ctx.stroke();
+                
+                ctx.restore();
             }
             
             // 更新角落視覺效果
@@ -1528,7 +1597,8 @@
                         if (target.type === 'corner') {
                             // 角落控制點懸停游標
                             if (isAltPressed) {
-                                canvas.style.cursor = 'grab'; // 旋轉模式
+                                // macOS 優化：使用更明顯的旋轉游標
+                                canvas.style.cursor = navigator.platform.includes('Mac') ? 'alias' : 'crosshair';
                             } else {
                                 // 調整大小模式
                                 const cursorMap = {
@@ -1538,7 +1608,12 @@
                                 canvas.style.cursor = cursorMap[target.corner];
                             }
                         } else {
-                            canvas.style.cursor = 'grab'; // 元素本身
+                            // 元素本身
+                            if (isAltPressed) {
+                                canvas.style.cursor = navigator.platform.includes('Mac') ? 'alias' : 'crosshair';
+                            } else {
+                                canvas.style.cursor = 'grab';
+                            }
                         }
                     } else {
                         canvas.style.cursor = 'default';
@@ -1625,9 +1700,10 @@
                 drawCustomImage(ctx, config);
             }
             
-            // 繪製角落控制點 (僅在桌面版且有元素時)
+            // 繪製預覽輔助線和控制點 (僅在桌面版且有元素時，不包含在匯出中)
             if (window.innerWidth >= 768) { // 桌面版
                 if (elements.enableText.checked && elements.customText.value.trim()) {
+                    drawTextBoundingBox(config);  // 文字虛線邊界框
                     drawCornerHandles('text');
                 }
                 if (elements.enableImage.checked && uploadedImage) {
@@ -1922,10 +1998,13 @@
             ctx.restore();
         }
         
-        // 下載功能
+        // 下載功能 (不包含預覽輔助線和控制點)
         function downloadFrame() {
             const format = formats[currentFormat];
             const filename = `custom_frame_${currentFormat}_${format.width}x${format.height}.png`;
+            
+            // 重新繪製純淨版本 (不含預覽輔助元素)
+            createCleanFrame(currentFormat);
             
             canvas.toBlob(function(blob) {
                 const url = URL.createObjectURL(blob);
@@ -1936,7 +2015,44 @@
                 a.click();
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
+                
+                // 恢復預覽版本 (含輔助元素)
+                createFrame(currentFormat);
             }, 'image/png');
+        }
+        
+        // 創建純淨版本的相框 (不含預覽輔助元素)
+        function createCleanFrame(format) {
+            const config = formats[format];
+            
+            // 設定 canvas 尺寸
+            canvas.width = config.width;
+            canvas.height = config.height;
+            canvas.style.maxWidth = '100%';
+            canvas.style.height = 'auto';
+            
+            // 清除畫布
+            ctx.clearRect(0, 0, config.width, config.height);
+            
+            // 繪製邊框
+            drawFrame(ctx, config, currentStyle);
+            
+            // 繪製圖片 (如果啟用且在文字後方)
+            if (elements.enableImage.checked && uploadedImage && elements.imageBehindText.checked) {
+                drawCustomImage(ctx, config);
+            }
+            
+            // 繪製文字
+            if (elements.enableText.checked && elements.customText.value.trim()) {
+                drawCustomText(ctx, config);
+            }
+            
+            // 繪製圖片 (如果啟用且在文字前方)
+            if (elements.enableImage.checked && uploadedImage && !elements.imageBehindText.checked) {
+                drawCustomImage(ctx, config);
+            }
+            
+            // 注意：這裡不繪製虛線邊界框和角落控制點
         }
         
         function downloadAllFrames() {
@@ -1953,6 +2069,9 @@
                     setTimeout(() => {
                         const config = formats[format];
                         const filename = `custom_frame_${format}_${config.width}x${config.height}.png`;
+                        
+                        // 生成純淨版本 (不含預覽輔助元素)
+                        createCleanFrame(format);
                         
                         canvas.toBlob(function(blob) {
                             const url = URL.createObjectURL(blob);
@@ -1978,6 +2097,71 @@
             downloadNext();
         }
         
+        // 繪製文字虛線邊界框 (僅預覽使用，不會匯出到 PNG)
+        function drawTextBoundingBox(config) {
+            const text = elements.customText.value.trim();
+            if (!text) return;
+            
+            ctx.save();
+            
+            // 計算文字位置和參數
+            const textX = config.width * (elements.textPositionX.value / 100);
+            const textY = config.height * (elements.textPositionY.value / 100);
+            const fontSize = parseInt(elements.fontSize.value);
+            const rotation = (elements.textRotation.value * Math.PI) / 180;
+            
+            // 設定字體以計算文字尺寸
+            let fontFamily = elements.fontFamily.value;
+            if (fontFamily === 'cursive') {
+                fontFamily = '"Brush Script MT", "Lucida Handwriting", "Apple Chancery", cursive';
+            }
+            ctx.font = `${fontSize}px ${fontFamily}`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // 計算多行文字的總尺寸
+            const lines = text.split('\n');
+            const lineHeight = fontSize * 1.2;
+            let maxWidth = 0;
+            
+            // 找出最寬的一行
+            lines.forEach(line => {
+                const metrics = ctx.measureText(line);
+                maxWidth = Math.max(maxWidth, metrics.width);
+            });
+            
+            const totalHeight = lines.length * lineHeight;
+            const padding = fontSize * 0.1; // 10% 內距
+            
+            // 邊界框尺寸
+            const boxWidth = maxWidth + (padding * 2);
+            const boxHeight = totalHeight + (padding * 2);
+            
+            // 移動到文字中心並旋轉
+            ctx.translate(textX, textY);
+            if (rotation !== 0) {
+                ctx.rotate(rotation);
+            }
+            
+            // 設定虛線樣式
+            ctx.setLineDash([5, 5]); // 5px 實線，5px 空白
+            ctx.strokeStyle = 'rgba(0, 123, 255, 0.6)'; // 半透明藍色
+            ctx.lineWidth = 1;
+            
+            // 繪製虛線矩形
+            ctx.strokeRect(
+                -boxWidth / 2,
+                -boxHeight / 2,
+                boxWidth,
+                boxHeight
+            );
+            
+            // 重置虛線設定
+            ctx.setLineDash([]);
+            
+            ctx.restore();
+        }
+
         function resetAll() {
             // 重置所有控制項
             elements.enableText.checked = true;

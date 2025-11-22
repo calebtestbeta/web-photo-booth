@@ -66,6 +66,9 @@ A mobile-first web application for adding decorative frames to photos with touch
 - **Canvas Direct Dragging**: 🎯 Revolutionary direct manipulation
   - **Single Touch/Click**: Drag text/images freely on canvas (horizontal + vertical)
   - **Multi-touch Gestures**: Two-finger pinch-to-zoom and rotate for precise control
+  - **Desktop Modifier Keys**: Enhanced precision controls for desktop browsers
+    - **Shift + Drag**: Direct scaling control (vertical mouse movement, 1% per pixel)
+    - **Alt + Drag**: Direct rotation control (horizontal mouse movement, 0.5° per pixel)
   - **Visual cursor feedback**: Smart grab/grabbing states during interaction
   - **Real-time synchronization**: Instant slider updates during direct manipulation
   - **Smart collision detection**: Accurate element selection and targeting
@@ -170,12 +173,18 @@ A mobile-first web application for adding decorative frames to photos with touch
    - Adjust font, size, color, rotation, and position
    - **Direct Dragging**: Click and drag text freely on canvas (horizontal + vertical)
    - **Multi-touch Control**: Two-finger pinch to resize text, twist to rotate
+   - **Desktop Precision** (Desktop only):
+     - **Shift + Drag**: Scale text size directly (vertical movement = 1% per pixel)
+     - **Alt + Drag**: Rotate text directly (horizontal movement = 0.5° per pixel)
 5. **Add Images**:
    - Check "啟用圖片" to enable image features  
    - Upload PNG/JPG images via click or drag & drop
    - Control size, opacity, rotation, and position
    - **Direct Dragging**: Click and drag images freely on canvas
    - **Multi-touch Control**: Two-finger pinch to scale, twist to rotate images
+   - **Desktop Precision** (Desktop only):
+     - **Shift + Drag**: Scale images directly (vertical movement = 1% per pixel)
+     - **Alt + Drag**: Rotate images directly (horizontal movement = 0.5° per pixel)
    - Set layer order (behind/in front of text)
 6. **Export**: Download current format or use "下載所有格式" for batch export
 
