@@ -683,6 +683,10 @@
                 <li>選擇輸出格式和邊框風格</li>
                 <li>啟用文字功能並輸入自定義內容</li>
                 <li>上傳圖片並調整位置、大小等屬性</li>
+                <li><strong>🖱️ 桌面版角落控制：</strong>滑鼠懸停在文字/圖片角落顯示藍色控制點</li>
+                <li><strong>📏 拖拽調整：</strong>拖拽角落控制點調整大小</li>
+                <li><strong>🔄 旋轉模式：</strong>按住 Alt 鍵，角落控制點變成橙色，拖拽進行旋轉</li>
+                <li><strong>🎯 直觀操作：</strong>不同角落有對應的調整大小游標（↖ ↗ ↙ ↘）</li>
                 <li>即時預覽效果，滿意後下載 PNG 檔案</li>
                 <li>支援批次下載所有格式</li>
                 <li>檔案命名格式：custom_frame_[format]_[width]x[height].png</li>
@@ -863,6 +867,34 @@
             let initialScale = 1;
             let initialRotation = 0;
             
+            // 桌面滑鼠控制變數
+            let isScaling = false;
+            let isRotating = false;
+            let lastMouseY = 0;
+            let lastMouseX = 0;
+            
+            // 角落控制系統變數
+            let isCornerDragging = false;
+            let activeCorner = null; // 'tl', 'tr', 'bl', 'br'
+            let cornerMode = 'resize'; // 'resize' 或 'rotate'
+            let cornerHandles = [];
+            let isAltPressed = false;
+            
+            // 鍵盤狀態追蹤
+            document.addEventListener('keydown', function(e) {
+                if (e.altKey) {
+                    isAltPressed = true;
+                    updateCornerVisuals();
+                }
+            });
+            
+            document.addEventListener('keyup', function(e) {
+                if (!e.altKey) {
+                    isAltPressed = false;
+                    updateCornerVisuals();
+                }
+            });
+            
             // 取得滑鼠/觸控位置相對於畫布的座標
             function getCanvasPosition(e, canvas) {
                 const rect = canvas.getBoundingClientRect();
@@ -901,43 +933,238 @@
                 };
             }
             
-            // 檢測點擊位置是否在文字或圖片範圍內
-            function detectDragTarget(canvasX, canvasY) {
+            // 取得元素的邊界框信息
+            function getElementBounds(elementType) {
                 const config = formats[currentFormat];
                 
-                // 檢測文字區域（如果啟用且有文字）
-                if (elements.enableText.checked && elements.customText.value.trim()) {
+                if (elementType === 'text' && elements.enableText.checked && elements.customText.value.trim()) {
+                    const textX = config.width * (elements.textPositionX.value / 100);
                     const textY = config.height * (elements.textPositionY.value / 100);
-                    const textX = config.width / 2;
                     const fontSize = parseInt(elements.fontSize.value);
+                    const textWidth = elements.customText.value.length * fontSize * 0.6;
+                    const textHeight = fontSize;
                     
-                    // 簡單的文字區域檢測（矩形範圍）
-                    const textWidth = elements.customText.value.length * fontSize * 0.6; // 概估
-                    if (Math.abs(canvasX - textX) < textWidth / 2 && 
-                        Math.abs(canvasY - textY) < fontSize) {
-                        return 'text';
-                    }
+                    return {
+                        centerX: textX,
+                        centerY: textY,
+                        width: textWidth,
+                        height: textHeight,
+                        left: textX - textWidth / 2,
+                        right: textX + textWidth / 2,
+                        top: textY - textHeight / 2,
+                        bottom: textY + textHeight / 2
+                    };
                 }
                 
-                // 檢測圖片區域（如果啟用且有圖片）
-                if (elements.enableImage.checked && uploadedImage) {
+                if (elementType === 'image' && elements.enableImage.checked && uploadedImage) {
                     const imageX = (elements.imagePositionX.value / 100) * config.width;
                     const imageY = (elements.imagePositionY.value / 100) * config.height;
                     const imageSize = elements.imageSize.value / 100;
                     
-                    // 計算圖片實際尺寸
                     const maxSize = Math.min(config.width, config.height) * 0.8;
                     const scale = (maxSize * imageSize) / Math.max(uploadedImage.width, uploadedImage.height);
                     const drawWidth = uploadedImage.width * scale;
                     const drawHeight = uploadedImage.height * scale;
                     
-                    if (Math.abs(canvasX - imageX) < drawWidth / 2 && 
-                        Math.abs(canvasY - imageY) < drawHeight / 2) {
-                        return 'image';
+                    return {
+                        centerX: imageX,
+                        centerY: imageY,
+                        width: drawWidth,
+                        height: drawHeight,
+                        left: imageX - drawWidth / 2,
+                        right: imageX + drawWidth / 2,
+                        top: imageY - drawHeight / 2,
+                        bottom: imageY + drawHeight / 2
+                    };
+                }
+                
+                return null;
+            }
+            
+            // 檢測滑鼠是否在角落控制點上
+            function detectCornerHandle(canvasX, canvasY, elementType) {
+                const bounds = getElementBounds(elementType);
+                if (!bounds) return null;
+                
+                const handleSize = 12;
+                const corners = [
+                    { id: 'tl', x: bounds.left, y: bounds.top },
+                    { id: 'tr', x: bounds.right, y: bounds.top },
+                    { id: 'bl', x: bounds.left, y: bounds.bottom },
+                    { id: 'br', x: bounds.right, y: bounds.bottom }
+                ];
+                
+                for (let corner of corners) {
+                    const distance = Math.sqrt(
+                        Math.pow(canvasX - corner.x, 2) + 
+                        Math.pow(canvasY - corner.y, 2)
+                    );
+                    
+                    if (distance <= handleSize) {
+                        return { corner: corner.id, element: elementType };
                     }
                 }
                 
                 return null;
+            }
+            
+            // 檢測點擊位置是否在文字或圖片範圍內
+            function detectDragTarget(canvasX, canvasY) {
+                // 優先檢測角落控制點
+                let cornerHandle = detectCornerHandle(canvasX, canvasY, 'text');
+                if (!cornerHandle) {
+                    cornerHandle = detectCornerHandle(canvasX, canvasY, 'image');
+                }
+                
+                if (cornerHandle) {
+                    return { type: 'corner', ...cornerHandle };
+                }
+                
+                // 檢測元素本身
+                const textBounds = getElementBounds('text');
+                if (textBounds && 
+                    canvasX >= textBounds.left && canvasX <= textBounds.right &&
+                    canvasY >= textBounds.top && canvasY <= textBounds.bottom) {
+                    return { type: 'element', element: 'text' };
+                }
+                
+                const imageBounds = getElementBounds('image');
+                if (imageBounds && 
+                    canvasX >= imageBounds.left && canvasX <= imageBounds.right &&
+                    canvasY >= imageBounds.top && canvasY <= imageBounds.bottom) {
+                    return { type: 'element', element: 'image' };
+                }
+                
+                return null;
+            }
+            
+            // 繪製角落控制點
+            function drawCornerHandles(elementType) {
+                const bounds = getElementBounds(elementType);
+                if (!bounds) return;
+                
+                const handleSize = 8;
+                const corners = [
+                    { id: 'tl', x: bounds.left, y: bounds.top },
+                    { id: 'tr', x: bounds.right, y: bounds.top },
+                    { id: 'bl', x: bounds.left, y: bounds.bottom },
+                    { id: 'br', x: bounds.right, y: bounds.bottom }
+                ];
+                
+                ctx.save();
+                
+                corners.forEach(corner => {
+                    // 繪製控制點背景
+                    ctx.fillStyle = isAltPressed ? '#ff6b35' : '#007bff';
+                    ctx.beginPath();
+                    ctx.arc(corner.x, corner.y, handleSize, 0, 2 * Math.PI);
+                    ctx.fill();
+                    
+                    // 繪製白色邊框
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    
+                    // 繪製方向指示器
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 1.5;
+                    
+                    if (isAltPressed) {
+                        // 旋轉箭頭
+                        drawRotationArrow(corner.x, corner.y, corner.id);
+                    } else {
+                        // 調整大小箭頭
+                        drawResizeArrow(corner.x, corner.y, corner.id);
+                    }
+                });
+                
+                ctx.restore();
+            }
+            
+            // 繪製調整大小箭頭
+            function drawResizeArrow(x, y, cornerId) {
+                const arrowLength = 5;
+                ctx.beginPath();
+                
+                switch(cornerId) {
+                    case 'tl': // 左上角 - 對角線箭頭
+                        ctx.moveTo(x - arrowLength, y - arrowLength);
+                        ctx.lineTo(x + arrowLength, y + arrowLength);
+                        ctx.moveTo(x - arrowLength + 2, y - arrowLength);
+                        ctx.lineTo(x - arrowLength, y - arrowLength);
+                        ctx.lineTo(x - arrowLength, y - arrowLength + 2);
+                        ctx.moveTo(x + arrowLength - 2, y + arrowLength);
+                        ctx.lineTo(x + arrowLength, y + arrowLength);
+                        ctx.lineTo(x + arrowLength, y + arrowLength - 2);
+                        break;
+                    case 'tr': // 右上角 - 對角線箭頭
+                        ctx.moveTo(x + arrowLength, y - arrowLength);
+                        ctx.lineTo(x - arrowLength, y + arrowLength);
+                        ctx.moveTo(x + arrowLength - 2, y - arrowLength);
+                        ctx.lineTo(x + arrowLength, y - arrowLength);
+                        ctx.lineTo(x + arrowLength, y - arrowLength + 2);
+                        ctx.moveTo(x - arrowLength + 2, y + arrowLength);
+                        ctx.lineTo(x - arrowLength, y + arrowLength);
+                        ctx.lineTo(x - arrowLength, y + arrowLength - 2);
+                        break;
+                    case 'bl': // 左下角 - 對角線箭頭
+                        ctx.moveTo(x - arrowLength, y + arrowLength);
+                        ctx.lineTo(x + arrowLength, y - arrowLength);
+                        ctx.moveTo(x - arrowLength + 2, y + arrowLength);
+                        ctx.lineTo(x - arrowLength, y + arrowLength);
+                        ctx.lineTo(x - arrowLength, y + arrowLength - 2);
+                        ctx.moveTo(x + arrowLength - 2, y - arrowLength);
+                        ctx.lineTo(x + arrowLength, y - arrowLength);
+                        ctx.lineTo(x + arrowLength, y - arrowLength + 2);
+                        break;
+                    case 'br': // 右下角 - 對角線箭頭
+                        ctx.moveTo(x + arrowLength, y + arrowLength);
+                        ctx.lineTo(x - arrowLength, y - arrowLength);
+                        ctx.moveTo(x + arrowLength - 2, y + arrowLength);
+                        ctx.lineTo(x + arrowLength, y + arrowLength);
+                        ctx.lineTo(x + arrowLength, y + arrowLength - 2);
+                        ctx.moveTo(x - arrowLength + 2, y - arrowLength);
+                        ctx.lineTo(x - arrowLength, y - arrowLength);
+                        ctx.lineTo(x - arrowLength, y - arrowLength + 2);
+                        break;
+                }
+                
+                ctx.stroke();
+            }
+            
+            // 繪製旋轉箭頭
+            function drawRotationArrow(x, y, cornerId) {
+                const radius = 4;
+                const startAngle = Math.PI * 0.2;
+                const endAngle = Math.PI * 1.8;
+                
+                ctx.beginPath();
+                ctx.arc(x, y, radius, startAngle, endAngle);
+                ctx.stroke();
+                
+                // 箭頭頭部
+                const arrowX = x + radius * Math.cos(endAngle);
+                const arrowY = y + radius * Math.sin(endAngle);
+                const arrowAngle = endAngle + Math.PI / 2;
+                
+                ctx.beginPath();
+                ctx.moveTo(arrowX, arrowY);
+                ctx.lineTo(
+                    arrowX + 3 * Math.cos(arrowAngle + 0.5),
+                    arrowY + 3 * Math.sin(arrowAngle + 0.5)
+                );
+                ctx.moveTo(arrowX, arrowY);
+                ctx.lineTo(
+                    arrowX + 3 * Math.cos(arrowAngle - 0.5),
+                    arrowY + 3 * Math.sin(arrowAngle - 0.5)
+                );
+                ctx.stroke();
+            }
+            
+            // 更新角落視覺效果
+            function updateCornerVisuals() {
+                // 重繪整個畫布以包含角落控制點
+                createFrame(currentFormat);
             }
             
             // 開始拖曳或多點觸控
@@ -973,9 +1200,72 @@
                     // 單點觸控或滑鼠操作
                     isMultiTouch = false;
                     const pos = getCanvasPosition(e, canvas);
-                    dragTarget = detectDragTarget(pos.x, pos.y);
+                    const target = detectDragTarget(pos.x, pos.y);
                     
-                    if (dragTarget) {
+                    if (target) {
+                        // 處理角落控制點拖拽
+                        if (target.type === 'corner') {
+                            isCornerDragging = true;
+                            dragTarget = target.element;
+                            activeCorner = target.corner;
+                            cornerMode = isAltPressed ? 'rotate' : 'resize';
+                            
+                            dragStartX = pos.x;
+                            dragStartY = pos.y;
+                            
+                            if (dragTarget === 'text') {
+                                initialScale = parseFloat(elements.fontSize.value);
+                                initialRotation = parseFloat(elements.textRotation.value);
+                            } else if (dragTarget === 'image') {
+                                initialScale = parseFloat(elements.imageSize.value);
+                                initialRotation = parseFloat(elements.imageRotation.value);
+                            }
+                            
+                            // 設定適當的游標
+                            if (cornerMode === 'rotate') {
+                                canvas.style.cursor = 'grab';
+                            } else {
+                                const cursorMap = {
+                                    'tl': 'nw-resize', 'tr': 'ne-resize',
+                                    'bl': 'sw-resize', 'br': 'se-resize'
+                                };
+                                canvas.style.cursor = cursorMap[activeCorner];
+                            }
+                            return;
+                        }
+                        
+                        dragTarget = target.element;
+                        
+                        // 檢查桌面修飾鍵 (只對滑鼠事件有效)
+                        if (e.type === 'mousedown') {
+                            if (e.shiftKey) {
+                                // Shift + 拖曳 = 縮放模式
+                                isScaling = true;
+                                lastMouseY = e.clientY;
+                                canvas.style.cursor = 'ns-resize';
+                                
+                                if (dragTarget === 'text') {
+                                    initialScale = parseFloat(elements.fontSize.value);
+                                } else if (dragTarget === 'image') {
+                                    initialScale = parseFloat(elements.imageSize.value);
+                                }
+                                return;
+                            } else if (e.altKey) {
+                                // Alt + 拖曳 = 旋轉模式
+                                isRotating = true;
+                                lastMouseX = e.clientX;
+                                canvas.style.cursor = 'ew-resize';
+                                
+                                if (dragTarget === 'text') {
+                                    initialRotation = parseFloat(elements.textRotation.value);
+                                } else if (dragTarget === 'image') {
+                                    initialRotation = parseFloat(elements.imageRotation.value);
+                                }
+                                return;
+                            }
+                        }
+                        
+                        // 一般拖曳模式
                         isDragging = true;
                         dragStartX = pos.x;
                         dragStartY = pos.y;
@@ -995,10 +1285,127 @@
             
             // 拖曳中或多點觸控
             function doDragging(e) {
-                if ((!isDragging && !isMultiTouch) || !dragTarget) return;
+                if ((!isDragging && !isMultiTouch && !isScaling && !isRotating && !isCornerDragging) || !dragTarget) return;
                 
                 e.preventDefault();
                 const config = formats[currentFormat];
+                
+                // 處理角落控制點拖拽
+                if (isCornerDragging && e.type === 'mousemove') {
+                    const pos = getCanvasPosition(e, canvas);
+                    const deltaX = pos.x - dragStartX;
+                    const deltaY = pos.y - dragStartY;
+                    
+                    if (cornerMode === 'resize') {
+                        // 角落調整大小邏輯
+                        const bounds = getElementBounds(dragTarget);
+                        if (!bounds) return;
+                        
+                        // 計算距離中心的變化
+                        const centerX = bounds.centerX;
+                        const centerY = bounds.centerY;
+                        
+                        let scaleFactor = 1;
+                        switch(activeCorner) {
+                            case 'tl': // 左上角
+                                scaleFactor = Math.max(0.1, 1 - (deltaX + deltaY) / 200);
+                                break;
+                            case 'tr': // 右上角  
+                                scaleFactor = Math.max(0.1, 1 + (deltaX - deltaY) / 200);
+                                break;
+                            case 'bl': // 左下角
+                                scaleFactor = Math.max(0.1, 1 + (-deltaX + deltaY) / 200);
+                                break;
+                            case 'br': // 右下角
+                                scaleFactor = Math.max(0.1, 1 + (deltaX + deltaY) / 200);
+                                break;
+                        }
+                        
+                        if (dragTarget === 'text') {
+                            const newSize = Math.max(16, Math.min(200, initialScale * scaleFactor));
+                            elements.fontSize.value = Math.round(newSize);
+                            elements.fontSizeValue.textContent = Math.round(newSize) + 'px';
+                        } else if (dragTarget === 'image') {
+                            const newSize = Math.max(10, Math.min(200, initialScale * scaleFactor));
+                            elements.imageSize.value = Math.round(newSize);
+                            elements.imageSizeValue.textContent = Math.round(newSize) + '%';
+                        }
+                        
+                    } else if (cornerMode === 'rotate') {
+                        // 角落旋轉邏輯
+                        const bounds = getElementBounds(dragTarget);
+                        if (!bounds) return;
+                        
+                        const centerX = bounds.centerX;
+                        const centerY = bounds.centerY;
+                        
+                        // 計算從中心到起始點的角度
+                        const startAngle = Math.atan2(dragStartY - centerY, dragStartX - centerX);
+                        // 計算從中心到當前點的角度
+                        const currentAngle = Math.atan2(pos.y - centerY, pos.x - centerX);
+                        // 角度差異（轉換為度數）
+                        const angleDelta = (currentAngle - startAngle) * 180 / Math.PI;
+                        
+                        if (dragTarget === 'text') {
+                            const newRotation = Math.max(-45, Math.min(45, initialRotation + angleDelta));
+                            elements.textRotation.value = Math.round(newRotation);
+                            elements.textRotationValue.textContent = Math.round(newRotation) + '°';
+                        } else if (dragTarget === 'image') {
+                            const newRotation = Math.max(-180, Math.min(180, initialRotation + angleDelta));
+                            elements.imageRotation.value = Math.round(newRotation);
+                            elements.imageRotationValue.textContent = Math.round(newRotation) + '°';
+                        }
+                    }
+                    
+                    createFrame(currentFormat);
+                    return;
+                }
+                
+                // 桌面縮放模式 (Shift + 拖曳)
+                if (isScaling && e.type === 'mousemove') {
+                    const deltaY = e.clientY - lastMouseY;
+                    const scaleFactor = 1 - (deltaY * 0.01); // 每像素 1% 變化
+                    
+                    if (dragTarget === 'text') {
+                        const newSize = Math.max(16, Math.min(200, 
+                            initialScale * scaleFactor
+                        ));
+                        elements.fontSize.value = Math.round(newSize);
+                        elements.fontSizeValue.textContent = Math.round(newSize) + 'px';
+                    } else if (dragTarget === 'image') {
+                        const newSize = Math.max(10, Math.min(200, 
+                            initialScale * scaleFactor
+                        ));
+                        elements.imageSize.value = Math.round(newSize);
+                        elements.imageSizeValue.textContent = Math.round(newSize) + '%';
+                    }
+                    
+                    createFrame(currentFormat);
+                    return;
+                }
+                
+                // 桌面旋轉模式 (Alt + 拖曳)
+                if (isRotating && e.type === 'mousemove') {
+                    const deltaX = e.clientX - lastMouseX;
+                    const rotationChange = deltaX * 0.5; // 每像素 0.5 度變化
+                    
+                    if (dragTarget === 'text') {
+                        const newRotation = Math.max(-45, Math.min(45, 
+                            initialRotation + rotationChange
+                        ));
+                        elements.textRotation.value = Math.round(newRotation);
+                        elements.textRotationValue.textContent = Math.round(newRotation) + '°';
+                    } else if (dragTarget === 'image') {
+                        const newRotation = Math.max(-180, Math.min(180, 
+                            initialRotation + rotationChange
+                        ));
+                        elements.imageRotation.value = Math.round(newRotation);
+                        elements.imageRotationValue.textContent = Math.round(newRotation) + '°';
+                    }
+                    
+                    createFrame(currentFormat);
+                    return;
+                }
                 
                 if (isMultiTouch && e.touches && e.touches.length === 2) {
                     // 多點觸控：縮放和旋轉
@@ -1089,10 +1496,14 @@
             
             // 結束拖曳
             function stopDragging(e) {
-                if (isDragging || isMultiTouch) {
+                if (isDragging || isMultiTouch || isScaling || isRotating || isCornerDragging) {
                     isDragging = false;
                     isMultiTouch = false;
+                    isScaling = false;
+                    isRotating = false;
+                    isCornerDragging = false;
                     dragTarget = null;
+                    activeCorner = null;
                     canvas.style.cursor = 'default';
                 }
             }
@@ -1109,10 +1520,29 @@
             
             // 滑鼠懸停效果
             canvas.addEventListener('mousemove', function(e) {
-                if (!isDragging && !isMultiTouch) {
+                if (!isDragging && !isMultiTouch && !isScaling && !isRotating && !isCornerDragging) {
                     const pos = getCanvasPosition(e, canvas);
                     const target = detectDragTarget(pos.x, pos.y);
-                    canvas.style.cursor = target ? 'grab' : 'default';
+                    
+                    if (target) {
+                        if (target.type === 'corner') {
+                            // 角落控制點懸停游標
+                            if (isAltPressed) {
+                                canvas.style.cursor = 'grab'; // 旋轉模式
+                            } else {
+                                // 調整大小模式
+                                const cursorMap = {
+                                    'tl': 'nw-resize', 'tr': 'ne-resize',
+                                    'bl': 'sw-resize', 'br': 'se-resize'
+                                };
+                                canvas.style.cursor = cursorMap[target.corner];
+                            }
+                        } else {
+                            canvas.style.cursor = 'grab'; // 元素本身
+                        }
+                    } else {
+                        canvas.style.cursor = 'default';
+                    }
                 }
             });
         }
@@ -1193,6 +1623,16 @@
             // 繪製圖片 (如果啟用且在文字前方)
             if (elements.enableImage.checked && uploadedImage && !elements.imageBehindText.checked) {
                 drawCustomImage(ctx, config);
+            }
+            
+            // 繪製角落控制點 (僅在桌面版且有元素時)
+            if (window.innerWidth >= 768) { // 桌面版
+                if (elements.enableText.checked && elements.customText.value.trim()) {
+                    drawCornerHandles('text');
+                }
+                if (elements.enableImage.checked && uploadedImage) {
+                    drawCornerHandles('image');
+                }
             }
         }
         
