@@ -73,13 +73,31 @@ export class RenderEngine {
         };
     }
     
-    render(image, transform, frameImage) {
+    render(image, transform, frameImage, customState = null) {
         this.ctx.clearRect(0, 0, this.outputWidth, this.outputHeight);
         
         this.drawBackground();
         
         if (image) {
             this.drawImage(image, transform);
+        }
+        
+        // 繪製自定義圖片（如果置於文字後方）
+        if (customState && customState.image.enabled && customState.image.visible && 
+            customState.image.data && customState.image.behindText) {
+            this.drawCustomImage(customState.image);
+        }
+        
+        // 繪製自定義文字
+        if (customState && customState.text.enabled && customState.text.visible && 
+            customState.text.content.trim()) {
+            this.drawCustomText(customState.text);
+        }
+        
+        // 繪製自定義圖片（如果置於文字前方）
+        if (customState && customState.image.enabled && customState.image.visible && 
+            customState.image.data && !customState.image.behindText) {
+            this.drawCustomImage(customState.image);
         }
         
         if (frameImage) {
@@ -155,7 +173,85 @@ export class RenderEngine {
         this.ctx.restore();
     }
     
-    async exportImage(image, transform, frameImage) {
+    drawCustomText(textState) {
+        const text = textState.content.trim();
+        if (!text) return;
+        
+        this.ctx.save();
+        
+        // 計算文字位置
+        const textX = this.outputWidth * (textState.positionX / 100);
+        const textY = this.outputHeight * (textState.positionY / 100);
+        
+        // 設定字體
+        this.ctx.font = `${textState.fontSize}px "PingFang TC", "Microsoft JhengHei", "Noto Sans CJK TC", sans-serif`;
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        
+        // 文字旋轉
+        if (textState.rotation !== 0) {
+            this.ctx.translate(textX, textY);
+            this.ctx.rotate((textState.rotation * Math.PI) / 180);
+            this.ctx.translate(-textX, -textY);
+        }
+        
+        // 繪製文字陰影
+        this.ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+        this.ctx.shadowBlur = 4;
+        this.ctx.shadowOffsetX = 2;
+        this.ctx.shadowOffsetY = 2;
+        
+        // 繪製文字
+        this.ctx.fillStyle = textState.color;
+        
+        // 處理多行文字
+        const lines = text.split('\n');
+        const lineHeight = textState.fontSize * 1.2;
+        const startY = textY - ((lines.length - 1) * lineHeight) / 2;
+        
+        lines.forEach((line, index) => {
+            this.ctx.fillText(line, textX, startY + (index * lineHeight));
+        });
+        
+        this.ctx.restore();
+    }
+    
+    drawCustomImage(imageState) {
+        if (!imageState.data) return;
+        
+        this.ctx.save();
+        
+        // 計算圖片位置和尺寸
+        const size = imageState.size / 100;
+        const opacity = imageState.opacity / 100;
+        const posX = (imageState.positionX / 100) * this.outputWidth;
+        const posY = (imageState.positionY / 100) * this.outputHeight;
+        
+        // 計算縮放尺寸
+        const maxSize = Math.min(this.outputWidth, this.outputHeight) * 0.6;
+        const scale = (maxSize * size) / Math.max(imageState.data.width, imageState.data.height);
+        const drawWidth = imageState.data.width * scale;
+        const drawHeight = imageState.data.height * scale;
+        
+        // 設定透明度
+        this.ctx.globalAlpha = opacity;
+        
+        // 移動到圖片中心
+        this.ctx.translate(posX, posY);
+        
+        // 繪製圖片
+        this.ctx.drawImage(
+            imageState.data,
+            -drawWidth / 2,
+            -drawHeight / 2,
+            drawWidth,
+            drawHeight
+        );
+        
+        this.ctx.restore();
+    }
+    
+    async exportImage(image, transform, frameImage, customState = null) {
         const exportCanvas = resourceManager.createCanvas(this.outputWidth, this.outputHeight, 'image-export');
         const exportCtx = exportCanvas.getContext('2d');
         
@@ -191,6 +287,34 @@ export class RenderEngine {
             );
             
             exportCtx.restore();
+        }
+        
+        // 導出時也需要渲染自定義元素
+        if (customState) {
+            // 暫時保存原始 ctx
+            const originalCtx = this.ctx;
+            this.ctx = exportCtx;
+            
+            // 繪製自定義圖片（如果置於文字後方）
+            if (customState.image.enabled && customState.image.visible && 
+                customState.image.data && customState.image.behindText) {
+                this.drawCustomImage(customState.image);
+            }
+            
+            // 繪製自定義文字
+            if (customState.text.enabled && customState.text.visible && 
+                customState.text.content.trim()) {
+                this.drawCustomText(customState.text);
+            }
+            
+            // 繪製自定義圖片（如果置於文字前方）
+            if (customState.image.enabled && customState.image.visible && 
+                customState.image.data && !customState.image.behindText) {
+                this.drawCustomImage(customState.image);
+            }
+            
+            // 恢復原始 ctx
+            this.ctx = originalCtx;
         }
         
         if (frameImage) {

@@ -20,10 +20,50 @@ class PhotoFrameApp {
         this.uploadBtn = document.getElementById('uploadBtn');
         this.resetBtn = document.getElementById('resetBtn');
         this.rotateBtn = document.getElementById('rotateBtn');
+        this.customBtn = document.getElementById('customBtn');
         this.downloadBtn = document.getElementById('downloadBtn');
         this.shareBtn = document.getElementById('shareBtn');
         this.formatButtons = document.querySelectorAll('.format-btn[data-format]');
         this.styleButtons = document.querySelectorAll('.format-btn[data-style]');
+        
+        // 自定義面板元素
+        this.customPanel = document.getElementById('customPanel');
+        this.customPanelClose = document.getElementById('customPanelClose');
+        this.appContainer = document.querySelector('.app-container');
+        
+        // 文字控制元素
+        this.enableCustomText = document.getElementById('enableCustomText');
+        this.textVisibilityBtn = document.getElementById('textVisibilityBtn');
+        this.customTextInput = document.getElementById('customTextInput');
+        this.textFontSize = document.getElementById('textFontSize');
+        this.textFontSizeValue = document.getElementById('textFontSizeValue');
+        this.textColor = document.getElementById('textColor');
+        this.textRotation = document.getElementById('textRotation');
+        this.textRotationValue = document.getElementById('textRotationValue');
+        this.textPositionX = document.getElementById('textPositionX');
+        this.textPositionXValue = document.getElementById('textPositionXValue');
+        this.textPositionY = document.getElementById('textPositionY');
+        this.textPositionYValue = document.getElementById('textPositionYValue');
+        
+        // 圖片控制元素
+        this.enableCustomImage = document.getElementById('enableCustomImage');
+        this.imageVisibilityBtn = document.getElementById('imageVisibilityBtn');
+        this.customImageUpload = document.getElementById('customImageUpload');
+        this.customImageInput = document.getElementById('customImageInput');
+        this.customImagePreview = document.getElementById('customImagePreview');
+        this.imageSize = document.getElementById('imageSize');
+        this.imageSizeValue = document.getElementById('imageSizeValue');
+        this.imageOpacity = document.getElementById('imageOpacity');
+        this.imageOpacityValue = document.getElementById('imageOpacityValue');
+        this.imagePositionX = document.getElementById('imagePositionX');
+        this.imagePositionXValue = document.getElementById('imagePositionXValue');
+        this.imagePositionY = document.getElementById('imagePositionY');
+        this.imagePositionYValue = document.getElementById('imagePositionYValue');
+        this.imageBehindText = document.getElementById('imageBehindText');
+        
+        // 面板動作按鈕
+        this.resetCustom = document.getElementById('resetCustom');
+        this.applyCustom = document.getElementById('applyCustom');
         
         // 精確調整面板元素 (原始版本 - 保留作為後備)
         this.precisionPanel = document.getElementById('precisionPanel');
@@ -49,6 +89,33 @@ class PhotoFrameApp {
             y: 0,
             scale: 1,
             rotation: 0
+        };
+        
+        // 自定義元素狀態
+        this.customImage = null;
+        this.customState = {
+            // 文字狀態
+            text: {
+                enabled: false,
+                visible: true,
+                content: '',
+                fontSize: 72,
+                color: '#FFD700',
+                rotation: 0,
+                positionX: 50,
+                positionY: 85
+            },
+            // 圖片狀態  
+            image: {
+                enabled: false,
+                visible: true,
+                data: null,
+                size: 100,
+                opacity: 100,
+                positionX: 50,
+                positionY: 20,
+                behindText: false
+            }
         };
         
         this.isInteracting = false;
@@ -299,6 +366,12 @@ class PhotoFrameApp {
         
         // 精確調整面板事件
         this.setupPrecisionPanelEvents();
+        
+        // 自定義面板事件
+        this.setupCustomPanelEvents();
+        
+        // 畫布拖拽功能 (針對自定義元素)
+        this.setupCanvasDragging();
         
         // 鍵盤快捷鍵事件
         this.setupKeyboardShortcuts();
@@ -623,7 +696,7 @@ class PhotoFrameApp {
     
     render() {
         // 即使沒有圖片也渲染邊框以供預覽
-        this.renderEngine.render(this.currentImage, this.transform, this.frameImage);
+        this.renderEngine.render(this.currentImage, this.transform, this.frameImage, this.customState);
     }
     
     updateUI() {
@@ -668,7 +741,8 @@ class PhotoFrameApp {
             const blob = await this.renderEngine.exportImage(
                 this.currentImage, 
                 this.transform, 
-                this.frameImage
+                this.frameImage,
+                this.customState
             );
             
             const formatInfo = this.renderEngine.getCurrentFormat();
@@ -698,7 +772,8 @@ class PhotoFrameApp {
             const blob = await this.renderEngine.exportImage(
                 this.currentImage, 
                 this.transform, 
-                this.frameImage
+                this.frameImage,
+                this.customState
             );
             
             const formatInfo = this.renderEngine.getCurrentFormat();
@@ -1015,6 +1090,551 @@ class PhotoFrameApp {
         }
         
         this.scheduleRender();
+    }
+    
+    // 自定義面板事件設定
+    setupCustomPanelEvents() {
+        // 自定義面板開關
+        if (this.customBtn) {
+            this.customBtn.addEventListener('click', () => {
+                this.toggleCustomPanel();
+            });
+        }
+        
+        if (this.customPanelClose) {
+            this.customPanelClose.addEventListener('click', () => {
+                this.closeCustomPanel();
+            });
+        }
+        
+        // 文字控制事件
+        if (this.enableCustomText) {
+            this.enableCustomText.addEventListener('change', (e) => {
+                this.customState.text.enabled = e.target.checked;
+                this.updateTextControls();
+                this.scheduleRender();
+            });
+        }
+        
+        if (this.textVisibilityBtn) {
+            this.textVisibilityBtn.addEventListener('click', () => {
+                this.toggleTextVisibility();
+            });
+        }
+        
+        if (this.customTextInput) {
+            this.customTextInput.addEventListener('input', (e) => {
+                this.customState.text.content = e.target.value;
+                this.scheduleRender();
+            });
+        }
+        
+        // 文字大小控制
+        if (this.textFontSize) {
+            this.textFontSize.addEventListener('input', (e) => {
+                this.customState.text.fontSize = parseInt(e.target.value);
+                if (this.textFontSizeValue) {
+                    this.textFontSizeValue.textContent = e.target.value;
+                }
+                this.scheduleRender();
+            });
+        }
+        
+        // 文字顏色控制
+        if (this.textColor) {
+            this.textColor.addEventListener('change', (e) => {
+                this.customState.text.color = e.target.value;
+                this.scheduleRender();
+            });
+        }
+        
+        // 文字旋轉控制
+        if (this.textRotation) {
+            this.textRotation.addEventListener('input', (e) => {
+                this.customState.text.rotation = parseInt(e.target.value);
+                if (this.textRotationValue) {
+                    this.textRotationValue.textContent = e.target.value + '°';
+                }
+                this.scheduleRender();
+            });
+        }
+        
+        // 文字位置控制
+        if (this.textPositionX) {
+            this.textPositionX.addEventListener('input', (e) => {
+                this.customState.text.positionX = parseInt(e.target.value);
+                if (this.textPositionXValue) {
+                    this.textPositionXValue.textContent = e.target.value + '%';
+                }
+                this.scheduleRender();
+            });
+        }
+        
+        if (this.textPositionY) {
+            this.textPositionY.addEventListener('input', (e) => {
+                this.customState.text.positionY = parseInt(e.target.value);
+                if (this.textPositionYValue) {
+                    this.textPositionYValue.textContent = e.target.value + '%';
+                }
+                this.scheduleRender();
+            });
+        }
+        
+        // 圖片控制事件
+        if (this.enableCustomImage) {
+            this.enableCustomImage.addEventListener('change', (e) => {
+                this.customState.image.enabled = e.target.checked;
+                this.updateImageControls();
+                this.scheduleRender();
+            });
+        }
+        
+        if (this.imageVisibilityBtn) {
+            this.imageVisibilityBtn.addEventListener('click', () => {
+                this.toggleImageVisibility();
+            });
+        }
+        
+        // 圖片上傳處理
+        if (this.customImageUpload) {
+            this.customImageUpload.addEventListener('click', () => {
+                if (this.customImageInput) {
+                    this.customImageInput.click();
+                }
+            });
+        }
+        
+        if (this.customImageInput) {
+            this.customImageInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    this.handleCustomImageUpload(e.target.files[0]);
+                }
+            });
+        }
+        
+        // 圖片大小控制
+        if (this.imageSize) {
+            this.imageSize.addEventListener('input', (e) => {
+                this.customState.image.size = parseInt(e.target.value);
+                if (this.imageSizeValue) {
+                    this.imageSizeValue.textContent = e.target.value + '%';
+                }
+                this.scheduleRender();
+            });
+        }
+        
+        // 圖片透明度控制
+        if (this.imageOpacity) {
+            this.imageOpacity.addEventListener('input', (e) => {
+                this.customState.image.opacity = parseInt(e.target.value);
+                if (this.imageOpacityValue) {
+                    this.imageOpacityValue.textContent = e.target.value + '%';
+                }
+                this.scheduleRender();
+            });
+        }
+        
+        // 圖片位置控制
+        if (this.imagePositionX) {
+            this.imagePositionX.addEventListener('input', (e) => {
+                this.customState.image.positionX = parseInt(e.target.value);
+                if (this.imagePositionXValue) {
+                    this.imagePositionXValue.textContent = e.target.value + '%';
+                }
+                this.scheduleRender();
+            });
+        }
+        
+        if (this.imagePositionY) {
+            this.imagePositionY.addEventListener('input', (e) => {
+                this.customState.image.positionY = parseInt(e.target.value);
+                if (this.imagePositionYValue) {
+                    this.imagePositionYValue.textContent = e.target.value + '%';
+                }
+                this.scheduleRender();
+            });
+        }
+        
+        if (this.imageBehindText) {
+            this.imageBehindText.addEventListener('change', (e) => {
+                this.customState.image.behindText = e.target.checked;
+                this.scheduleRender();
+            });
+        }
+        
+        // 面板動作按鈕
+        if (this.resetCustom) {
+            this.resetCustom.addEventListener('click', () => {
+                this.resetCustomElements();
+            });
+        }
+        
+        if (this.applyCustom) {
+            this.applyCustom.addEventListener('click', () => {
+                this.closeCustomPanel();
+            });
+        }
+    }
+    
+    // 自定義面板控制方法
+    toggleCustomPanel() {
+        if (this.customPanel && this.appContainer) {
+            const isActive = this.customPanel.classList.contains('active');
+            if (isActive) {
+                this.closeCustomPanel();
+            } else {
+                this.openCustomPanel();
+            }
+        }
+    }
+    
+    openCustomPanel() {
+        if (this.customPanel && this.appContainer) {
+            this.customPanel.classList.add('active');
+            this.appContainer.classList.add('with-custom-panel');
+            this.updateCustomPanelControls();
+        }
+    }
+    
+    closeCustomPanel() {
+        if (this.customPanel && this.appContainer) {
+            this.customPanel.classList.remove('active');
+            this.appContainer.classList.remove('with-custom-panel');
+        }
+    }
+    
+    // 更新自定義面板控制項顯示
+    updateCustomPanelControls() {
+        this.updateTextControls();
+        this.updateImageControls();
+    }
+    
+    updateTextControls() {
+        if (!this.enableCustomText) return;
+        
+        const textControlsSection = document.getElementById('textSection');
+        const textControls = document.getElementById('textControls');
+        
+        if (textControlsSection && textControls) {
+            if (this.customState.text.enabled) {
+                textControls.style.display = 'block';
+                this.textVisibilityBtn.style.display = 'block';
+            } else {
+                textControls.style.display = 'none';
+                this.textVisibilityBtn.style.display = 'none';
+            }
+        }
+        
+        // 同步控制項值
+        if (this.customTextInput) this.customTextInput.value = this.customState.text.content;
+        if (this.textFontSize) this.textFontSize.value = this.customState.text.fontSize;
+        if (this.textFontSizeValue) this.textFontSizeValue.textContent = this.customState.text.fontSize;
+        if (this.textColor) this.textColor.value = this.customState.text.color;
+        if (this.textRotation) this.textRotation.value = this.customState.text.rotation;
+        if (this.textRotationValue) this.textRotationValue.textContent = this.customState.text.rotation + '°';
+        if (this.textPositionX) this.textPositionX.value = this.customState.text.positionX;
+        if (this.textPositionXValue) this.textPositionXValue.textContent = this.customState.text.positionX + '%';
+        if (this.textPositionY) this.textPositionY.value = this.customState.text.positionY;
+        if (this.textPositionYValue) this.textPositionYValue.textContent = this.customState.text.positionY + '%';
+    }
+    
+    updateImageControls() {
+        if (!this.enableCustomImage) return;
+        
+        const imageControlsSection = document.getElementById('imageSection');
+        const imageControls = document.getElementById('imageControls');
+        
+        if (imageControlsSection && imageControls) {
+            if (this.customState.image.enabled) {
+                imageControls.style.display = 'block';
+                this.imageVisibilityBtn.style.display = 'block';
+            } else {
+                imageControls.style.display = 'none';
+                this.imageVisibilityBtn.style.display = 'none';
+            }
+        }
+        
+        // 同步控制項值
+        if (this.imageSize) this.imageSize.value = this.customState.image.size;
+        if (this.imageSizeValue) this.imageSizeValue.textContent = this.customState.image.size + '%';
+        if (this.imageOpacity) this.imageOpacity.value = this.customState.image.opacity;
+        if (this.imageOpacityValue) this.imageOpacityValue.textContent = this.customState.image.opacity + '%';
+        if (this.imagePositionX) this.imagePositionX.value = this.customState.image.positionX;
+        if (this.imagePositionXValue) this.imagePositionXValue.textContent = this.customState.image.positionX + '%';
+        if (this.imagePositionY) this.imagePositionY.value = this.customState.image.positionY;
+        if (this.imagePositionYValue) this.imagePositionYValue.textContent = this.customState.image.positionY + '%';
+        if (this.imageBehindText) this.imageBehindText.checked = this.customState.image.behindText;
+    }
+    
+    // 隱藏/顯示控制
+    toggleTextVisibility() {
+        this.customState.text.visible = !this.customState.text.visible;
+        this.updateVisibilityButton(this.textVisibilityBtn, this.customState.text.visible);
+        this.scheduleRender();
+    }
+    
+    toggleImageVisibility() {
+        this.customState.image.visible = !this.customState.image.visible;
+        this.updateVisibilityButton(this.imageVisibilityBtn, this.customState.image.visible);
+        this.scheduleRender();
+    }
+    
+    updateVisibilityButton(button, isVisible) {
+        if (!button) return;
+        
+        if (isVisible) {
+            button.classList.remove('hidden');
+            button.title = '隱藏';
+        } else {
+            button.classList.add('hidden');
+            button.title = '顯示';
+        }
+    }
+    
+    // 自定義圖片上傳處理
+    async handleCustomImageUpload(file) {
+        try {
+            const validationResult = this.validateImageFile(file);
+            if (!validationResult.isValid) {
+                this.showStatus(validationResult.message, 'error');
+                return;
+            }
+            
+            this.showLoading(true);
+            this.customImage = await this.imageHandler.processImage(file);
+            this.customState.image.data = this.customImage;
+            
+            // 顯示預覽
+            if (this.customImagePreview) {
+                this.customImagePreview.src = URL.createObjectURL(file);
+                this.customImagePreview.style.display = 'block';
+            }
+            
+            this.scheduleRender();
+            this.showStatus('自定義圖片上傳成功', 'success');
+            
+        } catch (error) {
+            console.error('自定義圖片上傳失敗:', error);
+            this.showStatus('圖片上傳失敗，請重試', 'error');
+        } finally {
+            this.showLoading(false);
+        }
+    }
+    
+    // 重置自定義元素
+    resetCustomElements() {
+        // 重置文字狀態
+        this.customState.text = {
+            enabled: false,
+            visible: true,
+            content: '',
+            fontSize: 72,
+            color: '#FFD700',
+            rotation: 0,
+            positionX: 50,
+            positionY: 85
+        };
+        
+        // 重置圖片狀態
+        this.customState.image = {
+            enabled: false,
+            visible: true,
+            data: null,
+            size: 100,
+            opacity: 100,
+            positionX: 50,
+            positionY: 20,
+            behindText: false
+        };
+        
+        this.customImage = null;
+        
+        // 更新UI
+        if (this.enableCustomText) this.enableCustomText.checked = false;
+        if (this.enableCustomImage) this.enableCustomImage.checked = false;
+        if (this.customImagePreview) this.customImagePreview.style.display = 'none';
+        
+        this.updateCustomPanelControls();
+        this.scheduleRender();
+        this.showStatus('自定義設定已重置', 'success');
+    }
+    
+    // 畫布拖拽功能設定 (針對自定義元素)
+    setupCanvasDragging() {
+        let isDragging = false;
+        let dragTarget = null; // 'text' 或 'image'
+        let dragStartX, dragStartY;
+        let initialValues = {};
+        
+        // 取得滑鼠/觸控位置相對於畫布的座標
+        const getCanvasPosition = (e) => {
+            const rect = this.canvas.getBoundingClientRect();
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            
+            return {
+                x: (clientX - rect.left) * (this.canvas.width / rect.width),
+                y: (clientY - rect.top) * (this.canvas.height / rect.height)
+            };
+        };
+        
+        // 檢測點擊位置是否在自定義元素範圍內
+        const detectDragTarget = (canvasX, canvasY) => {
+            // 檢測文字區域
+            if (this.customState.text.enabled && this.customState.text.visible && 
+                this.customState.text.content.trim()) {
+                const textX = this.canvas.width * (this.customState.text.positionX / 100);
+                const textY = this.canvas.height * (this.customState.text.positionY / 100);
+                const fontSize = this.customState.text.fontSize;
+                
+                // 簡單的矩形區域檢測 (實際應該更精確)
+                const textWidth = this.customState.text.content.length * fontSize * 0.6;
+                const textHeight = fontSize * 1.2;
+                
+                if (canvasX >= textX - textWidth/2 && canvasX <= textX + textWidth/2 &&
+                    canvasY >= textY - textHeight/2 && canvasY <= textY + textHeight/2) {
+                    return 'text';
+                }
+            }
+            
+            // 檢測圖片區域
+            if (this.customState.image.enabled && this.customState.image.visible && 
+                this.customState.image.data) {
+                const imageX = this.canvas.width * (this.customState.image.positionX / 100);
+                const imageY = this.canvas.height * (this.customState.image.positionY / 100);
+                
+                const maxSize = Math.min(this.canvas.width, this.canvas.height) * 0.6;
+                const scale = (maxSize * (this.customState.image.size / 100)) / 
+                             Math.max(this.customState.image.data.width, this.customState.image.data.height);
+                const drawWidth = this.customState.image.data.width * scale;
+                const drawHeight = this.customState.image.data.height * scale;
+                
+                if (canvasX >= imageX - drawWidth/2 && canvasX <= imageX + drawWidth/2 &&
+                    canvasY >= imageY - drawHeight/2 && canvasY <= imageY + drawHeight/2) {
+                    return 'image';
+                }
+            }
+            
+            return null;
+        };
+        
+        // 開始拖拽
+        const startDragging = (e) => {
+            // 只有在自定義面板關閉時才允許拖拽
+            if (this.customPanel && this.customPanel.classList.contains('active')) {
+                return;
+            }
+            
+            const pos = getCanvasPosition(e);
+            const target = detectDragTarget(pos.x, pos.y);
+            
+            if (target) {
+                e.preventDefault();
+                isDragging = true;
+                dragTarget = target;
+                dragStartX = pos.x;
+                dragStartY = pos.y;
+                
+                // 保存初始值
+                if (target === 'text') {
+                    initialValues = {
+                        positionX: this.customState.text.positionX,
+                        positionY: this.customState.text.positionY
+                    };
+                } else if (target === 'image') {
+                    initialValues = {
+                        positionX: this.customState.image.positionX,
+                        positionY: this.customState.image.positionY
+                    };
+                }
+                
+                this.canvas.style.cursor = 'grabbing';
+            }
+        };
+        
+        // 拖拽中
+        const doDragging = (e) => {
+            if (!isDragging || !dragTarget) return;
+            
+            e.preventDefault();
+            const pos = getCanvasPosition(e);
+            
+            const deltaX = pos.x - dragStartX;
+            const deltaY = pos.y - dragStartY;
+            
+            if (dragTarget === 'text') {
+                const newX = Math.max(10, Math.min(90,
+                    initialValues.positionX + (deltaX / this.canvas.width) * 100
+                ));
+                const newY = Math.max(10, Math.min(90,
+                    initialValues.positionY + (deltaY / this.canvas.height) * 100
+                ));
+                
+                this.customState.text.positionX = newX;
+                this.customState.text.positionY = newY;
+                
+                // 同步更新面板控制項
+                if (this.textPositionX) {
+                    this.textPositionX.value = newX;
+                    this.textPositionXValue.textContent = Math.round(newX) + '%';
+                }
+                if (this.textPositionY) {
+                    this.textPositionY.value = newY;
+                    this.textPositionYValue.textContent = Math.round(newY) + '%';
+                }
+                
+            } else if (dragTarget === 'image') {
+                const newX = Math.max(0, Math.min(100,
+                    initialValues.positionX + (deltaX / this.canvas.width) * 100
+                ));
+                const newY = Math.max(0, Math.min(100,
+                    initialValues.positionY + (deltaY / this.canvas.height) * 100
+                ));
+                
+                this.customState.image.positionX = newX;
+                this.customState.image.positionY = newY;
+                
+                // 同步更新面板控制項
+                if (this.imagePositionX) {
+                    this.imagePositionX.value = newX;
+                    this.imagePositionXValue.textContent = Math.round(newX) + '%';
+                }
+                if (this.imagePositionY) {
+                    this.imagePositionY.value = newY;
+                    this.imagePositionYValue.textContent = Math.round(newY) + '%';
+                }
+            }
+            
+            this.scheduleRender();
+        };
+        
+        // 結束拖拽
+        const stopDragging = () => {
+            if (isDragging) {
+                isDragging = false;
+                dragTarget = null;
+                this.canvas.style.cursor = 'default';
+            }
+        };
+        
+        // 滑鼠懸停效果
+        const handleMouseMove = (e) => {
+            if (!isDragging && !this.customPanel.classList.contains('active')) {
+                const pos = getCanvasPosition(e);
+                const target = detectDragTarget(pos.x, pos.y);
+                this.canvas.style.cursor = target ? 'grab' : 'default';
+            }
+        };
+        
+        // 事件監聽器
+        this.canvas.addEventListener('mousedown', startDragging);
+        this.canvas.addEventListener('touchstart', startDragging, { passive: false });
+        this.canvas.addEventListener('mousemove', handleMouseMove);
+        
+        document.addEventListener('mousemove', doDragging);
+        document.addEventListener('touchmove', doDragging, { passive: false });
+        document.addEventListener('mouseup', stopDragging);
+        document.addEventListener('touchend', stopDragging);
     }
     
 }
