@@ -2001,7 +2001,7 @@
         // 下載功能 (不包含預覽輔助線和控制點)
         function downloadFrame() {
             const format = formats[currentFormat];
-            const filename = `custom_frame_${currentFormat}_${format.width}x${format.height}.png`;
+            const filename = `frame_${currentFormat}_${currentStyle}_${format.width}x${format.height}.png`;
             
             // 重新繪製純淨版本 (不含預覽輔助元素)
             createCleanFrame(currentFormat);
@@ -2068,7 +2068,7 @@
                     
                     setTimeout(() => {
                         const config = formats[format];
-                        const filename = `custom_frame_${format}_${config.width}x${config.height}.png`;
+                        const filename = `frame_${format}_${currentStyle}_${config.width}x${config.height}.png`;
                         
                         // 生成純淨版本 (不含預覽輔助元素)
                         createCleanFrame(format);
