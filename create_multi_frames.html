@@ -334,6 +334,128 @@
             margin: 10px 0;
         }
         
+        /* 多圖片管理面板樣式 */
+        .image-manager {
+            margin: 15px 0;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            background: #fafafa;
+        }
+        
+        .image-manager-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .image-manager-header h4 {
+            margin: 0;
+            color: #495057;
+            font-size: 14px;
+        }
+        
+        .image-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .image-item {
+            position: relative;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: white;
+        }
+        
+        .image-item:hover {
+            border-color: #007bff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,123,255,0.15);
+        }
+        
+        .image-item.selected {
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+        }
+        
+        .image-item img {
+            width: 100%;
+            height: 80px;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .image-item-controls {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            display: flex;
+            gap: 3px;
+        }
+        
+        .image-item-btn {
+            width: 20px;
+            height: 20px;
+            border: none;
+            border-radius: 3px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        
+        .image-item-btn.delete {
+            background: rgba(220, 53, 69, 0.8);
+            color: white;
+        }
+        
+        .image-item-btn.delete:hover {
+            background: #dc3545;
+        }
+        
+        .image-item-btn.up {
+            background: rgba(40, 167, 69, 0.8);
+            color: white;
+        }
+        
+        .image-item-btn.up:hover {
+            background: #28a745;
+        }
+        
+        .image-item-btn.down {
+            background: rgba(255, 193, 7, 0.8);
+            color: black;
+        }
+        
+        .image-item-btn.down:hover {
+            background: #ffc107;
+        }
+        
+        .image-item-info {
+            padding: 5px;
+            font-size: 11px;
+            color: #6c757d;
+            background: rgba(255,255,255,0.95);
+            text-align: center;
+        }
+        
+        .image-item-name {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
         /* 開關樣式 */
         .toggle-switch {
             position: relative;
@@ -620,11 +742,25 @@
                         <div class="upload-area" id="uploadArea">
                             <div class="upload-icon">📁</div>
                             <p>點擊或拖拽上傳圖片</p>
-                            <p style="font-size: 12px; color: #6c757d;">支援 PNG, JPG 格式</p>
-                            <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+                            <p style="font-size: 12px; color: #6c757d;">支援 PNG, JPG 格式，可同時選擇多張</p>
+                            <input type="file" id="imageUpload" accept="image/*" multiple style="display: none;">
                         </div>
                         
+                        <!-- 多圖片管理面板 -->
+                        <div id="imageManager" class="image-manager" style="display: none;">
+                            <div class="image-manager-header">
+                                <h4>已上傳圖片 (<span id="imageCount">0</span>)</h4>
+                                <button type="button" class="btn-secondary" id="addMoreImages">+ 新增圖片</button>
+                            </div>
+                            <div id="imageList" class="image-list"></div>
+                        </div>
+                        
+                        <!-- 單張圖片預覽（保留向下相容） -->
                         <img id="imagePreview" class="image-preview" style="display: none;">
+                        
+                        <!-- 選中圖片的控制項 -->
+                        <div id="selectedImageControls" style="display: none;">
+                            <h4>編輯圖片: <span id="selectedImageName"></span></h4>
                         
                         <div class="slider-group">
                             <label>
@@ -672,6 +808,7 @@
                                 圖片置於文字後方
                             </label>
                         </div>
+                        </div> <!-- 關閉 selectedImageControls -->
                     </div>
                 </div>
             </div>
@@ -710,7 +847,11 @@
         // 全局狀態
         let currentFormat = 'square';
         let currentStyle = 'modern-gallery';
-        let uploadedImage = null;
+        let uploadedImage = null; // 保留向下相容
+        
+        // 多圖片管理系統
+        let uploadedImages = []; // 多圖片陣列
+        let selectedImageIndex = -1; // 選中的圖片索引
         
         // UI 元素引用
         const elements = {
@@ -748,7 +889,15 @@
             imagePositionXValue: document.getElementById('imagePositionXValue'),
             imagePositionY: document.getElementById('imagePositionY'),
             imagePositionYValue: document.getElementById('imagePositionYValue'),
-            imageBehindText: document.getElementById('imageBehindText')
+            imageBehindText: document.getElementById('imageBehindText'),
+            
+            // 多圖片管理元素
+            imageManager: document.getElementById('imageManager'),
+            imageCount: document.getElementById('imageCount'),
+            imageList: document.getElementById('imageList'),
+            addMoreImages: document.getElementById('addMoreImages'),
+            selectedImageControls: document.getElementById('selectedImageControls'),
+            selectedImageName: document.getElementById('selectedImageName')
         };
         
         // 初始化
@@ -833,25 +982,190 @@
             elements.uploadArea.addEventListener('drop', function(e) {
                 e.preventDefault();
                 this.classList.remove('dragover');
-                const files = e.dataTransfer.files;
+                const files = Array.from(e.dataTransfer.files).filter(file => file.type.startsWith('image/'));
                 if (files.length > 0) {
-                    handleImageFile(files[0]);
+                    if (files.length === 1) {
+                        handleImageFile(files[0]);
+                    } else {
+                        handleMultipleImageFiles(files);
+                    }
                 }
             });
             
-            // 圖片控制滑桿
-            setupSlider('imageSize', 'imageSizeValue', '%');
-            setupSlider('imageOpacity', 'imageOpacityValue', '%');
-            setupSlider('imageRotation', 'imageRotationValue', '°');
-            setupSlider('imagePositionX', 'imagePositionXValue', '%');
-            setupSlider('imagePositionY', 'imagePositionYValue', '%');
+            // 圖片控制滑桿（支援多圖片）
+            setupImageSlider('imageSize', 'imageSizeValue', '%');
+            setupImageSlider('imageOpacity', 'imageOpacityValue', '%');
+            setupImageSlider('imageRotation', 'imageRotationValue', '°');
+            setupImageSlider('imagePositionX', 'imagePositionXValue', '%');
+            setupImageSlider('imagePositionY', 'imagePositionYValue', '%');
             
-            elements.imageBehindText.addEventListener('change', () => createFrame(currentFormat));
+            elements.imageBehindText.addEventListener('change', () => {
+                // 更新選中圖片的設定
+                if (selectedImageIndex >= 0 && uploadedImages[selectedImageIndex]) {
+                    uploadedImages[selectedImageIndex].behindText = elements.imageBehindText.checked;
+                }
+                createFrame(currentFormat);
+            });
+            
+            // 多圖片管理事件
+            elements.addMoreImages.addEventListener('click', () => elements.imageUpload.click());
             
             // 畫布直接拖曳功能
             setupCanvasDragging();
         }
         
+        // 全局變數（多圖片拖拽系統）
+        let isAltPressed = false;
+        
+        // 取得元素邊界（支援多圖片）
+        function getElementBounds(elementType) {
+            const config = formats[currentFormat];
+            
+            if (elementType === 'text' && elements.enableText.checked && elements.customText.value.trim()) {
+                const size = parseInt(elements.fontSize.value);
+                const posX = (parseInt(elements.textPositionX.value) / 100) * config.width;
+                const posY = (parseInt(elements.textPositionY.value) / 100) * config.height;
+                
+                // 使用和 drawTextBoundingBox 相同的計算邏輯
+                ctx.save();
+                let fontFamily = elements.fontFamily.value;
+                if (fontFamily === 'cursive') {
+                    fontFamily = '"Brush Script MT", "Lucida Handwriting", "Apple Chancery", cursive';
+                }
+                ctx.font = `${size}px ${fontFamily}`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                // 計算多行文字的總尺寸
+                const text = elements.customText.value.trim();
+                const lines = text.split('\n');
+                const lineHeight = size * 1.2;
+                let maxWidth = 0;
+                
+                lines.forEach(line => {
+                    const metrics = ctx.measureText(line);
+                    maxWidth = Math.max(maxWidth, metrics.width);
+                });
+                
+                const totalHeight = lines.length * lineHeight;
+                const padding = size * 0.1;
+                
+                const textWidth = maxWidth + (padding * 2);
+                const textHeight = totalHeight + (padding * 2);
+                
+                ctx.restore();
+                
+                return {
+                    centerX: posX,
+                    centerY: posY,
+                    left: posX - textWidth / 2,
+                    right: posX + textWidth / 2,
+                    top: posY - textHeight / 2,
+                    bottom: posY + textHeight / 2,
+                    width: textWidth,
+                    height: textHeight
+                };
+            }
+            
+            if (elementType === 'image' && elements.enableImage.checked) {
+                // 優先使用多圖片系統
+                if (uploadedImages.length > 0 && selectedImageIndex >= 0 && uploadedImages[selectedImageIndex]) {
+                    const imageData = uploadedImages[selectedImageIndex];
+                    const imageX = (imageData.positionX / 100) * config.width;
+                    const imageY = (imageData.positionY / 100) * config.height;
+                    const imageSize = imageData.size / 100;
+                    
+                    const maxSize = Math.min(config.width, config.height) * 0.8;
+                    const scale = (maxSize * imageSize) / Math.max(imageData.image.width, imageData.image.height);
+                    const drawWidth = imageData.image.width * scale;
+                    const drawHeight = imageData.image.height * scale;
+                    
+                    return {
+                        centerX: imageX,
+                        centerY: imageY,
+                        left: imageX - drawWidth / 2,
+                        right: imageX + drawWidth / 2,
+                        top: imageY - drawHeight / 2,
+                        bottom: imageY + drawHeight / 2,
+                        width: drawWidth,
+                        height: drawHeight
+                    };
+                }
+                // 回退到單圖片系統
+                else if (uploadedImage) {
+                    const imageX = (elements.imagePositionX.value / 100) * config.width;
+                    const imageY = (elements.imagePositionY.value / 100) * config.height;
+                    const imageSize = elements.imageSize.value / 100;
+                    
+                    const maxSize = Math.min(config.width, config.height) * 0.8;
+                    const scale = (maxSize * imageSize) / Math.max(uploadedImage.width, uploadedImage.height);
+                    const drawWidth = uploadedImage.width * scale;
+                    const drawHeight = uploadedImage.height * scale;
+                    
+                    return {
+                        centerX: imageX,
+                        centerY: imageY,
+                        left: imageX - drawWidth / 2,
+                        right: imageX + drawWidth / 2,
+                        top: imageY - drawHeight / 2,
+                        bottom: imageY + drawHeight / 2,
+                        width: drawWidth,
+                        height: drawHeight
+                    };
+                }
+            }
+            
+            return null;
+        }
+        
+        // 繪製角落控制點
+        function drawCornerHandles(elementType) {
+            const bounds = getElementBounds(elementType);
+            if (!bounds) return;
+            
+            const handleSize = 8;
+            const corners = [
+                { id: 'tl', x: bounds.left, y: bounds.top },
+                { id: 'tr', x: bounds.right, y: bounds.top },
+                { id: 'bl', x: bounds.left, y: bounds.bottom },
+                { id: 'br', x: bounds.right, y: bounds.bottom }
+            ];
+            
+            ctx.save();
+            
+            corners.forEach(corner => {
+                // 繪製控制點背景
+                const fillColor = isAltPressed ? '#ff6b35' : '#007bff';
+                ctx.fillStyle = fillColor;
+                ctx.beginPath();
+                ctx.arc(corner.x, corner.y, handleSize, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                // 繪製白色邊框
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // 繪製旋轉圖示（當 Alt 按下時）
+                if (isAltPressed) {
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.arc(corner.x, corner.y, handleSize * 0.5, 0, Math.PI * 1.5);
+                    ctx.stroke();
+                    
+                    // 箭頭
+                    ctx.beginPath();
+                    ctx.moveTo(corner.x - handleSize * 0.3, corner.y - handleSize * 0.5);
+                    ctx.lineTo(corner.x - handleSize * 0.1, corner.y - handleSize * 0.7);
+                    ctx.lineTo(corner.x - handleSize * 0.1, corner.y - handleSize * 0.3);
+                    ctx.fill();
+                }
+            });
+            
+            ctx.restore();
+        }
+
         // 畫布拖曳功能設定
         function setupCanvasDragging() {
             const canvas = document.getElementById('frameCanvas');
@@ -884,7 +1198,6 @@
             document.addEventListener('keydown', function(e) {
                 if (e.altKey) {
                     isAltPressed = true;
-                    console.log('Alt 鍵按下，isAltPressed:', isAltPressed);
                     updateCornerVisuals();
                 }
             });
@@ -892,7 +1205,6 @@
             document.addEventListener('keyup', function(e) {
                 if (!e.altKey) {
                     isAltPressed = false;
-                    console.log('Alt 鍵釋放，isAltPressed:', isAltPressed);
                     updateCornerVisuals();
                 }
             });
@@ -935,80 +1247,6 @@
                 };
             }
             
-            // 取得元素的邊界框信息
-            function getElementBounds(elementType) {
-                const config = formats[currentFormat];
-                
-                if (elementType === 'text' && elements.enableText.checked && elements.customText.value.trim()) {
-                    const textX = config.width * (elements.textPositionX.value / 100);
-                    const textY = config.height * (elements.textPositionY.value / 100);
-                    const fontSize = parseInt(elements.fontSize.value);
-                    const text = elements.customText.value.trim();
-                    
-                    // 使用和 drawTextBoundingBox 相同的計算邏輯
-                    ctx.save();
-                    let fontFamily = elements.fontFamily.value;
-                    if (fontFamily === 'cursive') {
-                        fontFamily = '"Brush Script MT", "Lucida Handwriting", "Apple Chancery", cursive';
-                    }
-                    ctx.font = `${fontSize}px ${fontFamily}`;
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    
-                    // 計算多行文字的總尺寸
-                    const lines = text.split('\n');
-                    const lineHeight = fontSize * 1.2;
-                    let maxWidth = 0;
-                    
-                    lines.forEach(line => {
-                        const metrics = ctx.measureText(line);
-                        maxWidth = Math.max(maxWidth, metrics.width);
-                    });
-                    
-                    const totalHeight = lines.length * lineHeight;
-                    const padding = fontSize * 0.1;
-                    
-                    const textWidth = maxWidth + (padding * 2);
-                    const textHeight = totalHeight + (padding * 2);
-                    
-                    ctx.restore();
-                    
-                    return {
-                        centerX: textX,
-                        centerY: textY,
-                        width: textWidth,
-                        height: textHeight,
-                        left: textX - textWidth / 2,
-                        right: textX + textWidth / 2,
-                        top: textY - textHeight / 2,
-                        bottom: textY + textHeight / 2
-                    };
-                }
-                
-                if (elementType === 'image' && elements.enableImage.checked && uploadedImage) {
-                    const imageX = (elements.imagePositionX.value / 100) * config.width;
-                    const imageY = (elements.imagePositionY.value / 100) * config.height;
-                    const imageSize = elements.imageSize.value / 100;
-                    
-                    const maxSize = Math.min(config.width, config.height) * 0.8;
-                    const scale = (maxSize * imageSize) / Math.max(uploadedImage.width, uploadedImage.height);
-                    const drawWidth = uploadedImage.width * scale;
-                    const drawHeight = uploadedImage.height * scale;
-                    
-                    return {
-                        centerX: imageX,
-                        centerY: imageY,
-                        width: drawWidth,
-                        height: drawHeight,
-                        left: imageX - drawWidth / 2,
-                        right: imageX + drawWidth / 2,
-                        top: imageY - drawHeight / 2,
-                        bottom: imageY + drawHeight / 2
-                    };
-                }
-                
-                return null;
-            }
             
             // 檢測滑鼠是否在角落控制點上
             function detectCornerHandle(canvasX, canvasY, elementType) {
@@ -1065,51 +1303,6 @@
                 }
                 
                 return null;
-            }
-            
-            // 繪製角落控制點
-            function drawCornerHandles(elementType) {
-                const bounds = getElementBounds(elementType);
-                if (!bounds) return;
-                
-                const handleSize = 8;
-                const corners = [
-                    { id: 'tl', x: bounds.left, y: bounds.top },
-                    { id: 'tr', x: bounds.right, y: bounds.top },
-                    { id: 'bl', x: bounds.left, y: bounds.bottom },
-                    { id: 'br', x: bounds.right, y: bounds.bottom }
-                ];
-                
-                ctx.save();
-                
-                corners.forEach(corner => {
-                    // 繪製控制點背景
-                    const fillColor = isAltPressed ? '#ff6b35' : '#007bff';
-                    console.log(`繪製控制點 ${corner.id}，isAltPressed: ${isAltPressed}，顏色: ${fillColor}`);
-                    ctx.fillStyle = fillColor;
-                    ctx.beginPath();
-                    ctx.arc(corner.x, corner.y, handleSize, 0, 2 * Math.PI);
-                    ctx.fill();
-                    
-                    // 繪製白色邊框
-                    ctx.strokeStyle = '#ffffff';
-                    ctx.lineWidth = 2;
-                    ctx.stroke();
-                    
-                    // 繪製方向指示器
-                    ctx.strokeStyle = '#ffffff';
-                    ctx.lineWidth = 1.5;
-                    
-                    if (isAltPressed) {
-                        // 旋轉箭頭
-                        drawRotationArrow(corner.x, corner.y, corner.id);
-                    } else {
-                        // 調整大小箭頭
-                        drawResizeArrow(corner.x, corner.y, corner.id);
-                    }
-                });
-                
-                ctx.restore();
             }
             
             // 繪製調整大小箭頭
@@ -1398,6 +1591,11 @@
                             const newSize = Math.max(10, Math.min(200, initialScale * scaleFactor));
                             elements.imageSize.value = Math.round(newSize);
                             elements.imageSizeValue.textContent = Math.round(newSize) + '%';
+                            
+                            // 同步更新多圖片系統中選中圖片的屬性
+                            if (selectedImageIndex >= 0 && uploadedImages[selectedImageIndex]) {
+                                uploadedImages[selectedImageIndex].size = Math.round(newSize);
+                            }
                         }
                         
                     } else if (cornerMode === 'rotate') {
@@ -1423,6 +1621,11 @@
                             const newRotation = Math.max(-180, Math.min(180, initialRotation + angleDelta));
                             elements.imageRotation.value = Math.round(newRotation);
                             elements.imageRotationValue.textContent = Math.round(newRotation) + '°';
+                            
+                            // 同步更新多圖片系統中選中圖片的屬性
+                            if (selectedImageIndex >= 0 && uploadedImages[selectedImageIndex]) {
+                                uploadedImages[selectedImageIndex].rotation = Math.round(newRotation);
+                            }
                         }
                     }
                     
@@ -1447,6 +1650,11 @@
                         ));
                         elements.imageSize.value = Math.round(newSize);
                         elements.imageSizeValue.textContent = Math.round(newSize) + '%';
+                        
+                        // 同步更新多圖片系統中選中圖片的屬性
+                        if (selectedImageIndex >= 0 && uploadedImages[selectedImageIndex]) {
+                            uploadedImages[selectedImageIndex].size = Math.round(newSize);
+                        }
                     }
                     
                     createFrame(currentFormat);
@@ -1470,6 +1678,11 @@
                         ));
                         elements.imageRotation.value = Math.round(newRotation);
                         elements.imageRotationValue.textContent = Math.round(newRotation) + '°';
+                        
+                        // 同步更新多圖片系統中選中圖片的屬性
+                        if (selectedImageIndex >= 0 && uploadedImages[selectedImageIndex]) {
+                            uploadedImages[selectedImageIndex].rotation = Math.round(newRotation);
+                        }
                     }
                     
                     createFrame(currentFormat);
@@ -1518,6 +1731,12 @@
                         ));
                         elements.imageRotation.value = Math.round(newRotation);
                         elements.imageRotationValue.textContent = Math.round(newRotation) + '°';
+                        
+                        // 同步更新多圖片系統中選中圖片的屬性
+                        if (selectedImageIndex >= 0 && uploadedImages[selectedImageIndex]) {
+                            uploadedImages[selectedImageIndex].size = Math.round(newSize);
+                            uploadedImages[selectedImageIndex].rotation = Math.round(newRotation);
+                        }
                     }
                     
                 } else if (isDragging) {
@@ -1553,10 +1772,17 @@
                             parseFloat(initialImageY) + (deltaY / config.height) * 100
                         ));
                         
+                        // 更新 UI 控制項
                         elements.imagePositionX.value = newX;
                         elements.imagePositionXValue.textContent = Math.round(newX) + '%';
                         elements.imagePositionY.value = newY;
                         elements.imagePositionYValue.textContent = Math.round(newY) + '%';
+                        
+                        // 同步更新多圖片系統中選中圖片的屬性
+                        if (selectedImageIndex >= 0 && uploadedImages[selectedImageIndex]) {
+                            uploadedImages[selectedImageIndex].positionX = newX;
+                            uploadedImages[selectedImageIndex].positionY = newY;
+                        }
                     }
                 }
                 
@@ -1633,11 +1859,225 @@
             });
         }
         
-        // 處理圖片上傳
+        // 圖片滑桿設定（支援多圖片）
+        function setupImageSlider(sliderId, valueId, unit) {
+            const slider = document.getElementById(sliderId);
+            const valueDisplay = document.getElementById(valueId);
+            
+            slider.addEventListener('input', function() {
+                const value = this.value;
+                valueDisplay.textContent = value + unit;
+                
+                // 更新選中圖片的屬性
+                if (selectedImageIndex >= 0 && uploadedImages[selectedImageIndex]) {
+                    const imageData = uploadedImages[selectedImageIndex];
+                    const property = sliderId.replace('image', '').toLowerCase();
+                    
+                    switch(property) {
+                        case 'size':
+                            imageData.size = parseInt(value);
+                            break;
+                        case 'opacity':
+                            imageData.opacity = parseInt(value);
+                            break;
+                        case 'rotation':
+                            imageData.rotation = parseInt(value);
+                            break;
+                        case 'positionx':
+                            imageData.positionX = parseInt(value);
+                            break;
+                        case 'positiony':
+                            imageData.positionY = parseInt(value);
+                            break;
+                    }
+                }
+                
+                createFrame(currentFormat);
+            });
+        }
+        
+        // 處理圖片上傳（支援多選）
         function handleImageUpload(event) {
-            const file = event.target.files[0];
-            if (file) {
-                handleImageFile(file);
+            const files = Array.from(event.target.files);
+            if (files.length > 0) {
+                // 如果只有一張圖片，保持向下相容
+                if (files.length === 1) {
+                    handleImageFile(files[0]);
+                } else {
+                    // 多張圖片處理
+                    handleMultipleImageFiles(files);
+                }
+            }
+        }
+        
+        // 處理多張圖片檔案
+        function handleMultipleImageFiles(files) {
+            files.forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    addImageToCollection(file);
+                } else {
+                    console.warn('跳過非圖片檔案:', file.name);
+                }
+            });
+        }
+        
+        // 添加圖片到集合
+        function addImageToCollection(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const imageData = {
+                        id: Date.now() + Math.random(), // 唯一 ID
+                        name: file.name,
+                        src: e.target.result,
+                        image: img,
+                        // 圖片屬性（每張圖片獨立）
+                        size: 100,
+                        opacity: 100,
+                        rotation: 0,
+                        positionX: 50,
+                        positionY: 20,
+                        behindText: false
+                    };
+                    
+                    uploadedImages.push(imageData);
+                    updateImageManager();
+                    
+                    // 自動選中第一張圖片
+                    if (uploadedImages.length === 1) {
+                        selectImage(0);
+                        // 啟用圖片功能
+                        elements.enableImage.checked = true;
+                        elements.imageControls.style.display = 'block';
+                    }
+                    
+                    createFrame(currentFormat);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // 更新圖片管理面板
+        function updateImageManager() {
+            elements.imageCount.textContent = uploadedImages.length;
+            
+            if (uploadedImages.length > 0) {
+                elements.imageManager.style.display = 'block';
+                elements.imagePreview.style.display = 'none'; // 隱藏單張預覽
+                renderImageList();
+            } else {
+                elements.imageManager.style.display = 'none';
+                elements.selectedImageControls.style.display = 'none';
+            }
+        }
+        
+        // 渲染圖片清單
+        function renderImageList() {
+            elements.imageList.innerHTML = '';
+            
+            uploadedImages.forEach((imageData, index) => {
+                const item = document.createElement('div');
+                item.className = `image-item ${index === selectedImageIndex ? 'selected' : ''}`;
+                item.innerHTML = `
+                    <img src="${imageData.src}" alt="${imageData.name}">
+                    <div class="image-item-controls">
+                        <button class="image-item-btn delete" onclick="removeImage(${index})" title="刪除">×</button>
+                        <button class="image-item-btn up" onclick="moveImage(${index}, -1)" title="上移" ${index === 0 ? 'disabled' : ''}>↑</button>
+                        <button class="image-item-btn down" onclick="moveImage(${index}, 1)" title="下移" ${index === uploadedImages.length - 1 ? 'disabled' : ''}>↓</button>
+                    </div>
+                    <div class="image-item-info">
+                        <div class="image-item-name" title="${imageData.name}">${imageData.name}</div>
+                    </div>
+                `;
+                
+                // 點擊選中圖片
+                item.addEventListener('click', (e) => {
+                    if (!e.target.classList.contains('image-item-btn')) {
+                        selectImage(index);
+                    }
+                });
+                
+                elements.imageList.appendChild(item);
+            });
+        }
+        
+        // 選中圖片
+        function selectImage(index) {
+            if (index >= 0 && index < uploadedImages.length) {
+                selectedImageIndex = index;
+                const imageData = uploadedImages[index];
+                
+                // 更新控制項顯示
+                elements.selectedImageControls.style.display = 'block';
+                elements.selectedImageName.textContent = imageData.name;
+                
+                // 更新滑桿值到選中圖片的設定
+                elements.imageSize.value = imageData.size;
+                elements.imageSizeValue.textContent = imageData.size + '%';
+                elements.imageOpacity.value = imageData.opacity;
+                elements.imageOpacityValue.textContent = imageData.opacity + '%';
+                elements.imageRotation.value = imageData.rotation;
+                elements.imageRotationValue.textContent = imageData.rotation + '°';
+                elements.imagePositionX.value = imageData.positionX;
+                elements.imagePositionXValue.textContent = imageData.positionX + '%';
+                elements.imagePositionY.value = imageData.positionY;
+                elements.imagePositionYValue.textContent = imageData.positionY + '%';
+                elements.imageBehindText.checked = imageData.behindText;
+                
+                // 更新向下相容的 uploadedImage
+                uploadedImage = imageData.image;
+                
+                // 重新渲染
+                renderImageList();
+                createFrame(currentFormat);
+            }
+        }
+        
+        // 刪除圖片
+        function removeImage(index) {
+            if (index >= 0 && index < uploadedImages.length) {
+                uploadedImages.splice(index, 1);
+                
+                // 調整選中索引
+                if (selectedImageIndex === index) {
+                    selectedImageIndex = uploadedImages.length > 0 ? Math.min(index, uploadedImages.length - 1) : -1;
+                } else if (selectedImageIndex > index) {
+                    selectedImageIndex--;
+                }
+                
+                // 更新顯示
+                updateImageManager();
+                
+                if (selectedImageIndex >= 0) {
+                    selectImage(selectedImageIndex);
+                } else {
+                    uploadedImage = null;
+                    elements.selectedImageControls.style.display = 'none';
+                }
+                
+                createFrame(currentFormat);
+            }
+        }
+        
+        // 移動圖片順序
+        function moveImage(index, direction) {
+            const newIndex = index + direction;
+            if (newIndex >= 0 && newIndex < uploadedImages.length) {
+                // 交換位置
+                [uploadedImages[index], uploadedImages[newIndex]] = [uploadedImages[newIndex], uploadedImages[index]];
+                
+                // 調整選中索引
+                if (selectedImageIndex === index) {
+                    selectedImageIndex = newIndex;
+                } else if (selectedImageIndex === newIndex) {
+                    selectedImageIndex = index;
+                }
+                
+                // 重新渲染
+                renderImageList();
+                createFrame(currentFormat);
             }
         }
         
@@ -1686,8 +2126,8 @@
             drawFrame(ctx, config, currentStyle);
             
             // 繪製圖片 (如果啟用且在文字後方)
-            if (elements.enableImage.checked && uploadedImage && elements.imageBehindText.checked) {
-                drawCustomImage(ctx, config);
+            if (elements.enableImage.checked) {
+                drawAllImages(ctx, config, true); // 繪製在文字後方的圖片
             }
             
             // 繪製文字
@@ -1696,8 +2136,8 @@
             }
             
             // 繪製圖片 (如果啟用且在文字前方)
-            if (elements.enableImage.checked && uploadedImage && !elements.imageBehindText.checked) {
-                drawCustomImage(ctx, config);
+            if (elements.enableImage.checked) {
+                drawAllImages(ctx, config, false); // 繪製在文字前方的圖片
             }
             
             // 繪製預覽輔助線和控制點 (僅在桌面版且有元素時，不包含在匯出中)
@@ -1765,7 +2205,63 @@
             ctx.restore();
         }
         
-        // 繪製自定義圖片
+        // 繪製所有圖片（多圖片支援）
+        function drawAllImages(ctx, config, behindText = false) {
+            if (uploadedImages.length > 0) {
+                // 使用多圖片系統
+                uploadedImages.forEach(imageData => {
+                    if (imageData.behindText === behindText) {
+                        drawSingleImage(ctx, config, imageData);
+                    }
+                });
+            } else if (uploadedImage) {
+                // 向下相容：使用舊的單圖片系統
+                const isBehindText = elements.imageBehindText.checked;
+                if (isBehindText === behindText) {
+                    drawCustomImage(ctx, config);
+                }
+            }
+        }
+        
+        // 繪製單張圖片（新的多圖片系統）
+        function drawSingleImage(ctx, config, imageData) {
+            if (!imageData || !imageData.image) return;
+            
+            ctx.save();
+            
+            // 使用圖片自己的屬性
+            const size = imageData.size / 100;
+            const opacity = imageData.opacity / 100;
+            const rotation = imageData.rotation;
+            const posX = (imageData.positionX / 100) * config.width;
+            const posY = (imageData.positionY / 100) * config.height;
+            
+            // 計算縮放尺寸
+            const maxSize = Math.min(config.width, config.height) * 0.8;
+            const scale = (maxSize * size) / Math.max(imageData.image.width, imageData.image.height);
+            const drawWidth = imageData.image.width * scale;
+            const drawHeight = imageData.image.height * scale;
+            
+            // 設定透明度
+            ctx.globalAlpha = opacity;
+            
+            // 移動到圖片中心並旋轉
+            ctx.translate(posX, posY);
+            ctx.rotate((rotation * Math.PI) / 180);
+            
+            // 繪製圖片
+            ctx.drawImage(
+                imageData.image,
+                -drawWidth / 2,
+                -drawHeight / 2,
+                drawWidth,
+                drawHeight
+            );
+            
+            ctx.restore();
+        }
+        
+        // 繪製自定義圖片（向下相容）
         function drawCustomImage(ctx, config) {
             if (!uploadedImage) return;
             
@@ -2038,8 +2534,8 @@
             drawFrame(ctx, config, currentStyle);
             
             // 繪製圖片 (如果啟用且在文字後方)
-            if (elements.enableImage.checked && uploadedImage && elements.imageBehindText.checked) {
-                drawCustomImage(ctx, config);
+            if (elements.enableImage.checked) {
+                drawAllImages(ctx, config, true); // 繪製在文字後方的圖片
             }
             
             // 繪製文字
@@ -2048,8 +2544,8 @@
             }
             
             // 繪製圖片 (如果啟用且在文字前方)
-            if (elements.enableImage.checked && uploadedImage && !elements.imageBehindText.checked) {
-                drawCustomImage(ctx, config);
+            if (elements.enableImage.checked) {
+                drawAllImages(ctx, config, false); // 繪製在文字前方的圖片
             }
             
             // 注意：這裡不繪製虛線邊界框和角落控制點
@@ -2193,7 +2689,16 @@
             elements.imagePositionYValue.textContent = '20%';
             elements.imageBehindText.checked = false;
             
+            // 清除多圖片和單圖片
+            uploadedImages = [];
+            selectedImageIndex = -1;
             uploadedImage = null;
+            
+            // 隱藏相關 UI
+            elements.imageManager.style.display = 'none';
+            elements.selectedImageControls.style.display = 'none';
+            elements.imagePreview.style.display = 'none';
+            
             createFrame(currentFormat);
         }
     </script>
