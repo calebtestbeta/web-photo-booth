@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聖誕新風格相框生成器</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            padding: 20px;
+            background: linear-gradient(135deg, #dc2626, #15b981);
+            margin: 0;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #dc2626;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        .controls {
+            margin-bottom: 20px;
+        }
+        .style-selector {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .style-btn {
+            padding: 10px 20px;
+            border: 2px solid #dc2626;
+            background: white;
+            color: #dc2626;
+            cursor: pointer;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .style-btn.active {
+            background: #dc2626;
+            color: white;
+        }
+        .style-btn:hover:not(.active) {
+            background: #fef2f2;
+        }
+        .format-selector {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .format-btn {
+            padding: 10px 15px;
+            border: 2px solid #15b981;
+            background: white;
+            color: #15b981;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .format-btn.active {
+            background: #15b981;
+            color: white;
+        }
+        canvas {
+            border: 3px solid #dc2626;
+            border-radius: 12px;
+            max-width: 100%;
+            height: auto;
+            margin: 20px 0;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .download-section {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .download-btn {
+            padding: 12px 24px;
+            background: #dc2626;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+        .download-btn:hover {
+            background: #b91c1c;
+            transform: translateY(-2px);
+        }
+        .download-btn.secondary {
+            background: #15b981;
+        }
+        .download-btn.secondary:hover {
+            background: #10b981;
+        }
+        .info {
+            background: #fef2f2;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #dc2626;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎄 聖誕新風格相框生成器 ✨</h1>
+        
+        <div class="controls">
+            <h3>選擇風格：</h3>
+            <div class="style-selector">
+                <button class="style-btn active" data-style="polaroid">📸 拍立得</button>
+                <button class="style-btn" data-style="colorful-christmas">🎨 繽紛聖誕</button>
+                <button class="style-btn" data-style="christmas-feast">🍽️ 聖誕大餐</button>
+                <button class="style-btn" data-style="merry-christmas">🎅 聖誕快樂</button>
+                <button class="style-btn" data-style="christmas-fairy-tale">🧚 聖誕童話</button>
+            </div>
+            
+            <h3>選擇格式：</h3>
+            <div class="format-selector">
+                <button class="format-btn active" data-format="square">正方形 (1080×1080)</button>
+                <button class="format-btn" data-format="portrait">直式 (1080×1350)</button>
+                <button class="format-btn" data-format="story">限時動態 (1080×1920)</button>
+            </div>
+        </div>
+        
+        <canvas id="frameCanvas"></canvas>
+        
+        <div class="download-section">
+            <button class="download-btn" onclick="downloadCurrentFrame()">📥 下載當前相框</button>
+            <button class="download-btn secondary" onclick="downloadAllFormats()">📦 下載所有格式</button>
+        </div>
+        
+        <div class="info">
+            <h4>🎨 新聖誕風格說明：</h4>
+            <ul>
+                <li><strong>拍立得</strong>: 經典白邊框拍立得風格，復古聖誕感</li>
+                <li><strong>繽紛聖誕</strong>: 多彩聖誕裝飾，豐富色彩搭配</li>
+                <li><strong>聖誕大餐</strong>: 溫馨聚餐主題，餐具與美食元素</li>
+                <li><strong>聖誕快樂</strong>: 祝福文字為主，溫暖字體效果</li>
+                <li><strong>聖誕童話</strong>: 夢幻童話風格，魔法與星光效果</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('frameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // 格式配置
+        const formats = {
+            square: { width: 1080, height: 1080, name: '正方形' },
+            portrait: { width: 1080, height: 1350, name: '直式' },
+            story: { width: 1080, height: 1920, name: '限時動態' }
+        };
+        
+        let currentFormat = 'square';
+        let currentStyle = 'polaroid';
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            createFrame();
+        });
+        
+        function setupEventListeners() {
+            // 風格選擇器
+            document.querySelectorAll('.style-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentStyle = this.dataset.style;
+                    createFrame();
+                });
+            });
+            
+            // 格式選擇器
+            document.querySelectorAll('.format-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.format-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentFormat = this.dataset.format;
+                    createFrame();
+                });
+            });
+        }
+        
+        function createFrame() {
+            const config = formats[currentFormat];
+            canvas.width = config.width;
+            canvas.height = config.height;
+            
+            // 清除畫布
+            ctx.clearRect(0, 0, config.width, config.height);
+            
+            // 根據風格繪製相框
+            switch(currentStyle) {
+                case 'polaroid':
+                    drawPolaroidFrame(ctx, config);
+                    break;
+                case 'colorful-christmas':
+                    drawColorfulChristmasFrame(ctx, config);
+                    break;
+                case 'christmas-feast':
+                    drawChristmasFeastFrame(ctx, config);
+                    break;
+                case 'merry-christmas':
+                    drawMerryChristmasFrame(ctx, config);
+                    break;
+                case 'christmas-fairy-tale':
+                    drawChristmasFairyTaleFrame(ctx, config);
+                    break;
+            }
+        }
+        
+        // 1. 拍立得風格
+        function drawPolaroidFrame(ctx, config) {
+            const borderWidth = 60;
+            const bottomBorder = borderWidth * 1.5; // 底部加寬
+            
+            ctx.save();
+            
+            // 主要白邊框
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, config.width, config.height);
+            
+            // 內部照片區域（透明）
+            ctx.clearRect(borderWidth, borderWidth, 
+                         config.width - borderWidth * 2, 
+                         config.height - borderWidth - bottomBorder);
+            
+            // 陰影效果
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+            ctx.shadowBlur = 10;
+            ctx.shadowOffsetX = 5;
+            ctx.shadowOffsetY = 5;
+            
+            // 重繪外框創造立體感
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, config.width, borderWidth); // 上邊框
+            ctx.fillRect(0, 0, borderWidth, config.height); // 左邊框  
+            ctx.fillRect(config.width - borderWidth, 0, borderWidth, config.height); // 右邊框
+            ctx.fillRect(0, config.height - bottomBorder, config.width, bottomBorder); // 下邊框
+            
+            // 底部聖誕文字
+            ctx.shadowColor = 'transparent';
+            ctx.fillStyle = '#dc2626';
+            ctx.font = 'bold 32px "Comic Sans MS", cursive';
+            ctx.textAlign = 'center';
+            ctx.fillText('Merry Christmas!', config.width / 2, config.height - bottomBorder / 2);
+            
+            ctx.restore();
+        }
+        
+        // 2. 繽紛聖誕風格
+        function drawColorfulChristmasFrame(ctx, config) {
+            const borderWidth = 50;
+            
+            ctx.save();
+            
+            // 彩虹漸變邊框
+            const gradient = ctx.createLinearGradient(0, 0, config.width, config.height);
+            gradient.addColorStop(0, '#dc2626'); // 紅色
+            gradient.addColorStop(0.2, '#f59e0b'); // 橙色
+            gradient.addColorStop(0.4, '#eab308'); // 黃色
+            gradient.addColorStop(0.6, '#15b981'); // 綠色
+            gradient.addColorStop(0.8, '#3b82f6'); // 藍色
+            gradient.addColorStop(1, '#8b5cf6'); // 紫色
+            
+            ctx.strokeStyle = gradient;
+            ctx.lineWidth = borderWidth;
+            ctx.strokeRect(borderWidth/2, borderWidth/2, 
+                          config.width - borderWidth, config.height - borderWidth);
+            
+            // 繽紛聖誕球裝飾
+            const ballColors = ['#dc2626', '#15b981', '#f59e0b', '#8b5cf6', '#3b82f6'];
+            const positions = [
+                {x: borderWidth + 30, y: borderWidth + 30},
+                {x: config.width - borderWidth - 30, y: borderWidth + 30},
+                {x: borderWidth + 30, y: config.height - borderWidth - 30},
+                {x: config.width - borderWidth - 30, y: config.height - borderWidth - 30}
+            ];
+            
+            positions.forEach((pos, i) => {
+                ctx.fillStyle = ballColors[i % ballColors.length];
+                ctx.beginPath();
+                ctx.arc(pos.x, pos.y, 20, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                // 高光效果
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+                ctx.beginPath();
+                ctx.arc(pos.x - 5, pos.y - 5, 8, 0, 2 * Math.PI);
+                ctx.fill();
+            });
+            
+            ctx.restore();
+        }
+        
+        // 3. 聖誕大餐風格
+        function drawChristmasFeastFrame(ctx, config) {
+            const borderWidth = 45;
+            
+            ctx.save();
+            
+            // 溫暖棕色邊框
+            const gradient = ctx.createLinearGradient(0, 0, 0, config.height);
+            gradient.addColorStop(0, '#92400e'); // 深棕色
+            gradient.addColorStop(0.5, '#d97706'); // 橙棕色
+            gradient.addColorStop(1, '#92400e'); // 深棕色
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, config.width, borderWidth); // 上
+            ctx.fillRect(0, 0, borderWidth, config.height); // 左
+            ctx.fillRect(config.width - borderWidth, 0, borderWidth, config.height); // 右
+            ctx.fillRect(0, config.height - borderWidth, config.width, borderWidth); // 下
+            
+            // 餐具裝飾圖案
+            drawFork(ctx, borderWidth + 40, borderWidth / 2);
+            drawKnife(ctx, config.width - borderWidth - 40, borderWidth / 2);
+            drawPlate(ctx, config.width / 2, borderWidth / 2);
+            
+            // 底部美食圖案
+            drawTurkey(ctx, config.width / 2 - 60, config.height - borderWidth / 2);
+            drawWine(ctx, config.width / 2 + 60, config.height - borderWidth / 2);
+            
+            ctx.restore();
+        }
+        
+        // 4. 聖誕快樂風格
+        function drawMerryChristmasFrame(ctx, config) {
+            const borderWidth = 40;
+            
+            ctx.save();
+            
+            // 簡潔邊框
+            ctx.strokeStyle = '#dc2626';
+            ctx.lineWidth = borderWidth;
+            ctx.strokeRect(borderWidth/2, borderWidth/2, 
+                          config.width - borderWidth, config.height - borderWidth);
+            
+            // 大型祝福文字
+            const text = 'Merry Christmas!';
+            
+            // 文字陰影
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+            ctx.shadowBlur = 5;
+            ctx.shadowOffsetX = 3;
+            ctx.shadowOffsetY = 3;
+            
+            // 漸變文字效果
+            const textGradient = ctx.createLinearGradient(0, 0, config.width, 0);
+            textGradient.addColorStop(0, '#dc2626');
+            textGradient.addColorStop(0.5, '#f59e0b');
+            textGradient.addColorStop(1, '#dc2626');
+            
+            ctx.fillStyle = textGradient;
+            ctx.font = `bold ${Math.min(config.width / 12, 90)}px "Impact", sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // 頂部文字
+            ctx.fillText(text, config.width / 2, borderWidth + 50);
+            
+            // 底部文字
+            ctx.fillText('🎄 ✨ 🎅', config.width / 2, config.height - borderWidth - 30);
+            
+            ctx.restore();
+        }
+        
+        // 5. 聖誕童話風格  
+        function drawChristmasFairyTaleFrame(ctx, config) {
+            const borderWidth = 50;
+            
+            ctx.save();
+            
+            // 夢幻漸變邊框
+            const gradient = ctx.createRadialGradient(config.width/2, config.height/2, 0, 
+                                                    config.width/2, config.height/2, config.width/2);
+            gradient.addColorStop(0, 'transparent');
+            gradient.addColorStop(0.7, 'rgba(139, 92, 246, 0.3)'); // 淡紫色
+            gradient.addColorStop(1, '#8b5cf6'); // 紫色
+            
+            ctx.strokeStyle = gradient;
+            ctx.lineWidth = borderWidth;
+            ctx.strokeRect(borderWidth/2, borderWidth/2, 
+                          config.width - borderWidth, config.height - borderWidth);
+            
+            // 魔法星星
+            const starPositions = [];
+            for (let i = 0; i < 20; i++) {
+                starPositions.push({
+                    x: Math.random() * config.width,
+                    y: Math.random() * config.height,
+                    size: Math.random() * 15 + 5
+                });
+            }
+            
+            starPositions.forEach(star => {
+                if ((star.x < borderWidth * 2 || star.x > config.width - borderWidth * 2) ||
+                    (star.y < borderWidth * 2 || star.y > config.height - borderWidth * 2)) {
+                    drawStar(ctx, star.x, star.y, star.size);
+                }
+            });
+            
+            // 童話城堡剪影（四角）
+            drawCastle(ctx, borderWidth / 2, borderWidth / 2);
+            drawCastle(ctx, config.width - borderWidth / 2, borderWidth / 2);
+            drawCastle(ctx, borderWidth / 2, config.height - borderWidth / 2);
+            drawCastle(ctx, config.width - borderWidth / 2, config.height - borderWidth / 2);
+            
+            ctx.restore();
+        }
+        
+        // 輔助繪製函數
+        function drawFork(ctx, x, y) {
+            ctx.strokeStyle = '#374151';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(x, y - 15);
+            ctx.lineTo(x, y + 15);
+            ctx.moveTo(x - 5, y - 15);
+            ctx.lineTo(x - 5, y - 5);
+            ctx.moveTo(x + 5, y - 15);
+            ctx.lineTo(x + 5, y - 5);
+            ctx.stroke();
+        }
+        
+        function drawKnife(ctx, x, y) {
+            ctx.strokeStyle = '#374151';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(x, y - 15);
+            ctx.lineTo(x, y + 15);
+            ctx.moveTo(x - 3, y - 15);
+            ctx.lineTo(x + 3, y - 10);
+            ctx.stroke();
+        }
+        
+        function drawPlate(ctx, x, y) {
+            ctx.strokeStyle = '#6b7280';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(x, y, 15, 0, 2 * Math.PI);
+            ctx.stroke();
+        }
+        
+        function drawTurkey(ctx, x, y) {
+            ctx.fillStyle = '#92400e';
+            ctx.beginPath();
+            ctx.arc(x, y, 12, 0, 2 * Math.PI);
+            ctx.fill();
+            // 簡化火雞形狀
+        }
+        
+        function drawWine(ctx, x, y) {
+            ctx.strokeStyle = '#7c3aed';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(x, y - 5, 8, 0, Math.PI, true);
+            ctx.moveTo(x - 8, y - 5);
+            ctx.lineTo(x - 8, y + 10);
+            ctx.lineTo(x + 8, y + 10);
+            ctx.lineTo(x + 8, y - 5);
+            ctx.stroke();
+        }
+        
+        function drawStar(ctx, x, y, size) {
+            ctx.fillStyle = '#fbbf24';
+            ctx.beginPath();
+            ctx.moveTo(x, y - size);
+            ctx.lineTo(x + size * 0.3, y - size * 0.3);
+            ctx.lineTo(x + size, y);
+            ctx.lineTo(x + size * 0.3, y + size * 0.3);
+            ctx.lineTo(x, y + size);
+            ctx.lineTo(x - size * 0.3, y + size * 0.3);
+            ctx.lineTo(x - size, y);
+            ctx.lineTo(x - size * 0.3, y - size * 0.3);
+            ctx.closePath();
+            ctx.fill();
+            
+            // 光暈效果
+            ctx.shadowColor = '#fbbf24';
+            ctx.shadowBlur = 10;
+            ctx.fill();
+            ctx.shadowColor = 'transparent';
+        }
+        
+        function drawCastle(ctx, x, y) {
+            ctx.fillStyle = '#374151';
+            ctx.fillRect(x - 10, y - 8, 20, 16);
+            // 城堡尖塔
+            ctx.beginPath();
+            ctx.moveTo(x, y - 15);
+            ctx.lineTo(x - 8, y - 8);
+            ctx.lineTo(x + 8, y - 8);
+            ctx.closePath();
+            ctx.fill();
+        }
+        
+        // 下載功能
+        function downloadCurrentFrame() {
+            const config = formats[currentFormat];
+            const filename = `frame_${currentFormat}_${currentStyle}_${config.width}x${config.height}.png`;
+            
+            canvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, 'image/png');
+        }
+        
+        function downloadAllFormats() {
+            const originalFormat = currentFormat;
+            const formatKeys = Object.keys(formats);
+            let downloadCount = 0;
+            
+            function downloadNext() {
+                if (downloadCount < formatKeys.length) {
+                    const format = formatKeys[downloadCount];
+                    currentFormat = format;
+                    createFrame();
+                    
+                    setTimeout(() => {
+                        const config = formats[format];
+                        const filename = `frame_${format}_${currentStyle}_${config.width}x${config.height}.png`;
+                        
+                        canvas.toBlob(function(blob) {
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = filename;
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                            URL.revokeObjectURL(url);
+                            
+                            downloadCount++;
+                            downloadNext();
+                        }, 'image/png');
+                    }, 100);
+                } else {
+                    currentFormat = originalFormat;
+                    createFrame();
+                }
+            }
+            
+            downloadNext();
+        }
+    </script>
+</body>
+</html>

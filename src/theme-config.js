@@ -30,11 +30,11 @@ export class ThemeConfig {
                 cssFile: 'themes/christmas.css',
                 primaryColor: '#dc2626',
                 frameStyles: [
-                    'hfp_polaroid',
-                    'snow-frame',
-                    'christmas-ornaments',
-                    'winter-glow',
-                    'festive-lights'
+                    'polaroid',
+                    'colorful-christmas',
+                    'christmas-feast',
+                    'merry-christmas',
+                    'christmas-fairy-tale'
                 ],
                 shareMessage: "🎄 Merry Christmas! Sharing holiday magic ✨",
                 url: "https://calebtestbeta.github.io/web-photo-booth/christmas.html",

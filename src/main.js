@@ -645,11 +645,11 @@ class PhotoFrameApp {
         
         // Christmas theme style names
         const christmasStyles = {
-            'hfp_polaroid': '信友拍立得',
-            'snow-frame': '雪花邊框',
-            'christmas-ornaments': '聖誕飾品',
-            'winter-glow': '冬日光暈',
-            'festive-lights': '節慶燈飾'
+            'polaroid': '拍立得',
+            'colorful-christmas': '繽紛聖誕',
+            'christmas-feast': '聖誕大餐',
+            'merry-christmas': '聖誕快樂',
+            'christmas-fairy-tale': '聖誕童話'
         };
         
         if (currentTheme.name === 'Christmas Magic') {
