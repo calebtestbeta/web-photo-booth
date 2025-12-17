@@ -658,6 +658,60 @@ body {
     opacity: 0.9;
 }
 
+/* Disabled button styles */
+.format-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    filter: grayscale(100%);
+    pointer-events: auto; /* Keep pointer events for tooltip */
+    background: var(--neutral-100);
+    border-color: var(--neutral-300);
+}
+
+.format-btn:disabled:hover {
+    transform: none;
+    box-shadow: none;
+    background: var(--neutral-100);
+    border-color: var(--neutral-300);
+}
+
+.format-btn:disabled:active {
+    transform: none;
+    box-shadow: none;
+}
+
+.format-btn:disabled::before {
+    display: none; /* Remove hover effect animation */
+}
+
+/* Tooltip for disabled buttons */
+.format-btn:disabled {
+    position: relative;
+}
+
+.format-btn:disabled::after {
+    content: attr(title);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--neutral-900);
+    color: white;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--rounded-lg);
+    font-size: 0.75rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transition-base);
+    z-index: 10;
+    box-shadow: var(--shadow-md);
+}
+
+.format-btn:disabled:hover::after {
+    opacity: 1;
+}
+
 
 /* Precision Selector - using format-selector as base */
 .precision-selector .precision-toggle {

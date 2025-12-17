@@ -159,6 +159,39 @@
         <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/>
         <line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/>
       </symbol>
+      <!-- Heartfelt Christmas Icon -->
+      <symbol id="icon-heartfelt-christmas" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <!-- Heart shape -->
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+        <!-- Star decoration on top -->
+        <circle cx="12" cy="3" r="1" fill="currentColor"/>
+        <circle cx="9" cy="4" r="0.5" fill="currentColor"/>
+        <circle cx="15" cy="4" r="0.5" fill="currentColor"/>
+        <!-- Small sparkles around heart -->
+        <line x1="5" y1="8" x2="5.5" y2="8.5"/>
+        <line x1="19" y1="8" x2="18.5" y2="8.5"/>
+        <line x1="7" y1="16" x2="7.5" y2="16.5"/>
+        <line x1="17" y1="16" x2="16.5" y2="16.5"/>
+      </symbol>
+      <!-- Cozy Coffee Icon -->
+      <symbol id="icon-cozy-coffee" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <!-- Coffee cup -->
+        <path d="M17 8h1a4 4 0 0 1 0 8h-1"/>
+        <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/>
+        <!-- Steam waves -->
+        <path d="M6 2v2"/>
+        <path d="M10 2v2"/>
+        <path d="M14 2v2"/>
+        <!-- Christmas decorations - holly leaves -->
+        <circle cx="19" cy="5" r="1" fill="currentColor"/>
+        <circle cx="21" cy="6" r="0.8" fill="currentColor"/>
+        <circle cx="20" cy="7" r="0.8" fill="currentColor"/>
+        <!-- Snowflake on cup -->
+        <line x1="10" y1="12" x2="10" y2="14" stroke-width="1"/>
+        <line x1="9" y1="13" x2="11" y2="13" stroke-width="1"/>
+        <line x1="9.3" y1="12.3" x2="10.7" y2="13.7" stroke-width="0.8"/>
+        <line x1="10.7" y1="12.3" x2="9.3" y2="13.7" stroke-width="0.8"/>
+      </symbol>
     </svg>
 
     <div class="app-container">
@@ -206,7 +239,25 @@
         <section class="format-selector">
             <label class="format-label">選擇聖誕邊框風格</label>
             <div class="format-buttons">
-                <button class="format-btn active" data-style="polaroid" aria-checked="true">
+                <button class="format-btn active" data-style="heartfelt-christmas" aria-checked="true">
+                    <div class="format-icon">
+                        <svg class="icon"><use href="#icon-heartfelt-christmas"></use></svg>
+                    </div>
+                    <div class="format-content">
+                        <div class="format-text">聖誕真心</div>
+                        <div class="format-desc">溫馨祝福</div>
+                    </div>
+                </button>
+                <button class="format-btn" data-style="cozy-coffee" aria-checked="false">
+                    <div class="format-icon">
+                        <svg class="icon"><use href="#icon-cozy-coffee"></use></svg>
+                    </div>
+                    <div class="format-content">
+                        <div class="format-text">聖誕咖啡</div>
+                        <div class="format-desc">溫暖時光</div>
+                    </div>
+                </button>
+                <button class="format-btn" data-style="polaroid" aria-checked="false">
                     <div class="format-icon">
                         <svg class="icon"><use href="#icon-camera"></use></svg>
                     </div>

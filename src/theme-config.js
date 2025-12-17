@@ -12,11 +12,36 @@ export class ThemeConfig {
                 cssFile: 'themes/johnny-be-good.css',
                 primaryColor: '#f97316',
                 frameStyles: [
-                    'modern-gallery',
-                    'gradient-glow', 
-                    'geometric-art',
-                    'minimal-lines',
-                    'tech-modern'
+                    {
+                        value: 'modern-gallery',
+                        label: '🖼️ 現代畫廊',
+                        description: '專業深灰邊框配白色內框',
+                        availableFormats: ['square', 'portrait', 'story']
+                    },
+                    {
+                        value: 'gradient-glow',
+                        label: '✨ 漸變光暈',
+                        description: '彩虹漸變配光暈效果',
+                        availableFormats: ['square', 'portrait', 'story']
+                    },
+                    {
+                        value: 'geometric-art',
+                        label: '🔶 幾何抽象',
+                        description: '橙色主框配青色多層裝飾',
+                        availableFormats: ['square', 'portrait', 'story']
+                    },
+                    {
+                        value: 'minimal-lines',
+                        label: '➖ 極簡線條',
+                        description: '四角線條的簡約設計',
+                        availableFormats: ['square', 'portrait'] // 測試：只支援正方形和直式
+                    },
+                    {
+                        value: 'tech-modern',
+                        label: '💻 科技現代',
+                        description: '藍色科技風配內部線條',
+                        availableFormats: ['square', 'portrait', 'story']
+                    }
                 ],
                 shareMessage: "Farewell, Johnny! Go be good! (Like the song! 😉)",
                 url: "https://calebtestbeta.github.io/web-photo-booth/johnny-be-good.html",
@@ -30,11 +55,48 @@ export class ThemeConfig {
                 cssFile: 'themes/christmas.css',
                 primaryColor: '#dc2626',
                 frameStyles: [
-                    'polaroid',
-                    'colorful-christmas',
-                    'christmas-feast',
-                    'merry-christmas',
-                    'christmas-fairy-tale'
+                    {
+                        value: 'heartfelt-christmas',
+                        label: '❤️ 聖誕真心',
+                        description: '溫馨真心聖誕祝福',
+                        availableFormats: ['square', 'portrait']
+                    },
+                    {
+                        value: 'cozy-coffee',
+                        label: '☕ 聖誕咖啡',
+                        description: '溫暖咖啡聖誕時光',
+                        availableFormats: ['square', 'portrait']
+                    },
+                    {
+                        value: 'polaroid',
+                        label: '📸 信友拍立得',
+                        description: '教會品牌拍立得風格',
+                        availableFormats: ['square', 'portrait', 'story']
+                    },
+                    {
+                        value: 'colorful-christmas',
+                        label: '🎨 繽紛聖誕',
+                        description: '多彩聖誕裝飾風格',
+                        availableFormats: ['square', 'portrait', 'story']
+                    },
+                    {
+                        value: 'christmas-feast',
+                        label: '🍽️ 聖誕盛宴',
+                        description: '溫馨聖誕餐桌風格',
+                        availableFormats: ['square', 'portrait', 'story']
+                    },
+                    {
+                        value: 'merry-christmas',
+                        label: '🎅 聖誕歡樂',
+                        description: '歡樂聖誕氛圍風格',
+                        availableFormats: ['square', 'portrait', 'story']
+                    },
+                    {
+                        value: 'christmas-fairy-tale',
+                        label: '✨ 聖誕童話',
+                        description: '夢幻童話聖誕風格',
+                        availableFormats: ['square', 'portrait', 'story']
+                    }
                 ],
                 shareMessage: "🎄 Merry Christmas! Sharing holiday magic ✨",
                 url: "https://pse.is/8eafnd",
@@ -199,11 +261,53 @@ export class ThemeConfig {
     /**
      * Get available frame styles for theme
      * @param {string} themeId - Theme identifier (optional, uses current theme if not provided)
-     * @returns {Array} Array of frame style identifiers
+     * @returns {Array} Array of frame style objects or identifiers
      */
     getFrameStyles(themeId = null) {
         const theme = themeId ? this.getTheme(themeId) : this.getCurrentTheme();
         return theme ? theme.frameStyles : [];
+    }
+
+    /**
+     * Get frame style values (for backward compatibility)
+     * @param {string} themeId - Theme identifier (optional, uses current theme if not provided)
+     * @returns {Array} Array of frame style value strings
+     */
+    getFrameStyleValues(themeId = null) {
+        const styles = this.getFrameStyles(themeId);
+        if (!styles || styles.length === 0) return [];
+
+        // Support both object and string formats
+        return styles.map(style =>
+            typeof style === 'string' ? style : style.value
+        );
+    }
+
+    /**
+     * Get frame style configuration by value
+     * @param {string} styleValue - Frame style value identifier
+     * @param {string} themeId - Theme identifier (optional, uses current theme if not provided)
+     * @returns {Object|null} Frame style configuration object or null if not found
+     */
+    getFrameStyleConfig(styleValue, themeId = null) {
+        const styles = this.getFrameStyles(themeId);
+        if (!styles || styles.length === 0) return null;
+
+        const style = styles.find(s =>
+            (typeof s === 'string' ? s : s.value) === styleValue
+        );
+
+        // If style is a string (old format), convert to object format
+        if (typeof style === 'string') {
+            return {
+                value: style,
+                label: style,
+                description: '',
+                availableFormats: ['square', 'portrait', 'story']
+            };
+        }
+
+        return style || null;
     }
     
     /**

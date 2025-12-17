@@ -172,14 +172,16 @@ class PhotoFrameApp {
     
     // Update frame styles based on current theme
     updateFrameStylesForTheme() {
-        const currentTheme = themeConfig.getCurrentTheme();
-        const availableStyles = currentTheme.frameStyles;
-        
+        const availableStyles = themeConfig.getFrameStyleValues();
+
         // If current frame style is not available in theme, use first available
         if (!availableStyles.includes(this.currentFrameStyle)) {
             this.currentFrameStyle = availableStyles[0] || 'modern-gallery';
-            console.log(`Updated frame style to ${this.currentFrameStyle} for theme ${currentTheme.name}`);
+            console.log(`Updated frame style to ${this.currentFrameStyle} for current theme`);
         }
+
+        // Update format buttons availability for current style
+        this.updateFormatButtonsAvailability();
     }
 
     // iOS Safari 檢測
@@ -596,36 +598,100 @@ class PhotoFrameApp {
         const formatInfo = this.renderEngine.getCurrentFormat();
         this.showStatus(`已切換至${formatInfo.name}`, 'success');
     }
-    
-    async changeFrameStyle(style) {
-        // Validate style is available in current theme
-        const currentTheme = themeConfig.getCurrentTheme();
-        if (!currentTheme.frameStyles.includes(style)) {
-            console.warn(`Frame style '${style}' not available in theme '${currentTheme.name}'`);
+
+    /**
+     * Update format buttons availability based on current frame style
+     * Disables format buttons that are not available for the selected style
+     */
+    updateFormatButtonsAvailability() {
+        const styleConfig = themeConfig.getFrameStyleConfig(this.currentFrameStyle);
+
+        if (!styleConfig) {
+            console.warn(`Style config not found for: ${this.currentFrameStyle}`);
             return;
         }
-        
+
+        const availableFormats = styleConfig.availableFormats || ['square', 'portrait', 'story'];
+        const currentFormat = this.renderEngine.getCurrentFormat().key;
+        let needsFormatSwitch = false;
+
+        // Update each format button
+        this.formatButtons.forEach(btn => {
+            const format = btn.dataset.format;
+            const isAvailable = availableFormats.includes(format);
+
+            if (isAvailable) {
+                // Enable button
+                btn.disabled = false;
+                btn.setAttribute('aria-disabled', 'false');
+                btn.removeAttribute('title');
+            } else {
+                // Disable button
+                btn.disabled = true;
+                btn.setAttribute('aria-disabled', 'true');
+                btn.setAttribute('title', `此風格不支援${this.getFormatDisplayName(format)}`);
+
+                // Check if current format needs to be switched
+                if (format === currentFormat) {
+                    needsFormatSwitch = true;
+                }
+            }
+        });
+
+        // If current format is not available, switch to first available format
+        if (needsFormatSwitch && availableFormats.length > 0) {
+            const firstAvailableFormat = availableFormats[0];
+            console.log(`當前格式不支援，自動切換至: ${firstAvailableFormat}`);
+            this.changeOutputFormat(firstAvailableFormat);
+        }
+    }
+
+    /**
+     * Get display name for format
+     * @param {string} format - Format key (square, portrait, story)
+     * @returns {string} Display name
+     */
+    getFormatDisplayName(format) {
+        const names = {
+            'square': '正方形格式',
+            'portrait': '直式格式',
+            'story': '限時動態格式'
+        };
+        return names[format] || format;
+    }
+
+    async changeFrameStyle(style) {
+        // Validate style is available in current theme
+        const availableStyles = themeConfig.getFrameStyleValues();
+        if (!availableStyles.includes(style)) {
+            console.warn(`Frame style '${style}' not available in theme`);
+            return;
+        }
+
         this.currentFrameStyle = style;
-        
+
         // Update button states
         this.styleButtons.forEach(btn => {
             const isActive = btn.dataset.style === style;
             btn.classList.toggle('active', isActive);
             btn.setAttribute('aria-checked', isActive);
         });
-        
+
+        // Update format buttons availability for this style
+        this.updateFormatButtonsAvailability();
+
         // Load frame for new style
         await this.loadFrameForCurrentFormat();
-        
+
         // Always re-render to show frame preview (with or without image)
         this.scheduleRender();
-        
+
         // Show style change message with theme-aware style names
         const styleNames = this.getStyleDisplayNames();
         const displayName = styleNames[style] || style;
-        
+
         this.showStatus(`已切換至${displayName}風格`, 'success');
-        
+
         // 追蹤邊框風格選擇
         analytics.trackFrameStyleSelected(style, analytics.getCurrentTheme(), !this.currentImage);
     }
