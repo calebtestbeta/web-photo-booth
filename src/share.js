@@ -173,13 +173,14 @@ export class ShareHandler {
         }
         
         const shareData = {
-            files: [file],
-            title: '我的相框照片'
+            files: [file]
         };
-        
+
         if (text) {
             shareData.text = text;
         }
+
+        // 移除 title 欄位，只保留 text，避免平台自動添加頁面 URL
         
         console.log('ShareHandler: 分享參數:', shareData);
         await navigator.share(shareData);
@@ -206,7 +207,6 @@ export class ShareHandler {
         });
         
         const shareData = {
-            title: '我的相框照片',
             text: text || '快來看看我的相框照片！',
             url: dataUrl
         };
