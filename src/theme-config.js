@@ -108,6 +108,12 @@ export class ThemeConfig {
                         label: '✨ 聖誕童話',
                         description: '夢幻童話聖誕風格',
                         availableFormats: ['square', 'portrait', 'story']
+                    },
+                    {
+                        value: 'christmas-card',
+                        label: '💌 聖誕卡片',
+                        description: '卡片祝福風格',
+                        availableFormats: ['square']
                     }
                 ],
                 shareMessage: "🎄 Merry Christmas! Sharing holiday magic ✨",

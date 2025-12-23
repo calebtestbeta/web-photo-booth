@@ -742,7 +742,8 @@ class PhotoFrameApp {
             'colorful-christmas': '繽紛聖誕',
             'christmas-feast': '聖誕大餐',
             'merry-christmas': '聖誕快樂',
-            'christmas-fairy-tale': '聖誕童話'
+            'christmas-fairy-tale': '聖誕童話',
+            'christmas-card': '聖誕卡片'
         };
         
         if (currentTheme.name === 'Christmas Magic') {
