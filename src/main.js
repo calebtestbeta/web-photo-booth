@@ -83,7 +83,7 @@ class PhotoFrameApp {
         
         this.currentImage = null;
         this.frameImage = null;
-        this.currentFrameStyle = 'modern-gallery'; // 預設風格
+        this.currentFrameStyle = 'joyful-stars'; // 預設風格：歡樂星星
         this.transform = {
             x: 0,
             y: 0,
@@ -160,10 +160,15 @@ class PhotoFrameApp {
             console.log('- 支援相機:', !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia));
             console.log('- 當前主題:', themeConfig.getCurrentTheme().name);
             
-            const statusMessage = this.isIOSSafari() ? 
-                '準備就緒！點擊空白區域或上傳按鈕開始使用。' : 
+            const statusMessage = this.isIOSSafari() ?
+                '準備就緒！點擊空白區域或上傳按鈕開始使用。' :
                 '準備就緒！上傳照片開始使用。';
             this.showStatus(statusMessage, 'success');
+
+            // Scroll to the active style button after DOM is ready
+            setTimeout(() => {
+                this.scrollToActiveStyleButton();
+            }, 100);
         } catch (error) {
             console.error('App initialization failed:', error);
             this.showStatus('Failed to initialize app. Please refresh the page.', 'error');
@@ -677,6 +682,9 @@ class PhotoFrameApp {
             btn.setAttribute('aria-checked', isActive);
         });
 
+        // Scroll to active button
+        this.scrollToActiveStyleButton();
+
         // Update format buttons availability for this style
         this.updateFormatButtonsAvailability();
 
@@ -695,7 +703,22 @@ class PhotoFrameApp {
         // 追蹤邊框風格選擇
         analytics.trackFrameStyleSelected(style, analytics.getCurrentTheme(), !this.currentImage);
     }
-    
+
+    /**
+     * Scroll to the active style button to ensure it's visible
+     */
+    scrollToActiveStyleButton() {
+        const activeButton = document.querySelector('.format-btn[data-style].active');
+        if (!activeButton) return;
+
+        // Use scrollIntoView with smooth behavior
+        activeButton.scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest',
+            inline: 'center'
+        });
+    }
+
     // Get style display names based on current theme
     getStyleDisplayNames() {
         const currentTheme = themeConfig.getCurrentTheme();
@@ -711,6 +734,10 @@ class PhotoFrameApp {
         
         // Christmas theme style names
         const christmasStyles = {
+            'joyful-stars': '歡樂星星',
+            'nativity-poster': '耶穌降生',
+            'heartfelt-christmas': '聖誕真心',
+            'cozy-coffee': '聖誕咖啡',
             'polaroid': '拍立得',
             'colorful-christmas': '繽紛聖誕',
             'christmas-feast': '聖誕大餐',

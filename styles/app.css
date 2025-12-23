@@ -1323,13 +1323,14 @@ body {
     
     .format-buttons {
         gap: var(--space-6);
-        justify-content: center;
-        overflow-x: visible;
+        justify-content: flex-start; /* 改為靠左對齊，確保所有按鈕都可見 */
+        overflow-x: auto; /* 允許橫向滾動 */
+        padding-left: var(--space-8); /* 增加左側內距 */
     }
-    
+
     .format-selector::before,
     .format-selector::after {
-        display: none; /* 桌面版隱藏漸層遮罩 */
+        display: block; /* 顯示漸層遮罩提示可滾動 */
     }
     
     .format-btn {

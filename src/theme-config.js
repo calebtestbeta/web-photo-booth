@@ -56,6 +56,18 @@ export class ThemeConfig {
                 primaryColor: '#dc2626',
                 frameStyles: [
                     {
+                        value: 'joyful-stars',
+                        label: '🌟 歡樂星星',
+                        description: '閃耀祝福聖誕星光',
+                        availableFormats: ['square', 'portrait']
+                    },
+                    {
+                        value: 'nativity-poster',
+                        label: '✝️ 耶穌降生',
+                        description: '聖誕海報風格',
+                        availableFormats: ['square', 'portrait']
+                    },
+                    {
                         value: 'heartfelt-christmas',
                         label: '❤️ 聖誕真心',
                         description: '溫馨真心聖誕祝福',
