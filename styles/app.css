@@ -618,6 +618,36 @@ body {
     box-shadow: var(--shadow-xl);
 }
 
+/* NEW Badge for newly added frame styles */
+.new-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    font-size: 8px;
+    font-weight: 700;
+    padding: 1px 4px;
+    border-radius: 3px;
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3);
+    z-index: 1;
+    animation: pulse-badge 2s ease-in-out infinite;
+}
+
+@keyframes pulse-badge {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 2px 8px rgba(220, 38, 38, 0.5);
+    }
+}
+
 .format-icon {
     display: flex;
     align-items: center;
