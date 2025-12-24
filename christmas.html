@@ -222,6 +222,54 @@
         <!-- Manger in center -->
         <rect x="11" y="15" width="2" height="3" rx="0.5"/>
       </symbol>
+      <!-- Collage Christmas Icon -->
+      <symbol id="icon-collage-christmas" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <!-- Grid of photos/frames -->
+        <rect x="2" y="2" width="9" height="9" rx="1"/>
+        <rect x="13" y="2" width="9" height="9" rx="1"/>
+        <rect x="2" y="13" width="9" height="9" rx="1"/>
+        <rect x="13" y="13" width="9" height="9" rx="1"/>
+        <!-- Decorative elements in corners -->
+        <circle cx="6.5" cy="6.5" r="1.5" fill="currentColor"/>
+        <circle cx="17.5" cy="6.5" r="1.5" fill="currentColor"/>
+        <circle cx="6.5" cy="17.5" r="1.5" fill="currentColor"/>
+        <circle cx="17.5" cy="17.5" r="1.5" fill="currentColor"/>
+      </symbol>
+      <!-- Botanical Christmas Icon -->
+      <symbol id="icon-botanical-christmas" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <!-- Leaf branches -->
+        <path d="M12 2v20"/>
+        <path d="M12 4c-2 2-4 3-6 3"/>
+        <path d="M12 4c2 2 4 3 6 3"/>
+        <path d="M12 9c-2 2-4 3-6 3"/>
+        <path d="M12 9c2 2 4 3 6 3"/>
+        <path d="M12 14c-2 2-4 3-6 3"/>
+        <path d="M12 14c2 2 4 3 6 3"/>
+        <!-- Berries -->
+        <circle cx="6" cy="7" r="1.5" fill="currentColor"/>
+        <circle cx="18" cy="7" r="1.5" fill="currentColor"/>
+        <circle cx="6" cy="12" r="1.5" fill="currentColor"/>
+        <circle cx="18" cy="12" r="1.5" fill="currentColor"/>
+      </symbol>
+      <!-- Joyful Christmas Icon -->
+      <symbol id="icon-joyful-christmas" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <!-- Party popper/celebration -->
+        <path d="M5 3l1 1"/>
+        <path d="M19 3l-1 1"/>
+        <path d="M5 21l1-1"/>
+        <path d="M19 21l-1-1"/>
+        <!-- Confetti pieces -->
+        <rect x="10" y="4" width="4" height="4" rx="0.5" fill="currentColor"/>
+        <circle cx="7" cy="9" r="1.5" fill="currentColor"/>
+        <circle cx="17" cy="9" r="1.5" fill="currentColor"/>
+        <rect x="6" y="14" width="3" height="3" rx="0.5" fill="currentColor"/>
+        <rect x="15" y="14" width="3" height="3" rx="0.5" fill="currentColor"/>
+        <circle cx="12" cy="19" r="2" fill="currentColor"/>
+        <!-- Celebration lines -->
+        <line x1="12" y1="2" x2="12" y2="6" stroke-width="1.5"/>
+        <line x1="3" y1="12" x2="7" y2="12" stroke-width="1.5"/>
+        <line x1="17" y1="12" x2="21" y2="12" stroke-width="1.5"/>
+      </symbol>
       <!-- Christmas Card Icon -->
       <symbol id="icon-christmas-card" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <!-- Card outline -->
@@ -285,7 +333,34 @@
         <section class="format-selector">
             <label class="format-label">選擇聖誕邊框風格</label>
             <div class="format-buttons">
-                <button class="format-btn active" data-style="joyful-stars" aria-checked="true">
+                <button class="format-btn active" data-style="collage-christmas" aria-checked="true">
+                    <div class="format-icon">
+                        <svg class="icon"><use href="#icon-collage-christmas"></use></svg>
+                    </div>
+                    <div class="format-content">
+                        <div class="format-text">拼貼聖誕</div>
+                        <div class="format-desc">拼貼風格</div>
+                    </div>
+                </button>
+                <button class="format-btn" data-style="botanical-christmas" aria-checked="false">
+                    <div class="format-icon">
+                        <svg class="icon"><use href="#icon-botanical-christmas"></use></svg>
+                    </div>
+                    <div class="format-content">
+                        <div class="format-text">聖誕植感</div>
+                        <div class="format-desc">自然風格</div>
+                    </div>
+                </button>
+                <button class="format-btn" data-style="joyful-christmas" aria-checked="false">
+                    <div class="format-icon">
+                        <svg class="icon"><use href="#icon-joyful-christmas"></use></svg>
+                    </div>
+                    <div class="format-content">
+                        <div class="format-text">聖誕歡樂</div>
+                        <div class="format-desc">歡樂慶祝</div>
+                    </div>
+                </button>
+                <button class="format-btn" data-style="joyful-stars" aria-checked="false">
                     <div class="format-icon">
                         <svg class="icon"><use href="#icon-joyful-stars"></use></svg>
                     </div>

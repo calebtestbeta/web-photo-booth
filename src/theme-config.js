@@ -56,6 +56,24 @@ export class ThemeConfig {
                 primaryColor: '#dc2626',
                 frameStyles: [
                     {
+                        value: 'collage-christmas',
+                        label: '🎨 拼貼聖誕',
+                        description: '拼貼風格聖誕相框',
+                        availableFormats: ['square', 'portrait']
+                    },
+                    {
+                        value: 'botanical-christmas',
+                        label: '🌿 聖誕植感',
+                        description: '自然植物風格相框',
+                        availableFormats: ['square', 'portrait']
+                    },
+                    {
+                        value: 'joyful-christmas',
+                        label: '🎉 聖誕歡樂',
+                        description: '歡樂慶祝風格相框',
+                        availableFormats: ['square', 'portrait']
+                    },
+                    {
                         value: 'joyful-stars',
                         label: '🌟 歡樂星星',
                         description: '閃耀祝福聖誕星光',

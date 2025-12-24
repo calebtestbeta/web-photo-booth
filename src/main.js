@@ -83,7 +83,7 @@ class PhotoFrameApp {
         
         this.currentImage = null;
         this.frameImage = null;
-        this.currentFrameStyle = 'joyful-stars'; // 預設風格：歡樂星星
+        this.currentFrameStyle = 'collage-christmas'; // 預設風格：拼貼聖誕
         this.transform = {
             x: 0,
             y: 0,
@@ -734,6 +734,9 @@ class PhotoFrameApp {
         
         // Christmas theme style names
         const christmasStyles = {
+            'collage-christmas': '拼貼聖誕',
+            'botanical-christmas': '聖誕植感',
+            'joyful-christmas': '聖誕歡樂',
             'joyful-stars': '歡樂星星',
             'nativity-poster': '耶穌降生',
             'heartfelt-christmas': '聖誕真心',
