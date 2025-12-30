@@ -167,7 +167,7 @@
             </div>
             
             <p class="text-center text-[10px] text-gray-400">
-                Pinch to Zoom • Drag to Move
+                Pinch to Zoom & Rotate • Drag to Move
             </p>
         </div>
     </div>
@@ -354,6 +354,148 @@
             fileInput.click();
         });
 
+        // --- 🎯 雙指手勢系統 (平滑縮放和旋轉) ---
+        let touches = new Map();
+        let lastDistance = 0;
+        let lastAngle = 0;
+        let gestureActive = false;
+
+        // 計算兩點距離
+        function getDistance(p1, p2) {
+            return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
+        }
+
+        // 計算兩點角度
+        function getAngle(p1, p2) {
+            return Math.atan2(p2.y - p1.y, p2.x - p1.x);
+        }
+
+        // 關鍵：處理角度跳躍問題
+        function getRotationDelta(oldAngle, newAngle) {
+            let delta = newAngle - oldAngle;
+
+            // 處理跨越 ±180° 邊界的情況
+            if (delta > Math.PI) {
+                delta -= 2 * Math.PI;
+            } else if (delta < -Math.PI) {
+                delta += 2 * Math.PI;
+            }
+
+            return delta;
+        }
+
+        // 取得相對於 stage 的觸控座標
+        function getStagePointerPosition(touch) {
+            const rect = stageParent.getBoundingClientRect();
+            return {
+                x: touch.clientX - rect.left,
+                y: touch.clientY - rect.top
+            };
+        }
+
+        // TouchStart: 記錄觸控點
+        stageParent.addEventListener('touchstart', (e) => {
+            if (!userImgNode) return;
+
+            // 更新觸控點記錄
+            Array.from(e.touches).forEach(touch => {
+                const pos = getStagePointerPosition(touch);
+                touches.set(touch.identifier, pos);
+            });
+
+            // 雙指手勢開始
+            if (touches.size === 2) {
+                gestureActive = true;
+                const touchArray = Array.from(touches.values());
+                lastDistance = getDistance(touchArray[0], touchArray[1]);
+                lastAngle = getAngle(touchArray[0], touchArray[1]);
+
+                // 禁用單指拖拽，避免衝突
+                userImgNode.draggable(false);
+                tr.hide(); // 隱藏 Transformer 避免干擾
+                photoLayer.draw();
+            }
+        }, { passive: true });
+
+        // TouchMove: 處理雙指縮放和旋轉
+        stageParent.addEventListener('touchmove', (e) => {
+            if (!userImgNode || !gestureActive) return;
+
+            // 更新觸控點位置
+            Array.from(e.touches).forEach(touch => {
+                const pos = getStagePointerPosition(touch);
+                touches.set(touch.identifier, pos);
+            });
+
+            if (touches.size === 2) {
+                const touchArray = Array.from(touches.values());
+                const currentDistance = getDistance(touchArray[0], touchArray[1]);
+                const currentAngle = getAngle(touchArray[0], touchArray[1]);
+
+                // 計算縮放比例
+                const scaleChange = currentDistance / lastDistance;
+                const newScaleX = userImgNode.scaleX() * scaleChange;
+                const newScaleY = userImgNode.scaleY() * scaleChange;
+
+                // 限制縮放範圍 (0.1x ~ 5x)
+                if (newScaleX >= 0.1 && newScaleX <= 5) {
+                    userImgNode.scaleX(newScaleX);
+                    userImgNode.scaleY(newScaleY);
+                }
+
+                // 計算旋轉增量 (使用角度歸一化避免跳躍)
+                const rotationDelta = getRotationDelta(lastAngle, currentAngle);
+                const newRotation = userImgNode.rotation() + rotationDelta * 180 / Math.PI;
+                userImgNode.rotation(newRotation);
+
+                // 更新上一次的狀態
+                lastDistance = currentDistance;
+                lastAngle = currentAngle;
+
+                photoLayer.batchDraw();
+            }
+        }, { passive: true });
+
+        // TouchEnd: 清理狀態
+        stageParent.addEventListener('touchend', (e) => {
+            if (!userImgNode) return;
+
+            // 移除已結束的觸控點
+            const remainingTouches = new Set(Array.from(e.touches).map(t => t.identifier));
+            for (let id of touches.keys()) {
+                if (!remainingTouches.has(id)) {
+                    touches.delete(id);
+                }
+            }
+
+            // 雙指手勢結束
+            if (touches.size < 2 && gestureActive) {
+                gestureActive = false;
+                userImgNode.draggable(true); // 恢復單指拖拽
+                tr.show(); // 顯示 Transformer
+                photoLayer.draw();
+            }
+
+            // 所有觸控點都結束
+            if (touches.size === 0) {
+                gestureActive = false;
+                lastDistance = 0;
+                lastAngle = 0;
+            }
+        }, { passive: true });
+
+        stageParent.addEventListener('touchcancel', (e) => {
+            touches.clear();
+            gestureActive = false;
+            lastDistance = 0;
+            lastAngle = 0;
+            if (userImgNode) {
+                userImgNode.draggable(true);
+                tr.show();
+                photoLayer.draw();
+            }
+        }, { passive: true });
+
         // --- 上傳邏輯 ---
         let userImgNode = null;
         fileInput.addEventListener('change', function(e) {
@@ -389,7 +531,7 @@
                     tr.moveToTop();
                     document.getElementById('upload-hint').style.display = 'none';
                     photoLayer.draw();
-                    
+
                     document.body.style.cursor = 'default';
                 };
                 imgObj.src = event.target.result;
