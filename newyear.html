@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>2026 New Year Photo Booth</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/konva@9.2.3/konva.min.js"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'ny-dark': '#0a0e1a', // 深夜藍背景
+                        'ny-gold': '#d4af37', // 香檳金
+                        'ny-gold-light': '#f3e5ab',
+                    },
+                    fontFamily: {
+                        sans: ['Montserrat', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* 防止手機雙擊縮放，確保操作流暢 */
+        touch-action: none;
+        
+        /* 背景微粒子動畫效果 */
+        body {
+            background-color: #0a0e1a;
+            background-image: 
+                radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px),
+                radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 30px),
+                radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 40px);
+            background-size: 550px 550px, 350px 350px, 250px 250px;
+            animation: snow 20s linear infinite;
+        }
+        @keyframes snow {
+            0% { background-position: 0 0, 0 0, 0 0; }
+            100% { background-position: 550px 1000px, 350px 400px, 250px 300px; }
+        }
+
+        /* 隱藏檔案上傳原始 Input */
+        #fileInput { display: none; }
+
+        /* 畫布容器樣式確保是正方形 */
+        #canvas-container {
+            width: 100%;
+            max-width: 500px; /* 最大寬度 */
+            aspect-ratio: 1 / 1; /* 強制正方形比例 */
+            margin: 0 auto;
+            background-color: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px -10px rgba(212, 175, 55, 0.3);
+            position: relative;
+        }
+        
+        /* 選擇框的滾動條樣式 */
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="text-gray-200 font-sans min-h-screen flex flex-col overflow-x-hidden">
+
+    <header class="text-center pt-6 pb-2 px-4">
+        <h1 class="text-3xl font-bold text-ny-gold tracking-wider">HELLO 2026</h1>
+        <p class="text-sm text-ny-gold-light opacity-80 mt-1">Create Your New Year Vibe</p>
+    </header>
+
+    <main class="flex-grow flex flex-col items-center px-4 space-y-4 max-w-md mx-auto w-full pb-8">
+
+        <div class="w-full">
+            <p class="text-xs text-center mb-2 text-gray-400">STEP 1: Choose a Frame</p>
+            <div id="frame-selector" class="flex space-x-3 overflow-x-auto scrollbar-hide py-2 px-2 bg-white/5 rounded-xl backdrop-blur-sm">
+                </div>
+        </div>
+
+        <div class="w-full">
+            <p class="text-xs text-center mb-2 text-gray-400">STEP 2: Add Photo & Adjust (Pinch/Drag)</p>
+            <div id="canvas-container">
+                <div id="konva-stage-parent" class="w-full h-full"></div>
+            </div>
+        </div>
+
+        <div class="flex space-x-3 w-full justify-center pt-2">
+             <input type="file" id="fileInput" accept="image/*">
+             <button onclick="document.getElementById('fileInput').click()" 
+                 class="flex-1 flex items-center justify-center bg-ny-gold text-ny-dark font-bold py-3 px-4 rounded-full hover:bg-yellow-500 transition transform active:scale-95 shadow-lg shadow-ny-gold/20">
+                 <i class="ph ph-camera-plus text-xl mr-2"></i>
+                 Add Photo
+             </button>
+        </div>
+
+         <div class="w-full pt-2 pb-6">
+            <button id="saveBtn" class="w-full flex items-center justify-center bg-gradient-to-r from-ny-gold to-yellow-600 text-ny-dark font-bold text-lg py-4 px-6 rounded-2xl hover:from-yellow-500 hover:to-yellow-700 transition transform active:scale-95 shadow-xl relative overflow-hidden group">
+                <span class="relative z-10 flex items-center">
+                    <i class="ph ph-download-simple text-2xl mr-2"></i>
+                    Save & Share
+                </span>
+                <div class="absolute inset-0 h-full w-full scale-0 rounded-2xl transition-all duration-300 group-hover:scale-100 group-hover:bg-white/20"></div>
+            </button>
+             <p class="text-xs text-center text-gray-500 mt-3">
+                Tip: Use two fingers to rotate and zoom the photo.
+            </p>
+        </div>
+
+    </main>
+
+
+    <script>
+        // ==========================================
+        // 設定區域：請在這裡替換成你的圖框網址
+        // ==========================================
+        // 為了示範，我使用了您提供的圖片的臨時連結。
+        // 正式發布時，請確保這些連結是永久有效的 (例如上傳到 GitHub, Imgur, 或您的主機空間)
+        const frames = [
+            { id: 'frame1', src: 'https://i.imgur.com/X9zJ9yA.png', thumb: 'https://i.imgur.com/X9zJ9yA.png' },
+            { id: 'frame2', src: 'https://i.imgur.com/0QY6Z7A.png', thumb: 'https://i.imgur.com/0QY6Z7A.png' },
+            { id: 'frame3', src: 'https://i.imgur.com/2R6Xb1d.png', thumb: 'https://i.imgur.com/2R6Xb1d.png' },
+            // 這裡放入您所有其他的圖框... 我先放三個作範例
+        ];
+        
+        let currentFrameSrc = frames[0].src; // 預設使用第一張圖框
+
+        // ==========================================
+        // Konva 畫布核心變數
+        // ==========================================
+        let stage, layer, frameNode, userPhotoNode, transformer;
+        const canvasParent = document.getElementById('konva-stage-parent');
+        
+        // 定義畫布基礎解析度 (高解析度以確保輸出品質)
+        const baseSize = 1080; 
+
+        // 初始化畫布
+        function initStage() {
+            // 獲取容器當前的顯示寬度
+            const containerWidth = canvasParent.offsetWidth;
+            
+            // 計算縮放比例，讓高解析度的畫布適應螢幕寬度
+            const scale = containerWidth / baseSize;
+
+            stage = new Konva.Stage({
+                container: 'konva-stage-parent',
+                width: containerWidth,
+                height: containerWidth, // 正方形
+                scale: { x: scale, y: scale } // 整體縮放
+            });
+
+            layer = new Konva.Layer();
+            stage.add(layer);
+
+            // 初始化變形控制器 (用於手指縮放旋轉)
+            transformer = new Konva.Transformer({
+                centeredScaling: true,
+                rotateEnabled: true,
+                borderStroke: '#d4af37', // 金色邊框
+                anchorStroke: '#d4af37',
+                anchorFill: '#0a0e1a',
+                anchorSize: 20,
+                borderDash: [5, 5],
+                enabledAnchors: ['top-left', 'top-right', 'bottom-left', 'bottom-right'] // 只顯示四個角的控制點，比較簡潔
+            });
+            layer.add(transformer);
+
+            // 載入預設圖框
+            loadFrame(currentFrameSrc);
+        }
+
+
+        // 載入/切換圖框的函數
+        function loadFrame(src) {
+            const imageObj = new Image();
+            imageObj.onload = function () {
+                // 如果已經有圖框，先移除舊的
+                if (frameNode) frameNode.destroy();
+
+                frameNode = new Konva.Image({
+                    x: 0,
+                    y: 0,
+                    image: imageObj,
+                    width: baseSize,
+                    height: baseSize,
+                    listening: false, // 重要：設定為 false，讓手指點擊可以穿透圖框選到下面的照片
+                });
+
+                // 將圖框加到最上層
+                layer.add(frameNode);
+                frameNode.moveToTop();
+                layer.batchDraw();
+            };
+            imageObj.crossOrigin = 'Anonymous'; // 處理跨域圖片問題
+            imageObj.src = src;
+        }
+
+
+        // 處理使用者上傳照片的函數
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const img = new Image();
+                img.onload = function () {
+                    // 如果已有舊照片，先移除
+                    if (userPhotoNode) userPhotoNode.destroy();
+
+                    // 計算照片初始位置，使其置中且適中大小
+                    const maxInitSize = baseSize * 0.7;
+                    let scaleFactor = Math.min(maxInitSize / img.width, maxInitSize / img.height);
+                    let newWidth = img.width * scaleFactor;
+                    let newHeight = img.height * scaleFactor;
+
+                    userPhotoNode = new Konva.Image({
+                        image: img,
+                        x: (baseSize - newWidth) / 2,
+                        y: (baseSize - newHeight) / 2,
+                        width: newWidth,
+                        height: newHeight,
+                        draggable: true, // 允許拖曳
+                    });
+
+                    // 將照片加到圖層中
+                    layer.add(userPhotoNode);
+                    
+                    // 重要：確保照片在圖框下方
+                    if (frameNode) frameNode.moveToTop();
+                    // 確保變形控制器在最上方
+                    transformer.moveToTop();
+
+                    // 將變形控制器綁定到這張照片上
+                    transformer.nodes([userPhotoNode]);
+                    layer.batchDraw();
+
+                    // 新增一個點擊畫布空白處取消選取的事件
+                    stage.on('tap click', (e) => {
+                        // 如果點擊的不是照片也不是控制器本身
+                        if (e.target === stage || e.target === frameNode) {
+                            transformer.nodes([]); // 清空選擇
+                            layer.draw();
+                        }
+                    });
+
+                    // 點擊照片時重新選取它
+                    userPhotoNode.on('tap click', () => {
+                        transformer.nodes([userPhotoNode]);
+                        transformer.moveToTop();
+                        layer.draw();
+                    });
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+            // 重置 input，允許重複上傳同一張圖
+            event.target.value = '';
+        }
+
+        // 下載/儲存圖片的函數
+        function saveImage() {
+            // 1. 儲存前先隱藏變形控制器的框線
+            transformer.hide();
+            layer.draw();
+
+            // 2. 將畫布轉換為高解析度圖片資料 (Base64)
+            // pixelRatio 設為 2 或 3 可以輸出更高清的圖片
+            const dataURL = stage.toDataURL({ pixelRatio: 2 });
+
+            // 3. 恢復顯示變形控制器
+            transformer.show();
+            layer.draw();
+
+            // 4. 觸發下載
+            const link = document.createElement('a');
+            link.download = '2026-new-year-photo.png';
+            link.href = dataURL;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // (選用) 嘗試呼叫原生分享 (僅部分手機瀏覽器支援)
+            // 注意：navigator.share 只能分享檔案 Blob，這部分較複雜，
+            // 靜態網頁最穩定的做法是引導使用者下載後自行分享。
+            if (navigator.share) {
+                // 如果要實作原生分享，需要將 dataURL 轉為 Blob
+                // 這裡先省略，保持程式碼單純，以下載為主。
+                 // alert("圖片已準備好，請從下載項目中分享！");
+            }
+        }
+
+
+        // ==========================================
+        // 初始化與事件監聽
+        // ==========================================
+        
+        // 1. 產生圖框選擇器的縮圖 HTML
+        const selectorContainer = document.getElementById('frame-selector');
+        frames.forEach((frame, index) => {
+            const thumbBtn = document.createElement('button');
+            // 設定樣式：預設選中第一個
+            thumbBtn.className = `flex-shrink-0 w-16 h-16 rounded-lg border-2 overflow-hidden transition-all ${index === 0 ? 'border-ny-gold shadow-md shadow-ny-gold/30 scale-105' : 'border-transparent opacity-60 hover:opacity-100'}`;
+            thumbBtn.innerHTML = `<img src="${frame.thumb}" class="w-full h-full object-cover">`;
+            
+            thumbBtn.onclick = () => {
+                // 更新選中狀態的樣式
+                document.querySelectorAll('#frame-selector button').forEach(b => {
+                    b.classList.remove('border-ny-gold', 'shadow-md', 'shadow-ny-gold/30', 'scale-105');
+                    b.classList.add('border-transparent', 'opacity-60');
+                });
+                thumbBtn.classList.remove('border-transparent', 'opacity-60');
+                thumbBtn.classList.add('border-ny-gold', 'shadow-md', 'shadow-ny-gold/30', 'scale-105');
+                
+                // 切換畫布上的圖框
+                currentFrameSrc = frame.src;
+                loadFrame(currentFrameSrc);
+            };
+            selectorContainer.appendChild(thumbBtn);
+        });
+
+        // 2. 監聽事件
+        document.getElementById('fileInput').addEventListener('change', handleImageUpload);
+        document.getElementById('saveBtn').addEventListener('click', saveImage);
+        
+        // 窗口大小改變時重新計算畫布尺寸 (RWD)
+        window.addEventListener('resize', () => {
+            const containerWidth = canvasParent.offsetWidth;
+            const scale = containerWidth / baseSize;
+            stage.width(containerWidth);
+            stage.height(containerWidth);
+            stage.scale({ x: scale, y: scale });
+        });
+
+        // 3. 啟動 Konva
+        // 確保 DOM 載入完成後再執行
+        window.addEventListener('load', initStage);
+
+    </script>
+</body>
+</html>

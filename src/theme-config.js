@@ -139,9 +139,95 @@ export class ThemeConfig {
                 favicon: {
                     svg: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSIzIiBmaWxsPSIjZmVmMmYyIi8+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImNocmlzdG1hc0dyYWQiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojZGMyNjI2Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iNTAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMTViOTgxIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3R5bGU9InN0b3AtY29sb3I6I2RjMjYyNiIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3QgeD0iMiIgeT0iMiIgd2lkdGg9IjI4IiBoZWlnaHQ9IjI4IiByeD0iMiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ1cmwoI2NocmlzdG1hc0dyYWQpIiBzdHJva2Utd2lkdGg9IjQiLz4KICA8cmVjdCB4PSI2IiB5PSI2IiB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHJ4PSIxIiBmaWxsPSJ3aGl0ZSIvPgogIDx0ZXh0IHg9IjE2IiB5PSIyMCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSIjZGMyNjI2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7wn44EPC90ZXh0Pgo8L3N2Zz4K'
                 }
+            },
+            'new-year': {
+                name: 'HELLO 2026',
+                description: 'New Year celebration theme with festive champagne gold styling',
+                cssFile: 'themes/new-year.css',
+                primaryColor: '#d4af37',
+                frameStyles: [
+                    {
+                        value: 'taipei101',
+                        label: '🎆 跨年101',
+                        description: '台北101煙火倒數時刻',
+                        availableFormats: ['square', 'portrait']
+                    },
+                    {
+                        value: 'morning-glow',
+                        label: '🌅 跨年晨光',
+                        description: '新年第一道曙光祝福',
+                        availableFormats: ['square', 'portrait']
+                    },
+                    {
+                        value: 'fireworks',
+                        label: '✨ 跨年煙火',
+                        description: '璀璨煙火綻放瞬間',
+                        availableFormats: ['square', 'portrait']
+                    },
+                    {
+                        value: 'playful',
+                        label: '🎉 跨年童趣',
+                        description: '歡樂派對童趣風格',
+                        availableFormats: ['square', 'portrait']
+                    },
+                    {
+                        value: 'minimalist',
+                        label: '📅 跨年簡約',
+                        description: '2025→2026極簡設計',
+                        availableFormats: ['square', 'portrait']
+                    }
+                ],
+                shareMessage: "🎊 HELLO 2026! 迎接新年的美好時刻 ✨",
+                url: "https://calebtestbeta.github.io/web-photo-booth/new-year.html",
+                favicon: {
+                    svg: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSIzIiBmaWxsPSIjMGEwZTFhIi8+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9Im55R3JhZCIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNkNGFmMzciLz4KICAgICAgPHN0b3Agb2Zmc2V0PSI1MCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNmM2U1YWIiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdHlsZT0ic3RvcC1jb2xvcjojZDRhZjM3Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB4PSIyIiB5PSIyIiB3aWR0aD0iMjgiIGhlaWdodD0iMjgiIHJ4PSIyIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjbnlHcmFkKSIgc3Ryb2tlLXdpZHRoPSI0Ii8+CiAgPHJlY3QgeD0iNiIgeT0iNiIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiByeD0iMSIgZmlsbD0iIzBhMGUxYSIvPgogIDx0ZXh0IHg9IjE2IiB5PSIxOCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iI2Q0YWYzNyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+MjYnPC90ZXh0PgogIDxjaXJjbGUgY3g9IjgiIGN5PSI4IiByPSIxIiBmaWxsPSIjZjNlNWFiIi8+CiAgPGNpcmNsZSBjeD0iMjQiIGN5PSI4IiByPSIxIiBmaWxsPSIjZjNlNWFiIi8+CiAgPGNpcmNsZSBjeD0iOCIgY3k9IjI0IiByPSIxIiBmaWxsPSIjZjNlNWFiIi8+CiAgPGNpcmNsZSBjeD0iMjQiIGN5PSIyNCIgcj0iMSIgZmlsbD0iI2YzZTVhYiIvPgo8L3N2Zz4K'
+                }
+            },
+            'new-year-v2': {
+                name: 'HELLO 2026 V2',
+                description: 'Alternative New Year theme using the same festive frames',
+                cssFile: 'themes/new-year.css',
+                primaryColor: '#d4af37',
+                frameStyles: [
+                    {
+                        value: 'taipei101',
+                        label: '🎆 跨年101',
+                        description: '台北101煙火倒數時刻',
+                        availableFormats: ['square', 'portrait']
+                    },
+                    {
+                        value: 'morning-glow',
+                        label: '🌅 跨年晨光',
+                        description: '新年第一道曙光祝福',
+                        availableFormats: ['square', 'portrait']
+                    },
+                    {
+                        value: 'fireworks',
+                        label: '✨ 跨年煙火',
+                        description: '璀璨煙火綻放瞬間',
+                        availableFormats: ['square', 'portrait']
+                    },
+                    {
+                        value: 'playful',
+                        label: '🎉 跨年童趣',
+                        description: '歡樂派對童趣風格',
+                        availableFormats: ['square', 'portrait']
+                    },
+                    {
+                        value: 'minimalist',
+                        label: '📅 跨年簡約',
+                        description: '2025→2026極簡設計',
+                        availableFormats: ['square', 'portrait']
+                    }
+                ],
+                shareMessage: "🎊 HELLO 2026! 迎接新年的美好時刻 ✨",
+                url: "https://calebtestbeta.github.io/web-photo-booth/new-year-v2.html",
+                favicon: {
+                    svg: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSIzIiBmaWxsPSIjMGEwZTFhIi8+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9Im55R3JhZCIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNkNGFmMzciLz4KICAgICAgPHN0b3Agb2Zmc2V0PSI1MCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNmM2U1YWIiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdHlsZT0ic3RvcC1jb2xvcjojZDRhZjM3Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB4PSIyIiB5PSIyIiB3aWR0aD0iMjgiIGhlaWdodD0iMjgiIHJ4PSIyIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjbnlHcmFkKSIgc3Ryb2tlLXdpZHRoPSI0Ii8+CiAgPHJlY3QgeD0iNiIgeT0iNiIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiByeD0iMSIgZmlsbD0iIzBhMGUxYSIvPgogIDx0ZXh0IHg9IjE2IiB5PSIxOCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iI2Q0YWYzNyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+VjInPC90ZXh0PgogIDxjaXJjbGUgY3g9IjgiIGN5PSI4IiByPSIxIiBmaWxsPSIjZjNlNWFiIi8+CiAgPGNpcmNsZSBjeD0iMjQiIGN5PSI4IiByPSIxIiBmaWxsPSIjZjNlNWFiIi8+CiAgPGNpcmNsZSBjeD0iOCIgY3k9IjI0IiByPSIxIiBmaWxsPSIjZjNlNWFiIi8+CiAgPGNpcmNsZSBjeD0iMjQiIGN5PSIyNCIgcj0iMSIgZmlsbD0iI2YzZTVhYiIvPgo8L3N2Zz4K'
+                }
             }
         };
-        
+
         this.currentTheme = 'johnny-be-good';
         this.loadedThemes = new Set();
     }

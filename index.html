@@ -154,7 +154,51 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-        
+
+        /* New Year Theme Card */
+        .theme-card.new-year {
+            border-color: rgba(212, 175, 55, 0.2);
+        }
+
+        .theme-card.new-year:hover {
+            border-color: rgba(212, 175, 55, 0.4);
+            box-shadow: 0 32px 64px -12px rgba(212, 175, 55, 0.15),
+                        0 25px 50px -12px rgba(243, 229, 171, 0.1);
+        }
+
+        .theme-card.new-year .theme-title {
+            background: linear-gradient(135deg, #d4af37 0%, #f3e5ab 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .theme-card.new-year .theme-features li::before {
+            color: #d4af37;
+        }
+
+        /* New Year V2 Theme Card */
+        .theme-card.new-year-v2 {
+            border-color: rgba(212, 175, 55, 0.25);
+        }
+
+        .theme-card.new-year-v2:hover {
+            border-color: rgba(212, 175, 55, 0.5);
+            box-shadow: 0 32px 64px -12px rgba(212, 175, 55, 0.2),
+                        0 25px 50px -12px rgba(243, 229, 171, 0.15);
+        }
+
+        .theme-card.new-year-v2 .theme-title {
+            background: linear-gradient(135deg, #f3e5ab 0%, #d4af37 50%, #f3e5ab 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .theme-card.new-year-v2 .theme-features li::before {
+            color: #f3e5ab;
+        }
+
         .theme-description {
             font-size: 0.875rem;
             color: #78716c;
@@ -293,10 +337,38 @@
                     <li>Festive light decorations</li>
                 </ul>
             </a>
+
+            <!-- New Year 2026 Theme -->
+            <a href="new-year.html" class="theme-card new-year">
+                <div class="theme-icon">🎊</div>
+                <h2 class="theme-title">HELLO 2026!</h2>
+                <p class="theme-description">Festive champagne gold theme perfect for New Year celebrations and countdown moments</p>
+                <ul class="theme-features">
+                    <li>Taipei 101 fireworks frames</li>
+                    <li>Morning glow sunrise designs</li>
+                    <li>Sparkling fireworks effects</li>
+                    <li>Playful party styles</li>
+                    <li>2025→2026 minimalist aesthetics</li>
+                </ul>
+            </a>
+
+            <!-- New Year 2026 V2 Theme -->
+            <a href="new-year-v2.html" class="theme-card new-year-v2">
+                <div class="theme-icon">✨</div>
+                <h2 class="theme-title">HELLO 2026 V2</h2>
+                <p class="theme-description">Alternative New Year theme with interactive visual editing and the same festive frames</p>
+                <ul class="theme-features">
+                    <li>Visual editing controls</li>
+                    <li>Taipei 101 fireworks frames</li>
+                    <li>Morning glow sunrise designs</li>
+                    <li>Sparkling fireworks effects</li>
+                    <li>Playful party styles</li>
+                </ul>
+            </a>
         </div>
         
         <div class="footer">
-            <p>Both themes feature drag, zoom, rotate and share capabilities with mobile-optimized touch gestures.<br>
+            <p>All themes feature drag, zoom, rotate and share capabilities with mobile-optimized touch gestures.<br>
             <a href="https://github.com/calebtestbeta/web-photo-booth" target="_blank" rel="noopener">GitHub Repository</a> | 
             <a href="privacy.html">隱私政策</a></p>
         </div>
@@ -314,13 +386,17 @@
                 card.addEventListener('click', (e) => {
                     const href = card.getAttribute('href');
                     let themeName = 'unknown';
-                    
+
                     if (href.includes('johnny-be-good')) {
                         themeName = 'johnny-be-good';
                     } else if (href.includes('christmas')) {
                         themeName = 'christmas';
+                    } else if (href.includes('new-year-v2')) {
+                        themeName = 'new-year-v2';
+                    } else if (href.includes('new-year')) {
+                        themeName = 'new-year';
                     }
-                    
+
                     // 追蹤主題選擇
                     analytics.trackThemeSelected(themeName, 'homepage');
                     

@@ -1,0 +1,170 @@
+/* HELLO 2026 New Year Theme - Champagne Gold System */
+
+:root {
+    /* Primary Colors - 香檳金色系統 */
+    --primary-50: #fffbeb;
+    --primary-100: #fef3c7;
+    --primary-200: #fde68a;
+    --primary-300: #fcd34d;
+    --primary-400: #f3e5ab;
+    --primary-500: #d4af37;  /* 香檳金主色 */
+    --primary-600: #b8941f;  /* 深金色（文字用） */
+    --primary-700: #957818;
+    --primary-800: #7c6315;
+    --primary-900: #654f13;
+
+    /* Accent Colors - 新年金色亮點 */
+    --accent-50: #fef3c7;
+    --accent-500: #d97706;
+    --accent-600: #b45309;
+
+    /* Semantic Colors */
+    --success-500: #10b981;
+    --error-500: #ef4444;
+    --warning-500: #d4af37;
+
+    /* Theme-specific Background Colors */
+    --bg-primary: #fffbf5;     /* 溫暖米白 */
+    --bg-secondary: #fef8f0;   /* 淺金背景 */
+    --bg-tertiary: #fef3c7;    /* 金色輔助背景 */
+    --text-primary: #1c1917;   /* 深色文字 */
+    --text-secondary: #78716c;
+    --text-tertiary: #a8a29e;
+    --border-primary: #fde68a;
+    --border-secondary: #fef3c7;
+}
+
+/* ========================================
+   New Year Body Background
+   ======================================== */
+body {
+    background: linear-gradient(135deg, #fffbf5 0%, #fef8f0 50%, #fef3c7 100%);
+    background-image:
+        radial-gradient(circle at 20% 80%, rgba(212, 175, 55, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(243, 229, 171, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(252, 211, 77, 0.03) 0%, transparent 50%);
+}
+
+/* ========================================
+   Header Styling
+   ======================================== */
+.header {
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(255, 255, 255, 0.95) 100%);
+    border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+    box-shadow: 0 1px 3px rgba(212, 175, 55, 0.08);
+}
+
+@media (max-width: 767px) {
+    .header {
+        background: rgba(254, 248, 240, 0.95);
+        backdrop-filter: blur(8px);
+        box-shadow: 0 1px 3px rgba(212, 175, 55, 0.08);
+        border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+    }
+}
+
+/* ========================================
+   Canvas Container
+   ======================================== */
+.canvas-container {
+    background: radial-gradient(ellipse at center, rgba(212, 175, 55, 0.06) 0%, var(--bg-primary) 70%);
+}
+
+.canvas-card {
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow:
+        var(--shadow-2xl),
+        0 0 40px rgba(212, 175, 55, 0.12);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.canvas-card:hover {
+    box-shadow:
+        0 32px 64px -12px rgba(0, 0, 0, 0.1),
+        0 25px 50px -12px rgba(212, 175, 55, 0.18);
+    border-color: rgba(212, 175, 55, 0.3);
+}
+
+/* ========================================
+   Toolbar
+   ======================================== */
+.toolbar {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    box-shadow:
+        var(--shadow-2xl),
+        0 0 30px rgba(212, 175, 55, 0.1);
+}
+
+/* ========================================
+   Button States
+   ======================================== */
+.format-btn:hover,
+.toolbar-btn:hover {
+    border-color: var(--primary-500);
+    color: var(--primary-600);
+    background: rgba(212, 175, 55, 0.05);
+}
+
+.format-btn.active,
+.toolbar-btn.primary {
+    background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
+    color: white;
+    border-color: var(--primary-600);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+}
+
+.format-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: var(--bg-tertiary);
+    border-color: var(--border-secondary);
+}
+
+/* ========================================
+   Precision Mode
+   ======================================== */
+.canvas-card.precision-mode {
+    box-shadow:
+        0 0 0 3px rgba(212, 175, 55, 0.3),
+        var(--shadow-2xl);
+}
+
+/* ========================================
+   Loading Spinner
+   ======================================== */
+.loading-spinner .spinner {
+    border-color: var(--primary-200);
+    border-top-color: var(--primary-500);
+}
+
+/* ========================================
+   Gesture Hints
+   ======================================== */
+.gesture-hint {
+    background: rgba(255, 251, 235, 0.95);
+    border: 2px solid var(--primary-500);
+    color: var(--primary-700);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2);
+}
+
+.gesture-help {
+    background: rgba(255, 251, 235, 0.9);
+    color: var(--primary-700);
+}
+
+/* ========================================
+   Precision Panel (確保與主題色協調)
+   ======================================== */
+.precision-panel,
+.precision-panel-floating {
+    border-color: rgba(212, 175, 55, 0.2);
+}
+
+.precision-panel input[type="range"]::-webkit-slider-thumb {
+    background: var(--primary-500);
+}
+
+.precision-panel input[type="range"]::-moz-range-thumb {
+    background: var(--primary-500);
+}

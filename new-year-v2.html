@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>2026 Happy New Year - Photo Booth</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        midnight: '#0B1026',
+                        gold: '#D4AF37',
+                        'gold-light': '#F3E5AB',
+                        'glass': 'rgba(255, 255, 255, 0.1)'
+                    },
+                    fontFamily: {
+                        sans: ['Montserrat', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/konva@9.2.0/konva.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            background-color: #0B1026;
+            color: #F3E5AB;
+            font-family: 'Montserrat', sans-serif;
+            overflow-x: hidden;
+            touch-action: pan-y;
+        }
+
+        #particles-canvas {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0; pointer-events: none;
+        }
+
+        #stage-parent {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            border: 2px solid #D4AF37;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+            background-color: #000;
+            position: relative;
+            touch-action: none;
+            transition: aspect-ratio 0.3s ease;
+        }
+
+        /* 桌面版：允許更大的畫布以完整顯示外框 */
+        @media (min-width: 768px) {
+            #stage-parent {
+                max-width: 600px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            #stage-parent {
+                max-width: 700px;
+            }
+        }
+
+        #file-input { display: none; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .frame-thumb {
+            transition: all 0.2s;
+            background-size: cover;
+            background-position: center;
+        }
+        .frame-thumb-contain {
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-color: #000;
+        }
+
+        /* Loading 動畫樣式 */
+        .fade-enter { opacity: 0; }
+        .fade-enter-active { opacity: 1; transition: opacity 300ms; }
+        .fade-exit { opacity: 1; }
+        .fade-exit-active { opacity: 0; transition: opacity 300ms; }
+    </style>
+</head>
+<body class="bg-midnight min-h-screen flex flex-col items-center">
+
+    <canvas id="particles-canvas"></canvas>
+
+    <div class="relative z-10 w-full max-w-md md:max-w-2xl lg:max-w-3xl px-4 py-4 flex flex-col gap-3 h-screen max-h-screen overflow-y-auto no-scrollbar">
+        
+        <header class="text-center flex-shrink-0">
+            <h1 class="text-2xl font-bold text-gold tracking-widest drop-shadow-md">2026 NEW YEAR</h1>
+        </header>
+
+        <!-- 畫布區域 -->
+        <div class="flex-shrink-0 w-full flex justify-center">
+            <div id="stage-parent" class="rounded-lg overflow-hidden relative">
+                <div id="container"></div>
+                
+                <!-- 🔥 載入中的遮罩層 (Loading Overlay) 🔥 -->
+                <div id="loading-overlay" class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/70 backdrop-blur-sm hidden transition-opacity duration-300">
+                    <i class="fa-solid fa-circle-notch fa-spin text-4xl text-gold mb-3 drop-shadow-[0_0_10px_rgba(212,175,55,0.8)]"></i>
+                    <span class="text-gold text-xs font-bold tracking-widest uppercase">Loading Frame...</span>
+                </div>
+
+                <!-- 提示層 -->
+                <div id="upload-hint" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none bg-black/40">
+                    <i class="fa-solid fa-cloud-arrow-up text-4xl text-gold mb-2 opacity-80"></i>
+                    <span class="text-gold-light text-sm opacity-80">Tap 'Photo' to Upload</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 下方控制區 -->
+        <div class="flex-grow flex flex-col justify-end gap-3 pb-4">
+            
+            <!-- 圖框選擇器 -->
+            <div class="bg-glass backdrop-blur-md rounded-xl p-3 border border-gold/20 shadow-lg">
+                <!-- 🔥 這裡修改了：增加了 id="frame-name-label" 並且加上 truncate 防止名字太長跑版 -->
+                <p class="text-[10px] text-gold mb-2 uppercase font-semibold tracking-wider flex justify-between items-center">
+                    <span id="frame-name-label" class="truncate max-w-[150px] flex items-center gap-1">
+                        <i class="fa-solid fa-palette text-[9px] opacity-70"></i> Select Style
+                    </span>
+                    <span id="frame-size-label" class="text-gray-300 flex-shrink-0">Loading...</span>
+                </p>
+                <div class="flex overflow-x-auto gap-3 scrollbar-hide pb-1" id="frame-gallery">
+                    <!-- Javascript 生成 -->
+                </div>
+            </div>
+
+            <!-- 按鈕組 -->
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="document.getElementById('file-input').click()" 
+                        class="flex items-center justify-center gap-2 py-3 px-4 rounded-full border border-gold text-gold hover:bg-gold hover:text-midnight transition-all duration-300 font-semibold text-sm shadow-[0_0_10px_rgba(212,175,55,0.2)]">
+                    <i class="fa-solid fa-camera"></i>
+                    <span>Photo</span>
+                </button>
+                <input type="file" id="file-input" accept="image/*">
+
+                <button id="download-btn"
+                        class="flex items-center justify-center gap-2 py-3 px-4 rounded-full bg-gradient-to-r from-gold to-yellow-600 text-midnight font-bold shadow-lg hover:scale-105 transition-transform text-sm disabled:opacity-50 disabled:scale-100 disabled:cursor-not-allowed">
+                    <i class="fa-solid fa-share-nodes" id="btn-icon"></i>
+                    <span id="btn-text">Save / Share</span>
+                </button>
+            </div>
+            
+            <p class="text-center text-[10px] text-gray-400">
+                Pinch to Zoom • Drag to Move
+            </p>
+        </div>
+    </div>
+
+    <script type="module">
+        // ==========================================
+        // 1. 載入主題配置
+        // ==========================================
+        import { themeConfig } from './src/theme-config.js';
+
+        // 從 theme-config.js 載入 new-year-v2 主題配置
+        const theme = themeConfig.themes['new-year-v2'];
+        const frameStyles = theme.frameStyles;
+
+        // ==========================================
+        // 2. 圖框資料庫 - 從配置自動生成
+        // ==========================================
+        const frames = [];
+
+        // 為每個風格生成正方形和直式格式
+        frameStyles.forEach(style => {
+            const formats = style.availableFormats;
+
+            // 正方形格式 (1080x1080)
+            if (formats.includes('square')) {
+                frames.push({
+                    id: `${style.value}_square`,
+                    src: `assets/frames/frame_square_${style.value}_1080x1080.png`,
+                    width: 1080,
+                    height: 1080,
+                    name: `${style.label} (正方形)`
+                });
+            }
+
+            // 直式格式 (1080x1350)
+            if (formats.includes('portrait')) {
+                frames.push({
+                    id: `${style.value}_portrait`,
+                    src: `assets/frames/frame_portrait_${style.value}_1080x1350.png`,
+                    width: 1080,
+                    height: 1350,
+                    name: `${style.label} (直式)`
+                });
+            }
+        });
+
+        // ==========================================
+        // 2. 系統邏輯
+        // ==========================================
+
+        const stageParent = document.getElementById('stage-parent');
+        const loadingOverlay = document.getElementById('loading-overlay'); // 取得 Loading 元素
+
+        // 計算最佳畫布寬度：確保在桌面版能完整顯示外框
+        function calculateOptimalWidth() {
+            const screenWidth = window.innerWidth;
+
+            // 行動版：保持原有邏輯
+            if (screenWidth < 768) {
+                return Math.min(screenWidth - 32, 500);
+            }
+
+            // 桌面版：根據可用高度計算，確保直式框架（1:1.25）能完整顯示
+            // 預留空間給 header (50px)、controls (200px)、padding (50px) = 約 300px
+            const availableHeight = window.innerHeight - 300;
+            const maxWidthByHeight = availableHeight / 1.25;
+
+            // 根據螢幕寬度設定上限
+            const maxWidthByScreen = screenWidth < 1024 ? 600 : 700;
+
+            return Math.min(screenWidth - 32, maxWidthByHeight, maxWidthByScreen);
+        }
+
+        const initialWidth = calculateOptimalWidth();
+
+        const stage = new Konva.Stage({
+            container: 'container',
+            width: initialWidth,
+            height: initialWidth,
+        });
+
+        const photoLayer = new Konva.Layer();
+        const frameLayer = new Konva.Layer();
+        stage.add(photoLayer);
+        stage.add(frameLayer);
+
+        const tr = new Konva.Transformer({
+            nodes: [],
+            centeredScaling: true,
+            rotateEnabled: true,
+            anchorSize: 20,
+            borderStroke: '#D4AF37',
+            anchorStroke: '#D4AF37',
+            anchorFill: '#0B1026',
+        });
+        photoLayer.add(tr);
+
+        stage.on('tap click', (e) => {
+            if (e.target === stage) {
+                tr.nodes([]);
+            }
+        });
+
+        // --- 核心：載入圖框 ---
+        let currentFrameNode = null;
+        let currentFrameData = null;
+
+        function loadFrame(frameData) {
+            currentFrameData = frameData;
+
+            loadingOverlay.classList.remove('hidden');
+
+            const ratio = frameData.height / frameData.width;
+            stageParent.style.aspectRatio = `${frameData.width} / ${frameData.height}`;
+            
+            // 🔥 這裡修改了：更新名稱 (frame-name-label) 與 尺寸 (frame-size-label)
+            // 使用 innerHTML 可以加入 icon，或者直接用 innerText
+            document.getElementById('frame-name-label').innerHTML = `<i class="fa-solid fa-palette text-[9px] opacity-70"></i> ${frameData.name}`;
+            document.getElementById('frame-size-label').innerText = `${frameData.width} x ${frameData.height}`;
+
+            const currentStageWidth = stage.width();
+            const newStageHeight = currentStageWidth * ratio;
+
+            stage.height(newStageHeight);
+            stage.scale({ x: 1, y: 1 });
+
+            const imgObj = new Image();
+            imgObj.crossOrigin = 'Anonymous';
+            
+            imgObj.onload = function() {
+                if (currentFrameNode) currentFrameNode.destroy();
+
+                currentFrameNode = new Konva.Image({
+                    image: imgObj,
+                    x: 0,
+                    y: 0,
+                    width: currentStageWidth,
+                    height: newStageHeight,
+                    listening: false, 
+                });
+
+                frameLayer.add(currentFrameNode);
+                frameLayer.draw();
+                photoLayer.draw();
+
+                setTimeout(() => {
+                    loadingOverlay.classList.add('hidden');
+                }, 300);
+            };
+
+            imgObj.onerror = function() {
+                loadingOverlay.classList.add('hidden');
+                alert("無法載入圖框，請檢查網路連線或圖片路徑。");
+            };
+
+            imgObj.src = frameData.src;
+        }
+
+        // --- 生成選單 ---
+        const gallery = document.getElementById('frame-gallery');
+        frames.forEach((frame, index) => {
+            const btn = document.createElement('div');
+            const isTall = frame.height > frame.width;
+            const thumbClass = isTall ? 'frame-thumb-contain' : 'frame-thumb';
+            
+            btn.className = `flex-shrink-0 w-16 h-16 rounded-lg border-2 border-gold/30 bg-midnight cursor-pointer hover:border-gold transition-all overflow-hidden relative ${thumbClass}`;
+            btn.style.backgroundImage = `url(${frame.src})`;
+            
+            btn.onclick = () => {
+                document.querySelectorAll('#frame-gallery > div').forEach(d => d.classList.remove('ring-2', 'ring-gold'));
+                btn.classList.add('ring-2', 'ring-gold');
+                loadFrame(frame);
+            };
+
+            if (index === 0) btn.click();
+            gallery.appendChild(btn);
+        });
+
+        // --- 上傳邏輯 ---
+        let userImgNode = null;
+        document.getElementById('file-input').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            document.body.style.cursor = 'wait';
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const imgObj = new Image();
+                imgObj.onload = function() {
+                    if (userImgNode) userImgNode.destroy();
+
+                    const stageW = stage.width();
+                    const stageH = stage.height();
+                    const scale = Math.max(stageW / imgObj.width, stageH / imgObj.height);
+
+                    userImgNode = new Konva.Image({
+                        image: imgObj,
+                        x: stageW / 2,
+                        y: stageH / 2,
+                        width: imgObj.width,
+                        height: imgObj.height,
+                        scaleX: scale,
+                        scaleY: scale,
+                        offset: { x: imgObj.width / 2, y: imgObj.height / 2 },
+                        draggable: true,
+                    });
+
+                    photoLayer.add(userImgNode);
+                    tr.nodes([userImgNode]);
+                    tr.moveToTop();
+                    document.getElementById('upload-hint').style.display = 'none';
+                    photoLayer.draw();
+                    
+                    document.body.style.cursor = 'default';
+                };
+                imgObj.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // --- 🔥 核心：下載與分享邏輯 (Web Share API) ---
+        const downloadBtn = document.getElementById('download-btn');
+        const btnText = document.getElementById('btn-text');
+        const btnIcon = document.getElementById('btn-icon');
+
+        // 輔助函數：將 dataURL 轉換為 File 物件
+        function dataURLtoFile(dataurl, filename) {
+            var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+                bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+            while(n--){
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+            return new File([u8arr], filename, {type:mime});
+        }
+
+        // 輔助函數：執行傳統下載
+        function fallbackDownload(dataURL, filename) {
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = dataURL;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        downloadBtn.addEventListener('click', async function() {
+            // 1. UI 狀態更新：顯示處理中
+            const originalText = btnText.innerText;
+            const originalIconClass = btnIcon.className;
+
+            downloadBtn.disabled = true;
+            btnText.innerText = "Processing...";
+            btnIcon.className = "fa-solid fa-circle-notch fa-spin";
+
+            try {
+                // 給 UI 一點時間渲染 (小技巧：避免長時間 JS 阻塞導致 UI 卡在舊狀態)
+                await new Promise(resolve => requestAnimationFrame(resolve));
+                await new Promise(resolve => setTimeout(resolve, 50));
+
+                // 2. 準備圖片資料
+                tr.hide(); // 隱藏編輯框
+                photoLayer.draw();
+
+                const pixelRatio = currentFrameData.width / stage.width();
+                const dataURL = stage.toDataURL({ pixelRatio: pixelRatio });
+                const filename = `2026-Photo-${currentFrameData.width}x${currentFrameData.height}.png`;
+
+                // 3. 判斷是否支援 Web Share API
+                let shareSuccess = false;
+                
+                // 檢查瀏覽器是否支援 navigator.share 且能夠分享檔案
+                if (navigator.share && navigator.canShare) {
+                    const file = dataURLtoFile(dataURL, filename);
+                    const shareData = {
+                        files: [file],
+                        title: 'My 2026 New Year Photo',
+                        text: 'Celebrate 2026 with me! ✨'
+                    };
+
+                    if (navigator.canShare(shareData)) {
+                        btnText.innerText = "Sharing...";
+                        try {
+                            await navigator.share(shareData);
+                            shareSuccess = true;
+                            // 分享成功後，通常不需要做什麼，因為使用者已經在其他 App 了
+                        } catch (err) {
+                            if (err.name !== 'AbortError') {
+                                console.error('Share failed:', err);
+                                // 如果不是使用者取消，而是出錯，則降級為下載
+                                fallbackDownload(dataURL, filename);
+                            }
+                            // 如果是 AbortError (使用者自己取消分享)，則當作沒事發生
+                            shareSuccess = true; // 視為已處理，不需下載
+                        }
+                    }
+                }
+
+                // 4. 如果不支援分享 (Desktop) 或分享條件不符，則執行傳統下載
+                if (!shareSuccess) {
+                    btnText.innerText = "Saving...";
+                    fallbackDownload(dataURL, filename);
+                }
+
+            } catch (err) {
+                console.error(err);
+                alert("儲存/分享失敗，請重試");
+            } finally {
+                // 5. 恢復 UI 與編輯框
+                tr.show();
+                photoLayer.draw();
+                
+                downloadBtn.disabled = false;
+                btnText.innerText = originalText;
+                btnIcon.className = originalIconClass;
+            }
+        });
+
+        // RWD：視窗大小改變時重新計算畫布大小
+        window.addEventListener('resize', () => {
+            const newWidth = calculateOptimalWidth();
+            if (currentFrameData) {
+                const ratio = currentFrameData.height / currentFrameData.width;
+                stage.width(newWidth);
+                stage.height(newWidth * ratio);
+                if (currentFrameNode) {
+                    currentFrameNode.width(newWidth);
+                    currentFrameNode.height(newWidth * ratio);
+                }
+                stage.draw();
+            }
+        });
+
+        // 粒子動畫
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() { this.reset(); }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height - canvas.height;
+                this.size = Math.random() * 2 + 0.5;
+                this.speed = Math.random() * 1 + 0.2;
+                this.opacity = Math.random() * 0.5 + 0.1;
+            }
+            update() {
+                this.y += this.speed;
+                if (this.y > canvas.height) { this.reset(); this.y = -10; }
+            }
+            draw() {
+                ctx.fillStyle = `rgba(212, 175, 55, ${this.opacity})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        for(let i=0; i<50; i++) particles.push(new Particle());
+        function animate() {
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animate);
+        }
+        animate();
+    </script>
+</body>
+</html>
