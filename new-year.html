@@ -373,6 +373,59 @@
             </div>
         </section>
 
+        <!-- Precision Controls -->
+        <section id="precisionPanel" class="format-selector precision-selector" style="display: none;">
+            <button id="precisionToggle" class="precision-toggle" disabled aria-label="展開精確調整控制項">
+                <span>精確調整</span>
+                <svg class="icon"><use href="#icon-chevron-down"></use></svg>
+            </button>
+
+            <div id="precisionControls" class="precision-controls">
+                <div class="control-group">
+                    <label class="control-label">縮放大小</label>
+                    <div class="slider-container">
+                        <input type="range" id="scaleSlider" class="control-slider" min="10" max="500" value="100" disabled>
+                        <span id="scaleValue" class="slider-value">100%</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label">旋轉角度</label>
+                    <div class="slider-container">
+                        <input type="range" id="rotationSlider" class="control-slider" min="0" max="360" value="0" disabled>
+                        <span id="rotationValue" class="slider-value">0°</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label">位置微調</label>
+                    <div class="position-controls">
+                        <div class="position-row">
+                            <button id="moveUp" class="position-btn" disabled aria-label="向上移動">
+                                <svg class="icon"><use href="#icon-arrow-up"></use></svg>
+                            </button>
+                        </div>
+                        <div class="position-row">
+                            <button id="moveLeft" class="position-btn" disabled aria-label="向左移動">
+                                <svg class="icon"><use href="#icon-arrow-left"></use></svg>
+                            </button>
+                            <button id="centerPosition" class="position-btn" disabled aria-label="居中對齊">
+                                <svg class="icon"><use href="#icon-crosshair"></use></svg>
+                            </button>
+                            <button id="moveRight" class="position-btn" disabled aria-label="向右移動">
+                                <svg class="icon"><use href="#icon-arrow-right"></use></svg>
+                            </button>
+                        </div>
+                        <div class="position-row">
+                            <button id="moveDown" class="position-btn" disabled aria-label="向下移動">
+                                <svg class="icon"><use href="#icon-arrow-down"></use></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Canvas Container -->
         <main class="canvas-container">
             <div class="canvas-card">
