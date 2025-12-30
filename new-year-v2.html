@@ -126,9 +126,9 @@
                 </div>
 
                 <!-- 提示層 -->
-                <div id="upload-hint" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none bg-black/40">
+                <div id="upload-hint" class="absolute inset-0 flex flex-col items-center justify-center bg-black/40 cursor-pointer hover:bg-black/50 transition-all duration-200">
                     <i class="fa-solid fa-cloud-arrow-up text-4xl text-gold mb-2 opacity-80"></i>
-                    <span class="text-gold-light text-sm opacity-80">Tap 'Photo' to Upload</span>
+                    <span class="text-gold-light text-sm opacity-80">點擊此處上傳照片或拍照</span>
                 </div>
             </div>
         </div>
@@ -346,9 +346,17 @@
             gallery.appendChild(btn);
         });
 
+        // --- 點擊畫布中央上傳照片 ---
+        const uploadHint = document.getElementById('upload-hint');
+        const fileInput = document.getElementById('file-input');
+
+        uploadHint.addEventListener('click', function() {
+            fileInput.click();
+        });
+
         // --- 上傳邏輯 ---
         let userImgNode = null;
-        document.getElementById('file-input').addEventListener('change', function(e) {
+        fileInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
 
