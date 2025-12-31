@@ -311,7 +311,14 @@
             // 檢測內建瀏覽器
             function isInAppBrowser() {
                 const ua = navigator.userAgent.toLowerCase();
-                const isInApp = /micromessenger|line|fbav|fban|instagram|twitter/.test(ua);
+
+                // 修正後的檢測邏輯：
+                // - micromessenger: WeChat
+                // - \bline\/: LINE 應用（確保 line 後面有斜線，排除 "Safari Line/"）
+                // - fbav|fban: Facebook
+                // - instagram: Instagram
+                // - twitter: Twitter
+                const isInApp = /micromessenger|\bline\/|fbav|fban|instagram|twitter/.test(ua);
 
                 // 調試：輸出 User Agent 和檢測結果
                 console.log('=== 內建瀏覽器檢測 ===');
@@ -337,12 +344,15 @@
                     // 🐛 調試資訊：顯示完整 User Agent
                     const ua = navigator.userAgent;
                     const matchedKeywords = [];
-                    const keywords = ['micromessenger', 'line', 'fbav', 'fban', 'instagram', 'twitter'];
-                    keywords.forEach(keyword => {
-                        if (ua.toLowerCase().includes(keyword)) {
-                            matchedKeywords.push(keyword);
-                        }
-                    });
+
+                    // 使用與檢測函數相同的邏輯
+                    const uaLower = ua.toLowerCase();
+                    if (/micromessenger/.test(uaLower)) matchedKeywords.push('micromessenger (WeChat)');
+                    if (/\bline\//.test(uaLower)) matchedKeywords.push('line/ (LINE App)');
+                    if (/fbav/.test(uaLower)) matchedKeywords.push('fbav (Facebook)');
+                    if (/fban/.test(uaLower)) matchedKeywords.push('fban (Facebook)');
+                    if (/instagram/.test(uaLower)) matchedKeywords.push('instagram');
+                    if (/twitter/.test(uaLower)) matchedKeywords.push('twitter');
 
                     overlay.innerHTML = `
                         <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -787,7 +797,8 @@
         // 🆕 偵測內建瀏覽器
         function isInAppBrowser() {
             const ua = navigator.userAgent.toLowerCase();
-            return /micromessenger|line|fbav|instagram|twitter/.test(ua);
+            // 修正後的檢測：使用 \bline\/ 確保匹配 "line/" 而非 "Safari Line/"
+            return /micromessenger|\bline\/|fbav|fban|instagram|twitter/.test(ua);
         }
 
         // 🆕 iOS 設備偵測
