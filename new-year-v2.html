@@ -638,10 +638,24 @@
             const pixelRatio = currentFrameData.width / stage.width();
             const filename = `2026-Photo-${currentFrameData.width}x${currentFrameData.height}.png`;
 
-            return new Promise((resolve) => {
-                stage.toBlob((blob) => {
-                    resolve({ blob, filename });
-                }, 'image/png', pixelRatio);
+            // 使用 toDataURL 然後轉換為 Blob（更可靠的方法）
+            return new Promise((resolve, reject) => {
+                try {
+                    const dataURL = stage.toDataURL({
+                        pixelRatio: pixelRatio,
+                        mimeType: 'image/png'
+                    });
+
+                    // 將 DataURL 轉換為 Blob
+                    fetch(dataURL)
+                        .then(res => res.blob())
+                        .then(blob => {
+                            resolve({ blob, filename });
+                        })
+                        .catch(reject);
+                } catch (err) {
+                    reject(err);
+                }
             });
         }
 
