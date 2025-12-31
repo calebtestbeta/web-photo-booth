@@ -120,7 +120,7 @@
                 <div id="container"></div>
                 
                 <!-- 🔥 載入中的遮罩層 (Loading Overlay) 🔥 -->
-                <div id="loading-overlay" class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/70 backdrop-blur-sm transition-opacity duration-300">
+                <div id="loading-overlay" class="absolute inset-0 z-50 flex-col items-center justify-center bg-black/70 backdrop-blur-sm transition-opacity duration-300 hidden">
                     <i class="fa-solid fa-circle-notch fa-spin text-4xl text-gold mb-3 drop-shadow-[0_0_10px_rgba(212,175,55,0.8)]"></i>
                     <span class="text-gold text-xs font-bold tracking-widest uppercase">Loading Frame...</span>
                 </div>
@@ -343,23 +343,35 @@
 
         // --- 生成選單 ---
         const gallery = document.getElementById('frame-gallery');
+        let firstFrameBtn = null;
+
         frames.forEach((frame, index) => {
             const btn = document.createElement('div');
             const isTall = frame.height > frame.width;
             const thumbClass = isTall ? 'frame-thumb-contain' : 'frame-thumb';
-            
+
             btn.className = `flex-shrink-0 w-16 h-16 rounded-lg border-2 border-gold/30 bg-midnight cursor-pointer hover:border-gold transition-all overflow-hidden relative ${thumbClass}`;
             btn.style.backgroundImage = `url(${frame.src})`;
-            
+
             btn.onclick = () => {
                 document.querySelectorAll('#frame-gallery > div').forEach(d => d.classList.remove('ring-2', 'ring-gold'));
                 btn.classList.add('ring-2', 'ring-gold');
                 loadFrame(frame);
             };
 
-            if (index === 0) btn.click();
+            if (index === 0) firstFrameBtn = btn;
             gallery.appendChild(btn);
         });
+
+        // 🔥 確保在 DOM 和所有資源準備好後才載入第一個圖框
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                setTimeout(() => firstFrameBtn?.click(), 100);
+            });
+        } else {
+            // DOM 已經載入完成
+            setTimeout(() => firstFrameBtn?.click(), 100);
+        }
 
         // --- 點擊畫布中央上傳照片 ---
         const uploadHint = document.getElementById('upload-hint');
@@ -554,7 +566,7 @@
             reader.readAsDataURL(file);
         });
 
-        // --- 🔥 核心：下載與分享邏輯 (Web Share API) ---
+        // --- 🔥 核心：下載與分享邏輯 (Web Share API + Blob URL) ---
         const shareBtn = document.getElementById('share-btn');
         const shareText = document.getElementById('share-text');
         const shareIcon = document.getElementById('share-icon');
@@ -563,37 +575,88 @@
         const downloadText = document.getElementById('download-text');
         const downloadIcon = document.getElementById('download-icon');
 
-        // 輔助函數：將 dataURL 轉換為 File 物件
-        function dataURLtoFile(dataurl, filename) {
-            var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
-                bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
-            while(n--){
-                u8arr[n] = bstr.charCodeAt(n);
+        // 🆕 偵測內建瀏覽器
+        function isInAppBrowser() {
+            const ua = navigator.userAgent.toLowerCase();
+            return /micromessenger|line|fbav|instagram|twitter/.test(ua);
+        }
+
+        // 🆕 顯示圖片供長按保存（內建瀏覽器替代方案）
+        function showImageForLongPress(blob, filename) {
+            const url = URL.createObjectURL(blob);
+            const win = window.open('', '_blank');
+            if (win) {
+                win.document.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <title>長按保存圖片</title>
+                        <style>
+                            body {
+                                margin: 0;
+                                padding: 20px;
+                                display: flex;
+                                flex-direction: column;
+                                align-items: center;
+                                background: #0B1026;
+                            }
+                            img {
+                                max-width: 100%;
+                                border: 2px solid #D4AF37;
+                                border-radius: 8px;
+                            }
+                            .hint {
+                                color: #F3E5AB;
+                                margin-top: 20px;
+                                text-align: center;
+                                font-family: sans-serif;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <img src="${url}" alt="${filename}" />
+                        <div class="hint">
+                            <p>📱 <strong>請長按圖片</strong></p>
+                            <p>然後選擇「儲存圖片」或「保存到相冊」</p>
+                        </div>
+                    </body>
+                    </html>
+                `);
+                // 延遲清理 URL
+                setTimeout(() => URL.revokeObjectURL(url), 60000);
             }
-            return new File([u8arr], filename, {type:mime});
         }
 
-        // 輔助函數：執行傳統下載
-        function fallbackDownload(dataURL, filename) {
-            const link = document.createElement('a');
-            link.download = filename;
-            link.href = dataURL;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        // 通用函數：準備圖片資料
+        // 🆕 通用函數：準備圖片資料（使用 Blob URL，無大小限制）
         async function prepareImageData() {
             // 隱藏編輯框
             tr.hide();
             photoLayer.draw();
 
             const pixelRatio = currentFrameData.width / stage.width();
-            const dataURL = stage.toDataURL({ pixelRatio: pixelRatio });
             const filename = `2026-Photo-${currentFrameData.width}x${currentFrameData.height}.png`;
 
-            return { dataURL, filename };
+            return new Promise((resolve) => {
+                stage.toBlob((blob) => {
+                    resolve({ blob, filename });
+                }, 'image/png', pixelRatio);
+            });
+        }
+
+        // 🆕 執行下載（使用 Blob URL）
+        function downloadWithBlob(blob, filename) {
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = url;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // 清理 Blob URL
+            setTimeout(() => URL.revokeObjectURL(url), 100);
         }
 
         // 恢復 UI 狀態
@@ -602,7 +665,7 @@
             photoLayer.draw();
         }
 
-        // 🔥 分享按鈕：觸發 Web Share API
+        // 🔥 分享按鈕：觸發 Web Share API（支援內建瀏覽器偵測）
         shareBtn.addEventListener('click', async function() {
             const originalText = shareText.innerText;
             const originalIconClass = shareIcon.className;
@@ -616,11 +679,20 @@
                 await new Promise(resolve => requestAnimationFrame(resolve));
                 await new Promise(resolve => setTimeout(resolve, 50));
 
-                const { dataURL, filename } = await prepareImageData();
+                const { blob, filename } = await prepareImageData();
+
+                // 🆕 檢查是否為內建瀏覽器
+                if (isInAppBrowser()) {
+                    const userChoice = confirm('檢測到您在應用內瀏覽器中，分享功能可能受限。\n\n是否開啟圖片供長按保存？');
+                    if (userChoice) {
+                        showImageForLongPress(blob, filename);
+                    }
+                    return;
+                }
 
                 // 檢查是否支援 Web Share API
                 if (navigator.share && navigator.canShare) {
-                    const file = dataURLtoFile(dataURL, filename);
+                    const file = new File([blob], filename, { type: 'image/png' });
                     const shareData = {
                         files: [file],
                         title: 'My 2026 New Year Photo',
@@ -657,7 +729,7 @@
             }
         });
 
-        // 🔥 下載按鈕：直接下載圖片
+        // 🔥 下載按鈕：直接下載圖片（支援內建瀏覽器偵測）
         downloadBtn.addEventListener('click', async function() {
             const originalText = downloadText.innerText;
             const originalIconClass = downloadIcon.className;
@@ -671,10 +743,22 @@
                 await new Promise(resolve => requestAnimationFrame(resolve));
                 await new Promise(resolve => setTimeout(resolve, 50));
 
-                const { dataURL, filename } = await prepareImageData();
+                const { blob, filename } = await prepareImageData();
 
-                // 直接下載
-                fallbackDownload(dataURL, filename);
+                // 🆕 檢查是否為內建瀏覽器
+                if (isInAppBrowser()) {
+                    const userChoice = confirm('檢測到您在應用內瀏覽器中，下載功能可能受限。\n\n是否開啟圖片供長按保存？');
+                    if (userChoice) {
+                        showImageForLongPress(blob, filename);
+                    } else {
+                        // 用戶選擇不開啟新視窗，嘗試直接下載
+                        downloadWithBlob(blob, filename);
+                    }
+                    return;
+                }
+
+                // 使用 Blob URL 下載
+                downloadWithBlob(blob, filename);
 
             } catch (err) {
                 console.error(err);
