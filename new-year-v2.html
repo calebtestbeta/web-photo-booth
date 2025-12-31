@@ -312,25 +312,20 @@
             function isInAppBrowser() {
                 const ua = navigator.userAgent.toLowerCase();
 
-                // 排除 Safari 的誤判：Safari 的 User Agent 包含 "Safari Line/26.0.0"
-                // 真正的 LINE 應用不會有 "safari" 關鍵字
-                if (ua.includes('safari') && ua.includes('line/')) {
-                    // 這是 Safari 瀏覽器，不是 LINE 應用
-                    console.log('=== 檢測到 Safari（非內建瀏覽器）===');
-                    return false;
-                }
+                // 🐛 暫時停用 Safari 排除邏輯，查看 LINE 的 User Agent
+                // if (ua.includes('safari') && ua.includes('line/')) {
+                //     console.log('=== 檢測到 Safari（非內建瀏覽器）===');
+                //     return false;
+                // }
 
-                // 檢測內建瀏覽器的正則表達式：
-                // - micromessenger: WeChat
-                // - \bline\/: LINE 應用
-                // - fbav|fban: Facebook
-                // - instagram: Instagram
-                // - twitter: Twitter
+                // 檢測內建瀏覽器的正則表達式
                 const isInApp = /micromessenger|\bline\/|fbav|fban|instagram|twitter/.test(ua);
 
                 // 調試：輸出 User Agent 和檢測結果
-                console.log('=== 內建瀏覽器檢測 ===');
+                console.log('=== 內建瀏覽器檢測（Safari排除已停用）===');
                 console.log('User Agent:', navigator.userAgent);
+                console.log('包含 safari:', ua.includes('safari'));
+                console.log('包含 line/:', ua.includes('line/'));
                 console.log('是否為內建瀏覽器:', isInApp);
                 console.log('=====================');
 
@@ -356,19 +351,23 @@
                     // 使用與檢測函數相同的邏輯
                     const uaLower = ua.toLowerCase();
 
-                    // 檢查是否為 Safari（會排除）
-                    const isSafari = uaLower.includes('safari') && uaLower.includes('line/');
-                    if (isSafari) {
-                        matchedKeywords.push('❌ Safari (已排除)');
-                    }
+                    // 🐛 暫時停用 Safari 排除，顯示所有匹配關鍵字
+                    // const isSafari = uaLower.includes('safari') && uaLower.includes('line/');
+                    // if (isSafari) {
+                    //     matchedKeywords.push('❌ Safari (已排除)');
+                    // }
 
                     // 檢測內建瀏覽器關鍵字
                     if (/micromessenger/.test(uaLower)) matchedKeywords.push('micromessenger (WeChat)');
-                    if (/\bline\//.test(uaLower) && !isSafari) matchedKeywords.push('line/ (LINE App)');
+                    if (/\bline\//.test(uaLower)) matchedKeywords.push('line/ (LINE App)');
                     if (/fbav/.test(uaLower)) matchedKeywords.push('fbav (Facebook)');
                     if (/fban/.test(uaLower)) matchedKeywords.push('fban (Facebook)');
                     if (/instagram/.test(uaLower)) matchedKeywords.push('instagram');
                     if (/twitter/.test(uaLower)) matchedKeywords.push('twitter');
+
+                    // 顯示額外檢測資訊
+                    if (uaLower.includes('safari')) matchedKeywords.push('🔍 包含 safari');
+                    if (uaLower.includes('line/')) matchedKeywords.push('🔍 包含 line/');
 
                     overlay.innerHTML = `
                         <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -871,10 +870,10 @@
         function isInAppBrowser() {
             const ua = navigator.userAgent.toLowerCase();
 
-            // 排除 Safari 的誤判：Safari 的 User Agent 包含 "Safari Line/26.0.0"
-            if (ua.includes('safari') && ua.includes('line/')) {
-                return false;  // 這是 Safari 瀏覽器，不是 LINE 應用
-            }
+            // 🐛 暫時停用 Safari 排除邏輯
+            // if (ua.includes('safari') && ua.includes('line/')) {
+            //     return false;
+            // }
 
             // 檢測內建瀏覽器
             return /micromessenger|\bline\/|fbav|fban|instagram|twitter/.test(ua);
