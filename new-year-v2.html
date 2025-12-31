@@ -126,9 +126,9 @@
                 </div>
 
                 <!-- 提示層 -->
-                <div id="upload-hint" class="absolute inset-0 flex flex-col items-center justify-center bg-black/40 cursor-pointer hover:bg-black/50 transition-all duration-200">
-                    <i class="fa-solid fa-cloud-arrow-up text-4xl text-gold mb-2 opacity-80"></i>
-                    <span class="text-gold-light text-sm opacity-80">點擊此處上傳照片或拍照</span>
+                <div id="upload-hint" class="absolute inset-0 flex flex-col items-center justify-center cursor-pointer transition-all duration-200">
+                    <i class="fa-solid fa-cloud-arrow-up text-4xl text-gold mb-2 drop-shadow-[0_0_8px_rgba(212,175,55,0.8)]"></i>
+                    <span class="text-gold text-sm font-semibold drop-shadow-[0_0_8px_rgba(0,0,0,0.8)]">點擊此處上傳照片或拍照</span>
                 </div>
             </div>
         </div>
@@ -151,18 +151,27 @@
             </div>
 
             <!-- 按鈕組 -->
-            <div class="grid grid-cols-2 gap-3">
-                <button onclick="document.getElementById('file-input').click()" 
-                        class="flex items-center justify-center gap-2 py-3 px-4 rounded-full border border-gold text-gold hover:bg-gold hover:text-midnight transition-all duration-300 font-semibold text-sm shadow-[0_0_10px_rgba(212,175,55,0.2)]">
-                    <i class="fa-solid fa-camera"></i>
+            <div class="grid grid-cols-3 gap-2">
+                <!-- 上傳照片按鈕 -->
+                <button onclick="document.getElementById('file-input').click()"
+                        class="flex flex-col items-center justify-center gap-1 py-3 px-2 rounded-xl border border-gold text-gold hover:bg-gold hover:text-midnight transition-all duration-300 font-semibold text-xs shadow-[0_0_10px_rgba(212,175,55,0.2)]">
+                    <i class="fa-solid fa-camera text-lg"></i>
                     <span>Photo</span>
                 </button>
                 <input type="file" id="file-input" accept="image/*">
 
+                <!-- 分享按鈕（Web Share API）-->
+                <button id="share-btn"
+                        class="flex flex-col items-center justify-center gap-1 py-3 px-2 rounded-xl bg-gradient-to-r from-gold to-yellow-600 text-midnight font-bold shadow-lg hover:scale-105 transition-transform text-xs disabled:opacity-50 disabled:scale-100 disabled:cursor-not-allowed">
+                    <i class="fa-solid fa-share-nodes text-lg" id="share-icon"></i>
+                    <span id="share-text">Share</span>
+                </button>
+
+                <!-- 直接下載按鈕 -->
                 <button id="download-btn"
-                        class="flex items-center justify-center gap-2 py-3 px-4 rounded-full bg-gradient-to-r from-gold to-yellow-600 text-midnight font-bold shadow-lg hover:scale-105 transition-transform text-sm disabled:opacity-50 disabled:scale-100 disabled:cursor-not-allowed">
-                    <i class="fa-solid fa-share-nodes" id="btn-icon"></i>
-                    <span id="btn-text">Save / Share</span>
+                        class="flex flex-col items-center justify-center gap-1 py-3 px-2 rounded-xl border border-gold text-gold hover:bg-gold hover:text-midnight transition-all duration-300 font-semibold text-xs shadow-[0_0_10px_rgba(212,175,55,0.2)] disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fa-solid fa-download text-lg" id="download-icon"></i>
+                    <span id="download-text">Download</span>
                 </button>
             </div>
             
@@ -281,12 +290,6 @@
             // 🔥 確保 loading 顯示（移除 hidden class）
             loadingOverlay.classList.remove('hidden');
             loadingOverlay.style.display = 'flex';
-
-            // 🔥 立即隱藏 upload-hint 避免灰色遮罩
-            const uploadHint = document.getElementById('upload-hint');
-            if (uploadHint) {
-                uploadHint.style.display = 'none';
-            }
 
             const ratio = frameData.height / frameData.width;
             stageParent.style.aspectRatio = `${frameData.width} / ${frameData.height}`;
@@ -552,9 +555,13 @@
         });
 
         // --- 🔥 核心：下載與分享邏輯 (Web Share API) ---
+        const shareBtn = document.getElementById('share-btn');
+        const shareText = document.getElementById('share-text');
+        const shareIcon = document.getElementById('share-icon');
+
         const downloadBtn = document.getElementById('download-btn');
-        const btnText = document.getElementById('btn-text');
-        const btnIcon = document.getElementById('btn-icon');
+        const downloadText = document.getElementById('download-text');
+        const downloadIcon = document.getElementById('download-icon');
 
         // 輔助函數：將 dataURL 轉換為 File 物件
         function dataURLtoFile(dataurl, filename) {
@@ -576,32 +583,42 @@
             document.body.removeChild(link);
         }
 
-        downloadBtn.addEventListener('click', async function() {
-            // 1. UI 狀態更新：顯示處理中
-            const originalText = btnText.innerText;
-            const originalIconClass = btnIcon.className;
+        // 通用函數：準備圖片資料
+        async function prepareImageData() {
+            // 隱藏編輯框
+            tr.hide();
+            photoLayer.draw();
 
+            const pixelRatio = currentFrameData.width / stage.width();
+            const dataURL = stage.toDataURL({ pixelRatio: pixelRatio });
+            const filename = `2026-Photo-${currentFrameData.width}x${currentFrameData.height}.png`;
+
+            return { dataURL, filename };
+        }
+
+        // 恢復 UI 狀態
+        function restoreUI() {
+            tr.show();
+            photoLayer.draw();
+        }
+
+        // 🔥 分享按鈕：觸發 Web Share API
+        shareBtn.addEventListener('click', async function() {
+            const originalText = shareText.innerText;
+            const originalIconClass = shareIcon.className;
+
+            shareBtn.disabled = true;
             downloadBtn.disabled = true;
-            btnText.innerText = "Processing...";
-            btnIcon.className = "fa-solid fa-circle-notch fa-spin";
+            shareText.innerText = "Processing...";
+            shareIcon.className = "fa-solid fa-circle-notch fa-spin";
 
             try {
-                // 給 UI 一點時間渲染 (小技巧：避免長時間 JS 阻塞導致 UI 卡在舊狀態)
                 await new Promise(resolve => requestAnimationFrame(resolve));
                 await new Promise(resolve => setTimeout(resolve, 50));
 
-                // 2. 準備圖片資料
-                tr.hide(); // 隱藏編輯框
-                photoLayer.draw();
+                const { dataURL, filename } = await prepareImageData();
 
-                const pixelRatio = currentFrameData.width / stage.width();
-                const dataURL = stage.toDataURL({ pixelRatio: pixelRatio });
-                const filename = `2026-Photo-${currentFrameData.width}x${currentFrameData.height}.png`;
-
-                // 3. 判斷是否支援 Web Share API
-                let shareSuccess = false;
-                
-                // 檢查瀏覽器是否支援 navigator.share 且能夠分享檔案
+                // 檢查是否支援 Web Share API
                 if (navigator.share && navigator.canShare) {
                     const file = dataURLtoFile(dataURL, filename);
                     const shareData = {
@@ -611,40 +628,63 @@
                     };
 
                     if (navigator.canShare(shareData)) {
-                        btnText.innerText = "Sharing...";
+                        shareText.innerText = "Sharing...";
                         try {
                             await navigator.share(shareData);
-                            shareSuccess = true;
-                            // 分享成功後，通常不需要做什麼，因為使用者已經在其他 App 了
+                            // 分享成功
                         } catch (err) {
                             if (err.name !== 'AbortError') {
                                 console.error('Share failed:', err);
-                                // 如果不是使用者取消，而是出錯，則降級為下載
-                                fallbackDownload(dataURL, filename);
+                                alert("分享失敗，請使用下載按鈕");
                             }
-                            // 如果是 AbortError (使用者自己取消分享)，則當作沒事發生
-                            shareSuccess = true; // 視為已處理，不需下載
                         }
+                    } else {
+                        alert("您的裝置不支援分享功能，請使用下載按鈕");
                     }
-                }
-
-                // 4. 如果不支援分享 (Desktop) 或分享條件不符，則執行傳統下載
-                if (!shareSuccess) {
-                    btnText.innerText = "Saving...";
-                    fallbackDownload(dataURL, filename);
+                } else {
+                    alert("您的裝置不支援分享功能，請使用下載按鈕");
                 }
 
             } catch (err) {
                 console.error(err);
-                alert("儲存/分享失敗，請重試");
+                alert("分享失敗，請重試或使用下載按鈕");
             } finally {
-                // 5. 恢復 UI 與編輯框
-                tr.show();
-                photoLayer.draw();
-                
+                restoreUI();
+                shareBtn.disabled = false;
                 downloadBtn.disabled = false;
-                btnText.innerText = originalText;
-                btnIcon.className = originalIconClass;
+                shareText.innerText = originalText;
+                shareIcon.className = originalIconClass;
+            }
+        });
+
+        // 🔥 下載按鈕：直接下載圖片
+        downloadBtn.addEventListener('click', async function() {
+            const originalText = downloadText.innerText;
+            const originalIconClass = downloadIcon.className;
+
+            downloadBtn.disabled = true;
+            shareBtn.disabled = true;
+            downloadText.innerText = "Saving...";
+            downloadIcon.className = "fa-solid fa-circle-notch fa-spin";
+
+            try {
+                await new Promise(resolve => requestAnimationFrame(resolve));
+                await new Promise(resolve => setTimeout(resolve, 50));
+
+                const { dataURL, filename } = await prepareImageData();
+
+                // 直接下載
+                fallbackDownload(dataURL, filename);
+
+            } catch (err) {
+                console.error(err);
+                alert("下載失敗，請重試");
+            } finally {
+                restoreUI();
+                downloadBtn.disabled = false;
+                shareBtn.disabled = false;
+                downloadText.innerText = originalText;
+                downloadIcon.className = originalIconClass;
             }
         });
 
