@@ -311,23 +311,23 @@
             // 檢測內建瀏覽器
             function isInAppBrowser() {
                 const ua = navigator.userAgent.toLowerCase();
-                return /micromessenger|line|fbav|fban|instagram|twitter/.test(ua);
+                const isInApp = /micromessenger|line|fbav|fban|instagram|twitter/.test(ua);
+
+                // 調試：輸出 User Agent 和檢測結果
+                console.log('=== 內建瀏覽器檢測 ===');
+                console.log('User Agent:', navigator.userAgent);
+                console.log('是否為內建瀏覽器:', isInApp);
+                console.log('=====================');
+
+                return isInApp;
             }
 
             // 如果是內建瀏覽器，立即跳轉
             if (isInAppBrowser()) {
                 const currentUrl = window.location.href;
 
-                // 延遲 500ms 讓用戶看到提示
-                setTimeout(() => {
-                    // 嘗試開啟預設瀏覽器
-                    const opened = window.open(currentUrl, '_blank');
-
-                    // 如果 window.open 被阻擋，顯示手動指示
-                    if (!opened || opened.closed || typeof opened.closed === 'undefined') {
-                        alert('請點擊右上角「...」或「⋯」選單\n選擇「在瀏覽器中開啟」或「用 Safari/Chrome 開啟」');
-                    }
-                }, 500);
+                // 不使用自動 window.open()，因為會被瀏覽器阻擋
+                // 改為僅顯示全屏提示遮罩，引導用戶手動操作
 
                 // 顯示全屏提示遮罩
                 document.addEventListener('DOMContentLoaded', () => {
