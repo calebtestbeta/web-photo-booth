@@ -378,12 +378,37 @@
                              overflow-y: auto;">
                             <div style="font-size: 48px; margin-bottom: 1rem;">⚠️</div>
                             <h2 style="font-size: 24px; margin-bottom: 1rem; font-weight: bold;">請使用預設瀏覽器開啟</h2>
-                            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 2rem;">
+                            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 1.5rem;">
                                 檢測到您使用應用內瀏覽器<br>
-                                某些功能可能無法正常運作<br>
-                                <br>
-                                <strong>請點擊右上角「⋯」選單</strong><br>
-                                選擇「在瀏覽器中開啟」
+                                某些功能可能無法正常運作
+                            </p>
+
+                            <!-- 🔥 開啟預設瀏覽器按鈕 -->
+                            <button id="openInBrowserBtn" style="
+                                background: linear-gradient(135deg, #D4AF37 0%, #FFD700 100%);
+                                color: #0B1026;
+                                font-size: 18px;
+                                font-weight: bold;
+                                padding: 16px 32px;
+                                border: none;
+                                border-radius: 12px;
+                                cursor: pointer;
+                                box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+                                transition: all 0.3s ease;
+                                margin-bottom: 1.5rem;
+                                display: inline-flex;
+                                align-items: center;
+                                justify-content: center;
+                                gap: 8px;
+                                min-width: 240px;
+                            " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                <span style="font-size: 20px;">🌐</span>
+                                <span>開啟預設瀏覽器</span>
+                            </button>
+
+                            <p style="font-size: 14px; line-height: 1.6; opacity: 0.8; margin-bottom: 2rem;">
+                                如果按鈕無效，請點擊右上角「⋯」選單<br>
+                                選擇「在瀏覽器中開啟」或「用 Safari/Chrome 開啟」
                             </p>
 
                             <!-- 🐛 調試資訊區塊 -->
@@ -406,6 +431,38 @@
                         </div>
                     `;
                     document.body.appendChild(overlay);
+
+                    // 為「開啟預設瀏覽器」按鈕綁定事件
+                    const openInBrowserBtn = document.getElementById('openInBrowserBtn');
+                    if (openInBrowserBtn) {
+                        openInBrowserBtn.addEventListener('click', () => {
+                            // 用戶點擊觸發，不會被瀏覽器阻擋
+                            const opened = window.open(currentUrl, '_blank');
+
+                            // 如果 window.open 被阻擋或失敗
+                            if (!opened || opened.closed || typeof opened.closed === 'undefined') {
+                                // 更新按鈕文字提示
+                                openInBrowserBtn.innerHTML = `
+                                    <span style="font-size: 20px;">⚠️</span>
+                                    <span>無法自動開啟</span>
+                                `;
+                                openInBrowserBtn.style.background = '#666';
+                                openInBrowserBtn.style.cursor = 'not-allowed';
+
+                                // 0.3秒後顯示詳細指示
+                                setTimeout(() => {
+                                    alert('無法自動開啟預設瀏覽器\n\n請手動操作：\n1. 點擊右上角「⋯」選單\n2. 選擇「在瀏覽器中開啟」或「用 Safari/Chrome 開啟」');
+                                }, 300);
+                            } else {
+                                // 成功開啟
+                                openInBrowserBtn.innerHTML = `
+                                    <span style="font-size: 20px;">✅</span>
+                                    <span>已開啟預設瀏覽器</span>
+                                `;
+                                openInBrowserBtn.style.background = '#10B981';
+                            }
+                        });
+                    }
                 });
             }
         })();
