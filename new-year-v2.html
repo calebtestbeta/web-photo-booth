@@ -333,11 +333,23 @@
                 document.addEventListener('DOMContentLoaded', () => {
                     const overlay = document.createElement('div');
                     overlay.id = 'inAppBrowserOverlay';
+
+                    // 🐛 調試資訊：顯示完整 User Agent
+                    const ua = navigator.userAgent;
+                    const matchedKeywords = [];
+                    const keywords = ['micromessenger', 'line', 'fbav', 'fban', 'instagram', 'twitter'];
+                    keywords.forEach(keyword => {
+                        if (ua.toLowerCase().includes(keyword)) {
+                            matchedKeywords.push(keyword);
+                        }
+                    });
+
                     overlay.innerHTML = `
                         <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%;
                              background: rgba(0, 0, 0, 0.95); color: white;
                              display: flex; flex-direction: column; align-items: center;
-                             justify-content: center; z-index: 99999; text-align: center; padding: 2rem;">
+                             justify-content: center; z-index: 99999; text-align: center; padding: 2rem;
+                             overflow-y: auto;">
                             <div style="font-size: 48px; margin-bottom: 1rem;">⚠️</div>
                             <h2 style="font-size: 24px; margin-bottom: 1rem; font-weight: bold;">請使用預設瀏覽器開啟</h2>
                             <p style="font-size: 16px; line-height: 1.6; margin-bottom: 2rem;">
@@ -347,7 +359,22 @@
                                 <strong>請點擊右上角「⋯」選單</strong><br>
                                 選擇「在瀏覽器中開啟」
                             </p>
-                            <p style="font-size: 14px; opacity: 0.7;">
+
+                            <!-- 🐛 調試資訊區塊 -->
+                            <div style="background: rgba(255, 255, 255, 0.1); padding: 1rem; border-radius: 8px;
+                                        margin: 1rem 0; max-width: 90%; font-size: 12px; text-align: left;">
+                                <div style="color: #fbbf24; font-weight: bold; margin-bottom: 0.5rem;">🐛 調試資訊（測試完成後會移除）</div>
+                                <div style="margin-bottom: 0.5rem;">
+                                    <strong>匹配的關鍵字：</strong><br>
+                                    <span style="color: #f87171;">${matchedKeywords.length > 0 ? matchedKeywords.join(', ') : '無'}</span>
+                                </div>
+                                <div style="word-break: break-all; line-height: 1.4;">
+                                    <strong>User Agent：</strong><br>
+                                    <span style="color: #a3e635;">${ua}</span>
+                                </div>
+                            </div>
+
+                            <p style="font-size: 14px; opacity: 0.7; margin-top: 1rem;">
                                 當前網址：<br>${currentUrl}
                             </p>
                         </div>
