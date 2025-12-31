@@ -333,130 +333,75 @@
                 return isInApp;
             }
 
-            // 如果是內建瀏覽器，立即跳轉
+            // 如果是內建瀏覽器，顯示頂部橫幅提示
             if (isInAppBrowser()) {
-                const currentUrl = window.location.href;
-
-                // 不使用自動 window.open()，因為會被瀏覽器阻擋
-                // 改為僅顯示全屏提示遮罩，引導用戶手動操作
-
-                // 顯示全屏提示遮罩
+                // 顯示頂部橫幅提示
                 document.addEventListener('DOMContentLoaded', () => {
-                    const overlay = document.createElement('div');
-                    overlay.id = 'inAppBrowserOverlay';
-
-                    // 🐛 調試資訊：顯示完整 User Agent
-                    const ua = navigator.userAgent;
-                    const matchedKeywords = [];
-
-                    // 使用與檢測函數相同的邏輯
-                    const uaLower = ua.toLowerCase();
-
-                    // 檢查是否為 Safari（會被排除）
-                    const isSafari = /safari\/\d/.test(uaLower) && !uaLower.includes('line');
-                    if (isSafari) {
-                        matchedKeywords.push('✅ Safari 瀏覽器 (已排除)');
+                    // 檢查 sessionStorage，如果用戶已關閉橫幅，則不再顯示
+                    if (sessionStorage.getItem('inAppBannerClosed') === 'true') {
+                        return;
                     }
 
-                    // 檢測內建瀏覽器關鍵字
-                    if (/micromessenger/.test(uaLower)) matchedKeywords.push('⚠️ WeChat');
-                    if (/\bline\//.test(uaLower)) matchedKeywords.push('⚠️ LINE App');
-                    if (/fbav/.test(uaLower)) matchedKeywords.push('⚠️ Facebook');
-                    if (/fban/.test(uaLower)) matchedKeywords.push('⚠️ Facebook');
-                    if (/instagram/.test(uaLower)) matchedKeywords.push('⚠️ Instagram');
-                    if (/twitter/.test(uaLower)) matchedKeywords.push('⚠️ Twitter');
-
-                    overlay.innerHTML = `
-                        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-                             background: rgba(0, 0, 0, 0.95); color: white;
-                             display: flex; flex-direction: column; align-items: center;
-                             justify-content: center; z-index: 99999; text-align: center; padding: 2rem;
-                             overflow-y: auto;">
-                            <div style="font-size: 48px; margin-bottom: 1rem;">⚠️</div>
-                            <h2 style="font-size: 24px; margin-bottom: 1rem; font-weight: bold;">請使用預設瀏覽器開啟</h2>
-                            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 1.5rem;">
-                                檢測到您使用應用內瀏覽器<br>
-                                某些功能可能無法正常運作
-                            </p>
-
-                            <!-- 🔥 開啟預設瀏覽器按鈕 -->
-                            <button id="openInBrowserBtn" style="
-                                background: linear-gradient(135deg, #D4AF37 0%, #FFD700 100%);
-                                color: #0B1026;
-                                font-size: 18px;
-                                font-weight: bold;
-                                padding: 16px 32px;
-                                border: none;
-                                border-radius: 12px;
-                                cursor: pointer;
-                                box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
-                                transition: all 0.3s ease;
-                                margin-bottom: 1.5rem;
-                                display: inline-flex;
-                                align-items: center;
-                                justify-content: center;
-                                gap: 8px;
-                                min-width: 240px;
-                            " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                                <span style="font-size: 20px;">🌐</span>
-                                <span>開啟預設瀏覽器</span>
-                            </button>
-
-                            <p style="font-size: 14px; line-height: 1.6; opacity: 0.8; margin-bottom: 2rem;">
-                                如果按鈕無效，請點擊右上角「⋯」選單<br>
-                                選擇「在瀏覽器中開啟」或「用 Safari/Chrome 開啟」
-                            </p>
-
-                            <!-- 🐛 調試資訊區塊 -->
-                            <div style="background: rgba(255, 255, 255, 0.1); padding: 1rem; border-radius: 8px;
-                                        margin: 1rem 0; max-width: 90%; font-size: 12px; text-align: left;">
-                                <div style="color: #fbbf24; font-weight: bold; margin-bottom: 0.5rem;">🐛 調試資訊（測試完成後會移除）</div>
-                                <div style="margin-bottom: 0.5rem;">
-                                    <strong>匹配的關鍵字：</strong><br>
-                                    <span style="color: #f87171;">${matchedKeywords.length > 0 ? matchedKeywords.join(', ') : '無'}</span>
-                                </div>
-                                <div style="word-break: break-all; line-height: 1.4;">
-                                    <strong>User Agent：</strong><br>
-                                    <span style="color: #a3e635;">${ua}</span>
-                                </div>
-                            </div>
-
-                            <p style="font-size: 14px; opacity: 0.7; margin-top: 1rem;">
-                                當前網址：<br>${currentUrl}
-                            </p>
-                        </div>
+                    const banner = document.createElement('div');
+                    banner.id = 'inAppBrowserBanner';
+                    banner.style.cssText = `
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
+                        color: white;
+                        padding: 12px 16px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        z-index: 9999;
+                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+                        font-size: 14px;
+                        line-height: 1.4;
                     `;
-                    document.body.appendChild(overlay);
 
-                    // 為「開啟預設瀏覽器」按鈕綁定事件
-                    const openInBrowserBtn = document.getElementById('openInBrowserBtn');
-                    if (openInBrowserBtn) {
-                        openInBrowserBtn.addEventListener('click', () => {
-                            // 用戶點擊觸發，不會被瀏覽器阻擋
-                            const opened = window.open(currentUrl, '_blank');
+                    banner.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 8px; flex: 1;">
+                            <span style="font-size: 18px;">⚠️</span>
+                            <span><strong>建議使用 Safari 開啟</strong>以獲得最佳體驗</span>
+                        </div>
+                        <button id="closeBannerBtn" style="
+                            background: rgba(255, 255, 255, 0.3);
+                            border: none;
+                            color: white;
+                            font-size: 20px;
+                            width: 32px;
+                            height: 32px;
+                            border-radius: 50%;
+                            cursor: pointer;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            flex-shrink: 0;
+                            transition: background 0.2s;
+                        " onmouseover="this.style.background='rgba(255,255,255,0.5)'" onmouseout="this.style.background='rgba(255,255,255,0.3)'">
+                            ×
+                        </button>
+                    `;
 
-                            // 如果 window.open 被阻擋或失敗
-                            if (!opened || opened.closed || typeof opened.closed === 'undefined') {
-                                // 更新按鈕文字提示
-                                openInBrowserBtn.innerHTML = `
-                                    <span style="font-size: 20px;">⚠️</span>
-                                    <span>無法自動開啟</span>
-                                `;
-                                openInBrowserBtn.style.background = '#666';
-                                openInBrowserBtn.style.cursor = 'not-allowed';
+                    document.body.appendChild(banner);
 
-                                // 0.3秒後顯示詳細指示
-                                setTimeout(() => {
-                                    alert('無法自動開啟預設瀏覽器\n\n請手動操作：\n1. 點擊右上角「⋯」選單\n2. 選擇「在瀏覽器中開啟」或「用 Safari/Chrome 開啟」');
-                                }, 300);
-                            } else {
-                                // 成功開啟
-                                openInBrowserBtn.innerHTML = `
-                                    <span style="font-size: 20px;">✅</span>
-                                    <span>已開啟預設瀏覽器</span>
-                                `;
-                                openInBrowserBtn.style.background = '#10B981';
-                            }
+                    // 為頁面添加上邊距，避免內容被橫幅遮擋
+                    document.body.style.paddingTop = banner.offsetHeight + 'px';
+
+                    // 關閉按鈕事件
+                    const closeBtn = document.getElementById('closeBannerBtn');
+                    if (closeBtn) {
+                        closeBtn.addEventListener('click', () => {
+                            banner.style.transform = 'translateY(-100%)';
+                            banner.style.transition = 'transform 0.3s ease';
+                            setTimeout(() => {
+                                banner.remove();
+                                document.body.style.paddingTop = '0';
+                            }, 300);
+                            // 記錄關閉狀態
+                            sessionStorage.setItem('inAppBannerClosed', 'true');
                         });
                     }
                 });
