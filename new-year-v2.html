@@ -304,6 +304,60 @@
         </div>
     </div>
 
+    <!-- 🚨 內建瀏覽器自動跳轉系統 -->
+    <script>
+        // 立即執行函數（IIFE）- 在任何其他代碼前執行
+        (function() {
+            // 檢測內建瀏覽器
+            function isInAppBrowser() {
+                const ua = navigator.userAgent.toLowerCase();
+                return /micromessenger|line|fbav|fban|instagram|twitter/.test(ua);
+            }
+
+            // 如果是內建瀏覽器，立即跳轉
+            if (isInAppBrowser()) {
+                const currentUrl = window.location.href;
+
+                // 延遲 500ms 讓用戶看到提示
+                setTimeout(() => {
+                    // 嘗試開啟預設瀏覽器
+                    const opened = window.open(currentUrl, '_blank');
+
+                    // 如果 window.open 被阻擋，顯示手動指示
+                    if (!opened || opened.closed || typeof opened.closed === 'undefined') {
+                        alert('請點擊右上角「...」或「⋯」選單\n選擇「在瀏覽器中開啟」或「用 Safari/Chrome 開啟」');
+                    }
+                }, 500);
+
+                // 顯示全屏提示遮罩
+                document.addEventListener('DOMContentLoaded', () => {
+                    const overlay = document.createElement('div');
+                    overlay.id = 'inAppBrowserOverlay';
+                    overlay.innerHTML = `
+                        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                             background: rgba(0, 0, 0, 0.95); color: white;
+                             display: flex; flex-direction: column; align-items: center;
+                             justify-content: center; z-index: 99999; text-align: center; padding: 2rem;">
+                            <div style="font-size: 48px; margin-bottom: 1rem;">⚠️</div>
+                            <h2 style="font-size: 24px; margin-bottom: 1rem; font-weight: bold;">請使用預設瀏覽器開啟</h2>
+                            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 2rem;">
+                                檢測到您使用應用內瀏覽器<br>
+                                某些功能可能無法正常運作<br>
+                                <br>
+                                <strong>請點擊右上角「⋯」選單</strong><br>
+                                選擇「在瀏覽器中開啟」
+                            </p>
+                            <p style="font-size: 14px; opacity: 0.7;">
+                                當前網址：<br>${currentUrl}
+                            </p>
+                        </div>
+                    `;
+                    document.body.appendChild(overlay);
+                });
+            }
+        })();
+    </script>
+
     <script type="module">
         // ==========================================
         // 1. 載入主題配置
