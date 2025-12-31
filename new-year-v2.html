@@ -63,7 +63,7 @@
             margin: 0 auto;
             border: 2px solid #D4AF37;
             box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
-            background-color: #000;
+            background: linear-gradient(135deg, #1a1f3a 0%, #0B1026 100%);
             position: relative;
             touch-action: none;
             transition: aspect-ratio 0.3s ease;
@@ -120,7 +120,7 @@
                 <div id="container"></div>
                 
                 <!-- 🔥 載入中的遮罩層 (Loading Overlay) 🔥 -->
-                <div id="loading-overlay" class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/70 backdrop-blur-sm hidden transition-opacity duration-300">
+                <div id="loading-overlay" class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/70 backdrop-blur-sm transition-opacity duration-300">
                     <i class="fa-solid fa-circle-notch fa-spin text-4xl text-gold mb-3 drop-shadow-[0_0_10px_rgba(212,175,55,0.8)]"></i>
                     <span class="text-gold text-xs font-bold tracking-widest uppercase">Loading Frame...</span>
                 </div>
@@ -278,11 +278,19 @@
         function loadFrame(frameData) {
             currentFrameData = frameData;
 
+            // 🔥 確保 loading 顯示（移除 hidden class）
             loadingOverlay.classList.remove('hidden');
+            loadingOverlay.style.display = 'flex';
+
+            // 🔥 立即隱藏 upload-hint 避免灰色遮罩
+            const uploadHint = document.getElementById('upload-hint');
+            if (uploadHint) {
+                uploadHint.style.display = 'none';
+            }
 
             const ratio = frameData.height / frameData.width;
             stageParent.style.aspectRatio = `${frameData.width} / ${frameData.height}`;
-            
+
             // 🔥 這裡修改了：更新名稱 (frame-name-label) 與 尺寸 (frame-size-label)
             // 使用 innerHTML 可以加入 icon，或者直接用 innerText
             document.getElementById('frame-name-label').innerHTML = `<i class="fa-solid fa-palette text-[9px] opacity-70"></i> ${frameData.name}`;
@@ -306,21 +314,25 @@
                     y: 0,
                     width: currentStageWidth,
                     height: newStageHeight,
-                    listening: false, 
+                    listening: false,
                 });
 
                 frameLayer.add(currentFrameNode);
                 frameLayer.draw();
                 photoLayer.draw();
 
+                // 🔥 載入完成：隱藏 loading overlay
                 setTimeout(() => {
                     loadingOverlay.classList.add('hidden');
+                    loadingOverlay.style.display = 'none';
                 }, 300);
             };
 
             imgObj.onerror = function() {
                 loadingOverlay.classList.add('hidden');
+                loadingOverlay.style.display = 'none';
                 alert("無法載入圖框，請檢查網路連線或圖片路徑。");
+                console.error('圖框載入失敗:', frameData.src);
             };
 
             imgObj.src = frameData.src;
@@ -595,7 +607,7 @@
                     const shareData = {
                         files: [file],
                         title: 'My 2026 New Year Photo',
-                        text: 'Celebrate 2026 with me! ✨'
+                        text: 'Celebrate 2026 with me! ✨\nhttps://pse.is/8j9x46'
                     };
 
                     if (navigator.canShare(shareData)) {
