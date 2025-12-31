@@ -312,20 +312,21 @@
             function isInAppBrowser() {
                 const ua = navigator.userAgent.toLowerCase();
 
-                // 🐛 暫時停用 Safari 排除邏輯，查看 LINE 的 User Agent
-                // if (ua.includes('safari') && ua.includes('line/')) {
-                //     console.log('=== 檢測到 Safari（非內建瀏覽器）===');
-                //     return false;
-                // }
+                // 修正後的 Safari 排除邏輯：
+                // Safari 瀏覽器: "safari/605.1.15" (斜線緊接著版本號)
+                // LINE 瀏覽器: "safari line/26.0.0" (中間有空格和 line)
+                // 檢測方式：如果包含 "safari/" 但不包含 "line"，則是 Safari
+                if (/safari\/\d/.test(ua) && !ua.includes('line')) {
+                    console.log('=== 檢測到 Safari 瀏覽器（排除）===');
+                    return false;
+                }
 
                 // 檢測內建瀏覽器的正則表達式
                 const isInApp = /micromessenger|\bline\/|fbav|fban|instagram|twitter/.test(ua);
 
                 // 調試：輸出 User Agent 和檢測結果
-                console.log('=== 內建瀏覽器檢測（Safari排除已停用）===');
+                console.log('=== 內建瀏覽器檢測 ===');
                 console.log('User Agent:', navigator.userAgent);
-                console.log('包含 safari:', ua.includes('safari'));
-                console.log('包含 line/:', ua.includes('line/'));
                 console.log('是否為內建瀏覽器:', isInApp);
                 console.log('=====================');
 
@@ -351,23 +352,19 @@
                     // 使用與檢測函數相同的邏輯
                     const uaLower = ua.toLowerCase();
 
-                    // 🐛 暫時停用 Safari 排除，顯示所有匹配關鍵字
-                    // const isSafari = uaLower.includes('safari') && uaLower.includes('line/');
-                    // if (isSafari) {
-                    //     matchedKeywords.push('❌ Safari (已排除)');
-                    // }
+                    // 檢查是否為 Safari（會被排除）
+                    const isSafari = /safari\/\d/.test(uaLower) && !uaLower.includes('line');
+                    if (isSafari) {
+                        matchedKeywords.push('✅ Safari 瀏覽器 (已排除)');
+                    }
 
                     // 檢測內建瀏覽器關鍵字
-                    if (/micromessenger/.test(uaLower)) matchedKeywords.push('micromessenger (WeChat)');
-                    if (/\bline\//.test(uaLower)) matchedKeywords.push('line/ (LINE App)');
-                    if (/fbav/.test(uaLower)) matchedKeywords.push('fbav (Facebook)');
-                    if (/fban/.test(uaLower)) matchedKeywords.push('fban (Facebook)');
-                    if (/instagram/.test(uaLower)) matchedKeywords.push('instagram');
-                    if (/twitter/.test(uaLower)) matchedKeywords.push('twitter');
-
-                    // 顯示額外檢測資訊
-                    if (uaLower.includes('safari')) matchedKeywords.push('🔍 包含 safari');
-                    if (uaLower.includes('line/')) matchedKeywords.push('🔍 包含 line/');
+                    if (/micromessenger/.test(uaLower)) matchedKeywords.push('⚠️ WeChat');
+                    if (/\bline\//.test(uaLower)) matchedKeywords.push('⚠️ LINE App');
+                    if (/fbav/.test(uaLower)) matchedKeywords.push('⚠️ Facebook');
+                    if (/fban/.test(uaLower)) matchedKeywords.push('⚠️ Facebook');
+                    if (/instagram/.test(uaLower)) matchedKeywords.push('⚠️ Instagram');
+                    if (/twitter/.test(uaLower)) matchedKeywords.push('⚠️ Twitter');
 
                     overlay.innerHTML = `
                         <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -870,10 +867,12 @@
         function isInAppBrowser() {
             const ua = navigator.userAgent.toLowerCase();
 
-            // 🐛 暫時停用 Safari 排除邏輯
-            // if (ua.includes('safari') && ua.includes('line/')) {
-            //     return false;
-            // }
+            // 修正後的 Safari 排除邏輯：
+            // Safari: "safari/605.1.15" (斜線緊接著版本號)
+            // LINE: "safari line/26.0.0" (中間有空格和 line)
+            if (/safari\/\d/.test(ua) && !ua.includes('line')) {
+                return false;  // Safari 瀏覽器，不是內建瀏覽器
+            }
 
             // 檢測內建瀏覽器
             return /micromessenger|\bline\/|fbav|fban|instagram|twitter/.test(ua);
