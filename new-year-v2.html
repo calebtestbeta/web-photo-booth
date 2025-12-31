@@ -292,6 +292,8 @@
             loadingOverlay.style.display = 'flex';
 
             const ratio = frameData.height / frameData.width;
+
+            // 🆕 iOS Safari 修復：同時設定 aspect-ratio 和明確的 height
             stageParent.style.aspectRatio = `${frameData.width} / ${frameData.height}`;
 
             // 🔥 這裡修改了：更新名稱 (frame-name-label) 與 尺寸 (frame-size-label)
@@ -301,6 +303,9 @@
 
             const currentStageWidth = stage.width();
             const newStageHeight = currentStageWidth * ratio;
+
+            // 🆕 iOS Safari 修復：明確設定容器高度
+            stageParent.style.height = `${newStageHeight}px`;
 
             stage.height(newStageHeight);
             stage.scale({ x: 1, y: 1 });
@@ -791,11 +796,16 @@
             const newWidth = calculateOptimalWidth();
             if (currentFrameData) {
                 const ratio = currentFrameData.height / currentFrameData.width;
+                const newHeight = newWidth * ratio;
+
+                // 🆕 iOS Safari 修復：同步更新容器和 stage 的尺寸
                 stage.width(newWidth);
-                stage.height(newWidth * ratio);
+                stage.height(newHeight);
+                stageParent.style.height = `${newHeight}px`;
+
                 if (currentFrameNode) {
                     currentFrameNode.width(newWidth);
-                    currentFrameNode.height(newWidth * ratio);
+                    currentFrameNode.height(newHeight);
                 }
                 stage.draw();
             }
