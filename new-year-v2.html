@@ -342,6 +342,11 @@
                         return;
                     }
 
+                    // 根據作業系統決定推薦的瀏覽器
+                    const ua = navigator.userAgent;
+                    const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+                    const recommendedBrowser = isIOS ? 'Safari' : 'Chrome';
+
                     const banner = document.createElement('div');
                     banner.id = 'inAppBrowserBanner';
                     banner.style.cssText = `
@@ -364,7 +369,7 @@
                     banner.innerHTML = `
                         <div style="display: flex; align-items: center; gap: 8px; flex: 1;">
                             <span style="font-size: 18px;">⚠️</span>
-                            <span><strong>建議使用 Safari 開啟</strong>以獲得最佳體驗</span>
+                            <span><strong>建議使用 ${recommendedBrowser} 開啟</strong>以獲得最佳體驗</span>
                         </div>
                         <button id="closeBannerBtn" style="
                             background: rgba(255, 255, 255, 0.3);
