@@ -102,6 +102,104 @@
         .fade-enter-active { opacity: 1; transition: opacity 300ms; }
         .fade-exit { opacity: 1; }
         .fade-exit-active { opacity: 0; transition: opacity 300ms; }
+
+        /* 🆕 圖片預覽模態框樣式 */
+        #imagePreviewModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 20px;
+            box-sizing: border-box;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+
+        #imagePreviewModal.active {
+            display: flex;
+        }
+
+        .preview-image-container {
+            max-width: 90%;
+            max-height: 60vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .preview-image-container img {
+            max-width: 100%;
+            max-height: 100%;
+            border: 2px solid #D4AF37;
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.4);
+            /* 🔥 關鍵：啟用長按保存 */
+            -webkit-touch-callout: default;
+            -webkit-user-select: auto;
+            user-select: auto;
+        }
+
+        .preview-instructions {
+            color: #F3E5AB;
+            text-align: center;
+            margin-bottom: 20px;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .preview-instructions p {
+            margin: 8px 0;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .preview-instructions .highlight {
+            font-weight: 600;
+            color: #D4AF37;
+            font-size: 18px;
+        }
+
+        .preview-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .preview-btn {
+            padding: 12px 24px;
+            border: 2px solid #D4AF37;
+            background: transparent;
+            color: #D4AF37;
+            border-radius: 8px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .preview-btn:hover {
+            background: #D4AF37;
+            color: #0B1026;
+            transform: scale(1.05);
+        }
+
+        .preview-btn.primary {
+            background: #D4AF37;
+            color: #0B1026;
+        }
+
+        .preview-btn.primary:hover {
+            background: #F3E5AB;
+        }
     </style>
 </head>
 <body class="bg-midnight min-h-screen flex flex-col items-center">
@@ -178,6 +276,31 @@
             <p class="text-center text-[10px] text-gray-400">
                 Pinch to Zoom & Rotate • Drag to Move
             </p>
+        </div>
+    </div>
+
+    <!-- 🆕 圖片預覽模態框 -->
+    <div id="imagePreviewModal">
+        <div class="preview-image-container">
+            <img id="previewImage" alt="圖片預覽">
+        </div>
+        <div class="preview-instructions">
+            <p><strong>圖片已準備好！</strong></p>
+            <p>🔄 <span class="highlight">長按上方圖片</span> 🔄</p>
+            <p>然後選擇「<strong>儲存影像</strong>」或「<strong>儲存至相片</strong>」</p>
+            <p style="font-size: 13px; opacity: 0.8; margin-top: 15px;">
+                ℹ️ 如果長按沒有反應，請使用下方按鈕
+            </p>
+        </div>
+        <div class="preview-buttons">
+            <button class="preview-btn primary" id="previewDownloadBtn">
+                <i class="fa-solid fa-download" style="margin-right: 6px;"></i>
+                下載
+            </button>
+            <button class="preview-btn" id="previewCloseBtn">
+                <i class="fa-solid fa-xmark" style="margin-right: 6px;"></i>
+                關閉
+            </button>
         </div>
     </div>
 
@@ -586,6 +709,23 @@
             return /micromessenger|line|fbav|instagram|twitter/.test(ua);
         }
 
+        // 🆕 iOS 設備偵測
+        function isIOS() {
+            const userAgent = navigator.userAgent;
+            return /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
+        }
+
+        function isIOSSafari() {
+            if (!isIOS()) return false;
+            const userAgent = navigator.userAgent;
+            return /Safari/i.test(userAgent) &&
+                   !/CriOS|FxiOS|OPiOS|mercury/i.test(userAgent);
+        }
+
+        function shouldShowImagePreview() {
+            return isIOSSafari();
+        }
+
         // 🆕 顯示圖片供長按保存（內建瀏覽器替代方案）
         function showImageForLongPress(blob, filename) {
             const url = URL.createObjectURL(blob);
@@ -678,6 +818,64 @@
             setTimeout(() => URL.revokeObjectURL(url), 100);
         }
 
+        // 🆕 顯示圖片預覽模態框（iOS Safari 最佳化版本）
+        function showImagePreviewModal(blob, filename) {
+            const modal = document.getElementById('imagePreviewModal');
+            const previewImage = document.getElementById('previewImage');
+            const previewDownloadBtn = document.getElementById('previewDownloadBtn');
+            const previewCloseBtn = document.getElementById('previewCloseBtn');
+
+            // 建立 Blob URL
+            const imageUrl = URL.createObjectURL(blob);
+
+            // 設定圖片
+            previewImage.src = imageUrl;
+            previewImage.alt = `${filename} - 長按可儲存至相片`;
+
+            // 顯示模態框
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            // 清理函數
+            function closePreview() {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+
+                // 清理事件監聽器
+                previewDownloadBtn.onclick = null;
+                previewCloseBtn.onclick = null;
+                modal.onclick = null;
+                previewImage.onclick = null;
+
+                // 清理 Blob URL
+                setTimeout(() => URL.revokeObjectURL(imageUrl), 500);
+            }
+
+            // 按鈕事件
+            previewDownloadBtn.onclick = () => {
+                downloadWithBlob(blob, filename);
+                closePreview();
+            };
+
+            previewCloseBtn.onclick = closePreview;
+
+            // 點擊背景關閉（不包括圖片）
+            modal.onclick = (e) => {
+                if (e.target === modal) closePreview();
+            };
+
+            previewImage.onclick = (e) => e.stopPropagation();
+
+            // ESC 鍵關閉
+            const handleKeyDown = (e) => {
+                if (e.key === 'Escape') {
+                    closePreview();
+                    document.removeEventListener('keydown', handleKeyDown);
+                }
+            };
+            document.addEventListener('keydown', handleKeyDown);
+        }
+
         // 恢復 UI 狀態
         function restoreUI() {
             tr.show();
@@ -764,7 +962,7 @@
 
                 const { blob, filename } = await prepareImageData();
 
-                // 🆕 檢查是否為內建瀏覽器
+                // 🆕 Step 1: 優先檢查內建瀏覽器
                 if (isInAppBrowser()) {
                     const userChoice = confirm('檢測到您在應用內瀏覽器中，下載功能可能受限。\n\n是否開啟圖片供長按保存？');
                     if (userChoice) {
@@ -776,7 +974,13 @@
                     return;
                 }
 
-                // 使用 Blob URL 下載
+                // 🆕 Step 2: iOS Safari 自動顯示預覽
+                if (shouldShowImagePreview()) {
+                    showImagePreviewModal(blob, filename);
+                    return;
+                }
+
+                // Step 3: 其他情況使用 Blob URL 下載
                 downloadWithBlob(blob, filename);
 
             } catch (err) {
