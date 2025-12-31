@@ -312,9 +312,17 @@
             function isInAppBrowser() {
                 const ua = navigator.userAgent.toLowerCase();
 
-                // 修正後的檢測邏輯：
+                // 排除 Safari 的誤判：Safari 的 User Agent 包含 "Safari Line/26.0.0"
+                // 真正的 LINE 應用不會有 "safari" 關鍵字
+                if (ua.includes('safari') && ua.includes('line/')) {
+                    // 這是 Safari 瀏覽器，不是 LINE 應用
+                    console.log('=== 檢測到 Safari（非內建瀏覽器）===');
+                    return false;
+                }
+
+                // 檢測內建瀏覽器的正則表達式：
                 // - micromessenger: WeChat
-                // - \bline\/: LINE 應用（確保 line 後面有斜線，排除 "Safari Line/"）
+                // - \bline\/: LINE 應用
                 // - fbav|fban: Facebook
                 // - instagram: Instagram
                 // - twitter: Twitter
@@ -347,8 +355,16 @@
 
                     // 使用與檢測函數相同的邏輯
                     const uaLower = ua.toLowerCase();
+
+                    // 檢查是否為 Safari（會排除）
+                    const isSafari = uaLower.includes('safari') && uaLower.includes('line/');
+                    if (isSafari) {
+                        matchedKeywords.push('❌ Safari (已排除)');
+                    }
+
+                    // 檢測內建瀏覽器關鍵字
                     if (/micromessenger/.test(uaLower)) matchedKeywords.push('micromessenger (WeChat)');
-                    if (/\bline\//.test(uaLower)) matchedKeywords.push('line/ (LINE App)');
+                    if (/\bline\//.test(uaLower) && !isSafari) matchedKeywords.push('line/ (LINE App)');
                     if (/fbav/.test(uaLower)) matchedKeywords.push('fbav (Facebook)');
                     if (/fban/.test(uaLower)) matchedKeywords.push('fban (Facebook)');
                     if (/instagram/.test(uaLower)) matchedKeywords.push('instagram');
@@ -797,7 +813,13 @@
         // 🆕 偵測內建瀏覽器
         function isInAppBrowser() {
             const ua = navigator.userAgent.toLowerCase();
-            // 修正後的檢測：使用 \bline\/ 確保匹配 "line/" 而非 "Safari Line/"
+
+            // 排除 Safari 的誤判：Safari 的 User Agent 包含 "Safari Line/26.0.0"
+            if (ua.includes('safari') && ua.includes('line/')) {
+                return false;  // 這是 Safari 瀏覽器，不是 LINE 應用
+            }
+
+            // 檢測內建瀏覽器
             return /micromessenger|\bline\/|fbav|fban|instagram|twitter/.test(ua);
         }
 
