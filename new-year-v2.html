@@ -847,9 +847,12 @@
 
         // 🆕 顯示圖片供長按保存（內建瀏覽器替代方案）
         function showImageForLongPress(blob, filename) {
+            // 嘗試開啟新視窗
             const url = URL.createObjectURL(blob);
             const win = window.open('', '_blank');
-            if (win) {
+
+            if (win && !win.closed && typeof win.closed !== 'undefined') {
+                // 成功開啟新視窗
                 win.document.write(`
                     <!DOCTYPE html>
                     <html>
@@ -890,6 +893,10 @@
                 `);
                 // 延遲清理 URL
                 setTimeout(() => URL.revokeObjectURL(url), 60000);
+            } else {
+                // window.open 被阻擋，改用圖片預覽模態框（在同一頁面顯示）
+                URL.revokeObjectURL(url); // 清理失敗的 URL
+                showImagePreviewModal(blob, filename);
             }
         }
 
